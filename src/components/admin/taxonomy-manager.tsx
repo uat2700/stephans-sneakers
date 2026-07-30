@@ -16,9 +16,10 @@ function Manager({
   title: string;
 }) {
   const queryClient = useQueryClient();
-  const query = useQuery<Array<{ id: string; name: string }>>(
-    table === "brands" ? brandsQuery() : categoriesQuery(),
-  );
+  const brands = useQuery(brandsQuery());
+  const categories = useQuery(categoriesQuery());
+  const items: Array<{ id: string; name: string }> =
+    (table === "brands" ? brands.data : categories.data) ?? [];
   const [name, setName] = useState("");
 
   const add = useMutation({
