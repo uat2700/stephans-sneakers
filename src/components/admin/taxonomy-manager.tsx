@@ -88,7 +88,7 @@ function Manager({
             </button>
           </li>
         ))}
-        {query.data?.length === 0 && (
+        {items.length === 0 && (
           <li className="py-3 text-sm text-muted-foreground">Nothing yet.</li>
         )}
       </ul>
