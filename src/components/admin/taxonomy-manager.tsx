@@ -75,7 +75,7 @@ function Manager({
         </Button>
       </form>
       <ul className="mt-4 divide-y divide-border">
-        {(query.data ?? []).map((item) => (
+        {items.map((item) => (
           <li key={item.id} className="flex items-center justify-between py-2.5">
             <span className="text-sm">{item.name}</span>
             <button
