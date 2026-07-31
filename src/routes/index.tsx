@@ -3,7 +3,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, BadgeCheck, ShieldCheck, Star, Truck } from "lucide-react";
 import heroImage from "@/assets/hero-sneaker.jpg";
+import { BrandRail } from "@/components/brand-rail";
 import { ProductCard } from "@/components/product-card";
+
 import { QuickView } from "@/components/quick-view";
 import { ProductGridSkeleton, EmptyState } from "@/components/product-grid-skeleton";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
@@ -184,24 +186,11 @@ function Home() {
       {brands.data?.length ? (
         <section className="border-y border-border bg-surface">
           <div className="container-page py-12">
-            <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight">
-              Shop by brand
-            </h2>
-            <div className="mt-6 flex flex-wrap gap-3">
-              {brands.data.map((b) => (
-                <Link
-                  key={b.id}
-                  to="/shop"
-                  search={{ brand: b.slug }}
-                  className="rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold transition hover:border-foreground"
-                >
-                  {b.name}
-                </Link>
-              ))}
-            </div>
+            <BrandRail brands={brands.data} />
           </div>
         </section>
       ) : null}
+
 
       {newest.length ? (
         <section className="container-page py-14">
