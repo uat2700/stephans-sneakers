@@ -3,7 +3,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, BadgeCheck, ShieldCheck, Star, Truck } from "lucide-react";
 import heroImage from "@/assets/hero-sneaker.jpg";
+import { BrandRail } from "@/components/brand-rail";
 import { ProductCard } from "@/components/product-card";
+
 import { QuickView } from "@/components/quick-view";
 import { ProductGridSkeleton, EmptyState } from "@/components/product-grid-skeleton";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
