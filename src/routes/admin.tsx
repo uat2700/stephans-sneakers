@@ -238,14 +238,19 @@ function Admin() {
         <Tabs defaultValue="products" className="mt-8">
           <TabsList>
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="taxonomy">Brands & categories</TabsTrigger>
           </TabsList>
           <TabsContent value="products" className="mt-6">
             <ProductsPanel />
           </TabsContent>
+          <TabsContent value="orders" className="mt-6">
+            <OrdersPanel />
+          </TabsContent>
           <TabsContent value="taxonomy" className="mt-6">
             <TaxonomyManager />
           </TabsContent>
+
         </Tabs>
       </div>
     </Gate>
