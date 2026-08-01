@@ -15,6 +15,7 @@ import {
 import { formatPrice } from "@/lib/format";
 import { ProductForm } from "@/components/admin/product-form";
 import { TaxonomyManager } from "@/components/admin/taxonomy-manager";
+import { OrdersPanel } from "@/components/admin/orders-panel";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -237,14 +238,19 @@ function Admin() {
         <Tabs defaultValue="products" className="mt-8">
           <TabsList>
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="taxonomy">Brands & categories</TabsTrigger>
           </TabsList>
           <TabsContent value="products" className="mt-6">
             <ProductsPanel />
           </TabsContent>
+          <TabsContent value="orders" className="mt-6">
+            <OrdersPanel />
+          </TabsContent>
           <TabsContent value="taxonomy" className="mt-6">
             <TaxonomyManager />
           </TabsContent>
+
         </Tabs>
       </div>
     </Gate>
