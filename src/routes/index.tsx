@@ -4,13 +4,22 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, BadgeCheck, ShieldCheck, Star, Truck } from "lucide-react";
 import heroImage from "@/assets/hero-sneaker.jpg";
 import { BrandRail } from "@/components/brand-rail";
+import { CategoryRail } from "@/components/category-rail";
+import { FlashSale } from "@/components/flash-sale";
+import { NewsletterSignup } from "@/components/newsletter-signup";
+import { InstagramGallery } from "@/components/instagram-gallery";
 import { ProductCard } from "@/components/product-card";
 
 import { QuickView } from "@/components/quick-view";
 import { ProductGridSkeleton, EmptyState } from "@/components/product-grid-skeleton";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { Button } from "@/components/ui/button";
-import { brandsQuery, productsQuery, type Product } from "@/lib/catalog";
+import {
+  brandsQuery,
+  categoriesQuery,
+  productsQuery,
+  type Product,
+} from "@/lib/catalog";
 import { SITE } from "@/lib/site";
 import { generalWhatsappMessage, whatsappLink } from "@/lib/whatsapp";
 
@@ -56,10 +65,21 @@ function Home() {
   const [quick, setQuick] = useState<Product | null>(null);
   const products = useQuery(productsQuery());
   const brands = useQuery(brandsQuery());
+  const categories = useQuery(categoriesQuery());
 
   const featured = (products.data ?? []).filter((p) => p.is_featured).slice(0, 8);
   const list = featured.length ? featured : (products.data ?? []).slice(0, 8);
-  const newest = (products.data ?? []).filter((p) => p.is_new).slice(0, 4);
+  const all = products.data ?? [];
+  const newest = all.filter((p) => p.is_new).slice(0, 4);
+  const byPopularity = [...all].sort((a, b) => b.popularity - a.popularity);
+  const trending = byPopularity.slice(0, 4);
+  const bestSellers = (byPopularity.slice(4, 8).length
+    ? byPopularity.slice(4, 8)
+    : byPopularity.slice(0, 4)
+  ).filter((p) => !trending.includes(p) || byPopularity.length <= 4);
+  const deals = all
+    .filter((p) => p.compare_at_price && p.compare_at_price > p.selling_price)
+    .slice(0, 4);
 
   return (
     <>
@@ -191,6 +211,34 @@ function Home() {
         </section>
       ) : null}
 
+      <section className="container-page py-12">
+        <CategoryRail categories={categories.data ?? []} />
+      </section>
+
+      {deals.length ? (
+        <section className="border-y border-border bg-surface">
+          <div className="container-page py-14">
+            <FlashSale products={deals} onQuickView={setQuick} />
+          </div>
+        </section>
+      ) : null}
+
+      {trending.length ? (
+        <section className="container-page py-14">
+          <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
+            Trending sneakers
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            The pairs everyone is asking about right now.
+          </p>
+          <div className="mt-8 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+            {trending.map((p) => (
+              <ProductCard key={p.id} product={p} onQuickView={setQuick} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
 
       {newest.length ? (
         <section className="container-page py-14">
@@ -199,6 +247,22 @@ function Home() {
           </h2>
           <div className="mt-8 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
             {newest.map((p) => (
+              <ProductCard key={p.id} product={p} onQuickView={setQuick} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {bestSellers.length ? (
+        <section className="container-page py-14">
+          <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
+            Best sellers
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Our most-ordered pairs, restocked regularly.
+          </p>
+          <div className="mt-8 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+            {bestSellers.map((p) => (
               <ProductCard key={p.id} product={p} onQuickView={setQuick} />
             ))}
           </div>
@@ -230,6 +294,14 @@ function Home() {
             </figure>
           ))}
         </div>
+      </section>
+
+      <section className="container-page py-6">
+        <NewsletterSignup />
+      </section>
+
+      <section className="container-page py-14">
+        <InstagramGallery products={all} />
       </section>
 
       <section className="container-page pb-16">
