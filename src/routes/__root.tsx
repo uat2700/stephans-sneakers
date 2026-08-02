@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { BottomNav } from "@/components/bottom-nav";
 import { Toaster } from "@/components/ui/sonner";
 import { CartProvider } from "@/hooks/use-cart";
 import { WishlistProvider } from "@/hooks/use-wishlist";
