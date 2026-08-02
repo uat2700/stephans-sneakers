@@ -194,9 +194,29 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           </ul>
         ) : null}
 
+        <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <Truck className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <span className="truncate">Delivery in 1–3 days</span>
+        </p>
+
         <div className="mt-auto grid gap-2 pt-2">
+          <a
+            href={whatsappLink(
+              productMessage({
+                name: product.name,
+                price: product.selling_price,
+                size: product.sizes[0],
+              }),
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-whatsapp px-2 text-xs font-semibold text-whatsapp-foreground transition hover:opacity-90 active:scale-[0.98] sm:gap-2 sm:px-3 sm:text-sm"
+          >
+            <WhatsAppIcon className="hidden h-4 w-4 shrink-0 min-[420px]:block" /> Order on WhatsApp
+          </a>
           <Button
             type="button"
+            variant="outline"
             disabled={!inStock}
             onClick={() => {
               addItem({
@@ -211,27 +231,13 @@ export function ProductCard({ product, onQuickView, className }: Props) {
               });
               toast.success("Added to cart", { description: product.name });
             }}
-            className="h-11 w-full rounded-full px-2 text-xs font-semibold whitespace-nowrap sm:px-3 sm:text-sm"
+            className="h-11 w-full rounded-full px-2 text-xs font-semibold whitespace-nowrap transition active:scale-[0.98] sm:px-3 sm:text-sm"
           >
             <ShoppingBag className="hidden h-4 w-4 shrink-0 min-[420px]:block" aria-hidden="true" /> Add to cart
           </Button>
-          <a
-            href={whatsappLink(
-              productMessage({
-                name: product.name,
-                price: product.selling_price,
-                size: product.sizes[0],
-              }),
-            )}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-whatsapp px-2 text-xs font-semibold text-whatsapp-foreground transition hover:opacity-90 sm:gap-2 sm:px-3 sm:text-sm"
-          >
-            <WhatsAppIcon className="hidden h-4 w-4 shrink-0 min-[420px]:block" /> Order on WhatsApp
-          </a>
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }
 
