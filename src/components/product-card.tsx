@@ -117,10 +117,18 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           <span
             className={cn(
               "shrink-0 text-[11px] font-medium",
-              inStock ? "text-whatsapp" : "text-destructive",
+              !inStock
+                ? "text-destructive"
+                : lowStock
+                  ? "text-gold"
+                  : "text-whatsapp",
             )}
           >
-            {inStock ? "In stock" : "Sold out"}
+            {!inStock
+              ? "Sold out"
+              : lowStock
+                ? `Only ${product.stock} left`
+                : "In stock"}
           </span>
         </div>
 
@@ -130,6 +138,25 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           </Link>
         </h3>
 
+        <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
+          <span className="flex shrink-0 gap-0.5" aria-hidden="true">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={cn(
+                  "h-3 w-3",
+                  i < Math.round(rating?.average ?? 5) && "fill-current",
+                )}
+              />
+            ))}
+          </span>
+          <span className="truncate">
+            {rating
+              ? `${rating.average.toFixed(1)} · ${rating.count} review${rating.count === 1 ? "" : "s"}`
+              : "New listing"}
+          </span>
+        </div>
+
         <div className="flex min-w-0 flex-nowrap items-baseline gap-2 overflow-hidden">
           <span className="whitespace-nowrap text-xl font-extrabold tracking-tight sm:text-2xl">
             {formatPrice(product.selling_price)}
@@ -137,6 +164,11 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           {product.compare_at_price ? (
             <span className="whitespace-nowrap text-xs text-muted-foreground line-through sm:text-sm">
               {formatPrice(product.compare_at_price)}
+            </span>
+          ) : null}
+          {discount ? (
+            <span className="shrink-0 whitespace-nowrap text-[11px] font-bold text-whatsapp">
+              -{discount}%
             </span>
           ) : null}
         </div>
