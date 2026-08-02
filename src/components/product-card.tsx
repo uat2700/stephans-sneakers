@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Heart, ShoppingBag, Eye } from "lucide-react";
+import { Heart, ShoppingBag, Eye, Star, Truck } from "lucide-react";
+import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,7 +9,7 @@ import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { discountPercent, formatPrice } from "@/lib/format";
-import { primaryImage, type Product } from "@/lib/catalog";
+import { primaryImage, reviewStatsQuery, type Product } from "@/lib/catalog";
 import { productMessage, whatsappLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
@@ -20,16 +22,23 @@ type Props = {
 export function ProductCard({ product, onQuickView, className }: Props) {
   const { addItem } = useCart();
   const wishlist = useWishlist();
+  const stats = useQuery(reviewStatsQuery());
   const image = primaryImage(product);
   const discount = discountPercent(
     product.selling_price,
     product.compare_at_price,
   );
   const inStock = product.stock > 0;
+  const lowStock = inStock && product.stock <= 3;
   const favourite = wishlist.has(product.id);
+  const rating = stats.data?.[product.id] ?? null;
 
   return (
-    <article
+    <motion.article
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.3 }}
       className={cn(
         "card-lift group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card",
         className,
