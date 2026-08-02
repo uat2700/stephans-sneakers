@@ -137,7 +137,7 @@ export function ProductCard({ product, onQuickView, className }: Props) {
             className="flex flex-wrap gap-1.5 overflow-hidden"
             aria-label="Available sizes"
           >
-            {product.sizes.slice(0, 4).map((size) => (
+            {product.sizes.slice(0, 3).map((size) => (
               <li
                 key={size}
                 className="rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-semibold leading-none text-muted-foreground"
@@ -145,9 +145,9 @@ export function ProductCard({ product, onQuickView, className }: Props) {
                 {size}
               </li>
             ))}
-            {product.sizes.length > 4 ? (
+            {product.sizes.length > 3 ? (
               <li className="rounded-full border border-dashed border-border px-2.5 py-1 text-[11px] font-semibold leading-none text-muted-foreground">
-                +{product.sizes.length - 4}
+                +{product.sizes.length - 3}
               </li>
             ) : null}
           </ul>
@@ -170,10 +170,9 @@ export function ProductCard({ product, onQuickView, className }: Props) {
               });
               toast.success("Added to cart", { description: product.name });
             }}
-            className="h-11 w-full rounded-full px-3 text-[13px] font-semibold whitespace-nowrap sm:text-sm"
+            className="h-11 w-full rounded-full px-2 text-xs font-semibold whitespace-nowrap sm:px-3 sm:text-sm"
           >
-            <ShoppingBag className="h-4 w-4 shrink-0" aria-hidden="true" /> Add to
-            cart
+            <ShoppingBag className="hidden h-4 w-4 shrink-0 min-[420px]:block" aria-hidden="true" /> Add to cart
           </Button>
           <a
             href={whatsappLink(
@@ -185,9 +184,9 @@ export function ProductCard({ product, onQuickView, className }: Props) {
             )}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-whatsapp px-3 text-[13px] font-semibold text-whatsapp-foreground transition hover:opacity-90 sm:text-sm"
+            className="inline-flex h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-whatsapp px-2 text-xs font-semibold text-whatsapp-foreground transition hover:opacity-90 sm:gap-2 sm:px-3 sm:text-sm"
           >
-            <WhatsAppIcon className="h-4 w-4 shrink-0" /> Order on WhatsApp
+            <WhatsAppIcon className="hidden h-4 w-4 shrink-0 min-[420px]:block" /> Order on WhatsApp
           </a>
         </div>
       </div>
