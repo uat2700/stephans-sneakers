@@ -100,7 +100,7 @@ export function ProductCard({ product, onQuickView, className }: Props) {
         ) : null}
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 p-4">
+      <div className="flex flex-1 flex-col gap-3 p-4 sm:gap-3.5 sm:p-5">
         <div className="flex min-w-0 items-center justify-between gap-2">
           <span className="truncate text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {product.brands?.name ?? "Sneaker"}
@@ -115,37 +115,45 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           </span>
         </div>
 
-        <h3 className="line-clamp-2 text-base font-semibold leading-snug">
+        <h3 className="line-clamp-2 min-h-[2.6em] text-[15px] font-semibold leading-snug sm:text-base">
           <Link to="/product/$slug" params={{ slug: product.slug }}>
             {product.name}
           </Link>
         </h3>
 
-        <div className="flex items-baseline gap-2">
-          <span className="text-lg font-bold">
+        <div className="flex min-w-0 flex-nowrap items-baseline gap-2 overflow-hidden">
+          <span className="whitespace-nowrap text-xl font-extrabold tracking-tight sm:text-2xl">
             {formatPrice(product.selling_price)}
           </span>
           {product.compare_at_price ? (
-            <span className="text-sm text-muted-foreground line-through">
+            <span className="whitespace-nowrap text-xs text-muted-foreground line-through sm:text-sm">
               {formatPrice(product.compare_at_price)}
             </span>
           ) : null}
         </div>
 
         {product.sizes.length ? (
-          <ul className="flex flex-wrap gap-1.5" aria-label="Available sizes">
-            {product.sizes.slice(0, 6).map((size) => (
+          <ul
+            className="flex flex-wrap gap-1.5 overflow-hidden"
+            aria-label="Available sizes"
+          >
+            {product.sizes.slice(0, 4).map((size) => (
               <li
                 key={size}
-                className="rounded-md bg-surface px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                className="rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-semibold leading-none text-muted-foreground"
               >
                 {size}
               </li>
             ))}
+            {product.sizes.length > 4 ? (
+              <li className="rounded-full border border-dashed border-border px-2.5 py-1 text-[11px] font-semibold leading-none text-muted-foreground">
+                +{product.sizes.length - 4}
+              </li>
+            ) : null}
           </ul>
         ) : null}
 
-        <div className="mt-auto grid gap-2 pt-1">
+        <div className="mt-auto grid gap-2 pt-2">
           <Button
             type="button"
             disabled={!inStock}
@@ -162,9 +170,10 @@ export function ProductCard({ product, onQuickView, className }: Props) {
               });
               toast.success("Added to cart", { description: product.name });
             }}
-            className="w-full rounded-full"
+            className="h-11 w-full rounded-full px-3 text-[13px] font-semibold whitespace-nowrap sm:text-sm"
           >
-            <ShoppingBag className="h-4 w-4" aria-hidden="true" /> Add to cart
+            <ShoppingBag className="h-4 w-4 shrink-0" aria-hidden="true" /> Add to
+            cart
           </Button>
           <a
             href={whatsappLink(
@@ -176,12 +185,13 @@ export function ProductCard({ product, onQuickView, className }: Props) {
             )}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-full bg-whatsapp text-sm font-semibold text-whatsapp-foreground transition hover:opacity-90"
+            className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-whatsapp px-3 text-[13px] font-semibold text-whatsapp-foreground transition hover:opacity-90 sm:text-sm"
           >
-            <WhatsAppIcon className="h-4 w-4" /> Order on WhatsApp
+            <WhatsAppIcon className="h-4 w-4 shrink-0" /> Order on WhatsApp
           </a>
         </div>
       </div>
     </article>
   );
 }
+
