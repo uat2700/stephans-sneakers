@@ -20,6 +20,7 @@ export type Category = {
   id: string;
   name: string;
   slug: string;
+  image_url: string | null;
 };
 
 export type Product = {
@@ -55,7 +56,7 @@ const PRODUCT_SELECT = `
   compare_at_price, sizes, colors, gender, stock, is_featured, is_new, is_active,
   popularity, tags, seo_title, seo_description, ai_caption, created_at,
   brands ( id, name, slug, logo_url, is_featured ),
-  categories ( id, name, slug ),
+  categories ( id, name, slug, image_url ),
   product_images ( id, url, alt, position )
 `;
 
@@ -140,7 +141,7 @@ export const categoriesQuery = () =>
     queryFn: async (): Promise<Category[]> => {
       const { data, error } = await supabase
         .from("categories")
-        .select("id, name, slug")
+        .select("id, name, slug, image_url")
         .order("name");
       if (error) throw error;
       return data ?? [];
