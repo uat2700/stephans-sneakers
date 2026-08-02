@@ -162,3 +162,30 @@ export const reviewsQuery = (productId: string | undefined) =>
       return data ?? [];
     },
   });
+
+export type ReviewStat = { count: number; average: number };
+
+export const reviewStatsQuery = () =>
+  queryOptions({
+    queryKey: ["review-stats"],
+    staleTime: 5 * 60_000,
+    queryFn: async (): Promise<Record<string, ReviewStat>> => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("product_id, rating")
+        .eq("is_approved", true);
+      if (error) throw error;
+      const totals: Record<string, { sum: number; count: number }> = {};
+      for (const row of data ?? []) {
+        const entry = (totals[row.product_id] ??= { sum: 0, count: 0 });
+        entry.sum += row.rating;
+        entry.count += 1;
+      }
+      return Object.fromEntries(
+        Object.entries(totals).map(([id, t]) => [
+          id,
+          { count: t.count, average: t.sum / t.count },
+        ]),
+      );
+    },
+  });
