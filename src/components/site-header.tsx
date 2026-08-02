@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { Heart, Menu, Moon, Search, ShoppingBag, Sun, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Link } from "@tanstack/react-router";
+import { Bell, Heart, Moon, ShoppingBag, Sun, User, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { SearchPanel } from "@/components/search-panel";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
@@ -20,33 +20,48 @@ const NAV = [
   { label: "Contact", to: "/contact" },
 ] as const;
 
+function Hamburger({ open, onClick }: { open: boolean; onClick: () => void }) {
+  const bars = [
+    { y: -6, rotate: open ? 45 : 0, top: open },
+    { y: 0, rotate: 0, top: false },
+    { y: 6, rotate: open ? -45 : 0, top: open },
+  ];
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={open ? "Close menu" : "Open menu"}
+      aria-expanded={open}
+      className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full hover:bg-surface lg:hidden"
+    >
+      <span className="relative block h-4 w-5">
+        {bars.map((bar, i) => (
+          <motion.span
+            key={i}
+            className="absolute left-0 top-1/2 block h-[2px] w-5 rounded-full bg-foreground"
+            animate={{
+              y: open && i !== 1 ? 0 : bar.y,
+              rotate: bar.rotate,
+              opacity: open && i === 1 ? 0 : 1,
+            }}
+            transition={{ type: "spring", stiffness: 380, damping: 28 }}
+          />
+        ))}
+      </span>
+    </button>
+  );
+}
+
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [term, setTerm] = useState("");
   const cart = useCart();
   const wishlist = useWishlist();
   const { theme, toggle } = useTheme();
-  const navigate = useNavigate();
-
-  function submitSearch(e: React.FormEvent) {
-    e.preventDefault();
-    setSearchOpen(false);
-    setMenuOpen(false);
-    navigate({ to: "/shop", search: { q: term.trim() || undefined } });
-  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-lg">
-      <div className="container-page flex h-16 items-center gap-3">
-        <button
-          type="button"
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full hover:bg-surface lg:hidden"
-          onClick={() => setMenuOpen(true)}
-          aria-label="Open menu"
-        >
-          <Menu className="h-5 w-5" aria-hidden="true" />
-        </button>
+      <div className="container-page flex h-16 items-center gap-2 sm:gap-3">
+        <Hamburger open={menuOpen} onClick={() => setMenuOpen((v) => !v)} />
 
         <Link to="/" className="min-w-0 shrink-0">
           <span className="font-display text-base font-extrabold uppercase leading-none tracking-tight sm:text-lg">
@@ -57,7 +72,7 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="ml-6 hidden items-center gap-6 lg:flex" aria-label="Main">
+        <nav className="ml-4 hidden items-center gap-5 xl:flex" aria-label="Main">
           {NAV.map((item) => (
             <Link
               key={item.to}
@@ -72,15 +87,9 @@ export function SiteHeader() {
           ))}
         </nav>
 
+        <SearchPanel className="ml-4 hidden flex-1 lg:block" />
+
         <div className="ml-auto flex shrink-0 items-center gap-0.5">
-          <button
-            type="button"
-            onClick={() => setSearchOpen((v) => !v)}
-            aria-label="Search products"
-            className="grid h-10 w-10 place-items-center rounded-full hover:bg-surface"
-          >
-            <Search className="h-[18px] w-[18px]" aria-hidden="true" />
-          </button>
           <button
             type="button"
             onClick={toggle}
@@ -93,6 +102,14 @@ export function SiteHeader() {
               <Moon className="h-[18px] w-[18px]" aria-hidden="true" />
             )}
           </button>
+          <Link
+            to="/account"
+            aria-label="Notifications"
+            className="relative hidden h-10 w-10 place-items-center rounded-full hover:bg-surface sm:grid"
+          >
+            <Bell className="h-[18px] w-[18px]" aria-hidden="true" />
+            <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-whatsapp" />
+          </Link>
           <Link
             to="/wishlist"
             aria-label="Wishlist"
@@ -117,34 +134,29 @@ export function SiteHeader() {
               </span>
             ) : null}
           </Link>
+          <Link
+            to="/account"
+            aria-label="My account"
+            className="grid h-10 w-10 place-items-center rounded-full hover:bg-surface"
+          >
+            <User className="h-[18px] w-[18px]" aria-hidden="true" />
+          </Link>
           <a
             href={whatsappLink(generalWhatsappMessage)}
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-1 hidden h-10 items-center gap-2 rounded-full bg-whatsapp px-4 text-sm font-semibold text-whatsapp-foreground transition hover:opacity-90 md:inline-flex"
+            className="ml-1 hidden h-10 items-center gap-2 rounded-full bg-whatsapp px-4 text-sm font-semibold text-whatsapp-foreground transition hover:opacity-90 xl:inline-flex"
           >
             <WhatsAppIcon className="h-4 w-4" /> WhatsApp
           </a>
         </div>
       </div>
 
-      {searchOpen ? (
-        <div className="border-t border-border bg-background">
-          <form onSubmit={submitSearch} className="container-page flex gap-2 py-3">
-            <Input
-              autoFocus
-              value={term}
-              onChange={(e) => setTerm(e.target.value)}
-              placeholder="Search sneakers, brands…"
-              aria-label="Search sneakers"
-              className="h-11 rounded-full"
-            />
-            <Button type="submit" className="h-11 rounded-full px-5">
-              Search
-            </Button>
-          </form>
+      <div className="border-t border-border bg-background lg:hidden">
+        <div className="container-page py-2.5">
+          <SearchPanel />
         </div>
-      ) : null}
+      </div>
 
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
         <SheetContent side="left" className="w-[85vw] max-w-sm p-0">
@@ -162,25 +174,28 @@ export function SiteHeader() {
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
-          <nav className="flex flex-col p-2" aria-label="Mobile">
-            {NAV.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={() => setMenuOpen(false)}
-                className="rounded-xl px-4 py-3 text-base font-medium hover:bg-surface"
-              >
-                {item.label}
-              </Link>
-            ))}
-            <Link
-              to="/account"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-xl px-4 py-3 text-base font-medium hover:bg-surface"
-            >
-              My Account
-            </Link>
-          </nav>
+          <AnimatePresence>
+            <nav className="flex flex-col p-2" aria-label="Mobile">
+              {[...NAV, { label: "My Account", to: "/account" } as const].map(
+                (item, i) => (
+                  <motion.div
+                    key={item.to}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.03 * i, duration: 0.2 }}
+                  >
+                    <Link
+                      to={item.to}
+                      onClick={() => setMenuOpen(false)}
+                      className="block rounded-xl px-4 py-3 text-base font-medium hover:bg-surface"
+                    >
+                      {item.label}
+                    </Link>
+                  </motion.div>
+                ),
+              )}
+            </nav>
+          </AnimatePresence>
           <div className="p-4">
             <a
               href={whatsappLink(generalWhatsappMessage)}
