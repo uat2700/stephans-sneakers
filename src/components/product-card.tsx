@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Heart, ShoppingBag, Eye } from "lucide-react";
+import { Heart, ShoppingBag, Eye, Star, Truck } from "lucide-react";
+import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,7 +9,7 @@ import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { discountPercent, formatPrice } from "@/lib/format";
-import { primaryImage, type Product } from "@/lib/catalog";
+import { primaryImage, reviewStatsQuery, type Product } from "@/lib/catalog";
 import { productMessage, whatsappLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
@@ -20,16 +22,23 @@ type Props = {
 export function ProductCard({ product, onQuickView, className }: Props) {
   const { addItem } = useCart();
   const wishlist = useWishlist();
+  const stats = useQuery(reviewStatsQuery());
   const image = primaryImage(product);
   const discount = discountPercent(
     product.selling_price,
     product.compare_at_price,
   );
   const inStock = product.stock > 0;
+  const lowStock = inStock && product.stock <= 3;
   const favourite = wishlist.has(product.id);
+  const rating = stats.data?.[product.id] ?? null;
 
   return (
-    <article
+    <motion.article
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.3 }}
       className={cn(
         "card-lift group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card",
         className,
@@ -108,10 +117,18 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           <span
             className={cn(
               "shrink-0 text-[11px] font-medium",
-              inStock ? "text-whatsapp" : "text-destructive",
+              !inStock
+                ? "text-destructive"
+                : lowStock
+                  ? "text-gold"
+                  : "text-whatsapp",
             )}
           >
-            {inStock ? "In stock" : "Sold out"}
+            {!inStock
+              ? "Sold out"
+              : lowStock
+                ? `Only ${product.stock} left`
+                : "In stock"}
           </span>
         </div>
 
@@ -121,6 +138,25 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           </Link>
         </h3>
 
+        <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
+          <span className="flex shrink-0 gap-0.5" aria-hidden="true">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={cn(
+                  "h-3 w-3",
+                  i < Math.round(rating?.average ?? 5) && "fill-current",
+                )}
+              />
+            ))}
+          </span>
+          <span className="truncate">
+            {rating
+              ? `${rating.average.toFixed(1)} · ${rating.count} review${rating.count === 1 ? "" : "s"}`
+              : "New listing"}
+          </span>
+        </div>
+
         <div className="flex min-w-0 flex-nowrap items-baseline gap-2 overflow-hidden">
           <span className="whitespace-nowrap text-xl font-extrabold tracking-tight sm:text-2xl">
             {formatPrice(product.selling_price)}
@@ -128,6 +164,11 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           {product.compare_at_price ? (
             <span className="whitespace-nowrap text-xs text-muted-foreground line-through sm:text-sm">
               {formatPrice(product.compare_at_price)}
+            </span>
+          ) : null}
+          {discount ? (
+            <span className="shrink-0 whitespace-nowrap text-[11px] font-bold text-whatsapp">
+              -{discount}%
             </span>
           ) : null}
         </div>
@@ -153,9 +194,29 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           </ul>
         ) : null}
 
+        <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <Truck className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <span className="truncate">Delivery in 1–3 days</span>
+        </p>
+
         <div className="mt-auto grid gap-2 pt-2">
+          <a
+            href={whatsappLink(
+              productMessage({
+                name: product.name,
+                price: product.selling_price,
+                size: product.sizes[0],
+              }),
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-whatsapp px-2 text-xs font-semibold text-whatsapp-foreground transition hover:opacity-90 active:scale-[0.98] sm:gap-2 sm:px-3 sm:text-sm"
+          >
+            <WhatsAppIcon className="hidden h-4 w-4 shrink-0 min-[420px]:block" /> Order on WhatsApp
+          </a>
           <Button
             type="button"
+            variant="outline"
             disabled={!inStock}
             onClick={() => {
               addItem({
@@ -170,27 +231,13 @@ export function ProductCard({ product, onQuickView, className }: Props) {
               });
               toast.success("Added to cart", { description: product.name });
             }}
-            className="h-11 w-full rounded-full px-2 text-xs font-semibold whitespace-nowrap sm:px-3 sm:text-sm"
+            className="h-11 w-full rounded-full px-2 text-xs font-semibold whitespace-nowrap transition active:scale-[0.98] sm:px-3 sm:text-sm"
           >
             <ShoppingBag className="hidden h-4 w-4 shrink-0 min-[420px]:block" aria-hidden="true" /> Add to cart
           </Button>
-          <a
-            href={whatsappLink(
-              productMessage({
-                name: product.name,
-                price: product.selling_price,
-                size: product.sizes[0],
-              }),
-            )}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-whatsapp px-2 text-xs font-semibold text-whatsapp-foreground transition hover:opacity-90 sm:gap-2 sm:px-3 sm:text-sm"
-          >
-            <WhatsAppIcon className="hidden h-4 w-4 shrink-0 min-[420px]:block" /> Order on WhatsApp
-          </a>
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }
 

@@ -20,6 +20,7 @@ export type Category = {
   id: string;
   name: string;
   slug: string;
+  image_url: string | null;
 };
 
 export type Product = {
@@ -55,7 +56,7 @@ const PRODUCT_SELECT = `
   compare_at_price, sizes, colors, gender, stock, is_featured, is_new, is_active,
   popularity, tags, seo_title, seo_description, ai_caption, created_at,
   brands ( id, name, slug, logo_url, is_featured ),
-  categories ( id, name, slug ),
+  categories ( id, name, slug, image_url ),
   product_images ( id, url, alt, position )
 `;
 
@@ -140,7 +141,7 @@ export const categoriesQuery = () =>
     queryFn: async (): Promise<Category[]> => {
       const { data, error } = await supabase
         .from("categories")
-        .select("id, name, slug")
+        .select("id, name, slug, image_url")
         .order("name");
       if (error) throw error;
       return data ?? [];
@@ -160,5 +161,32 @@ export const reviewsQuery = (productId: string | undefined) =>
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
+    },
+  });
+
+export type ReviewStat = { count: number; average: number };
+
+export const reviewStatsQuery = () =>
+  queryOptions({
+    queryKey: ["review-stats"],
+    staleTime: 5 * 60_000,
+    queryFn: async (): Promise<Record<string, ReviewStat>> => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("product_id, rating")
+        .eq("is_approved", true);
+      if (error) throw error;
+      const totals: Record<string, { sum: number; count: number }> = {};
+      for (const row of data ?? []) {
+        const entry = (totals[row.product_id] ??= { sum: 0, count: 0 });
+        entry.sum += row.rating;
+        entry.count += 1;
+      }
+      return Object.fromEntries(
+        Object.entries(totals).map(([id, t]) => [
+          id,
+          { count: t.count, average: t.sum / t.count },
+        ]),
+      );
     },
   });

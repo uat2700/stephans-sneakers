@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { BottomNav } from "@/components/bottom-nav";
 import { Toaster } from "@/components/ui/sonner";
 import { CartProvider } from "@/hooks/use-cart";
 import { WishlistProvider } from "@/hooks/use-wishlist";
@@ -144,11 +145,12 @@ function RootComponent() {
         <WishlistProvider>
           <div className="flex min-h-screen flex-col">
             <SiteHeader />
-            <main className="flex-1">
+            <main className="flex-1 pb-16 lg:pb-0">
               {/* Required: nested routes render here. */}
               <Outlet />
             </main>
             <SiteFooter />
+            <BottomNav />
           </div>
           <Toaster position="top-center" richColors />
         </WishlistProvider>
