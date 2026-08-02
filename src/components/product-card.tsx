@@ -31,11 +31,12 @@ export function ProductCard({ product, onQuickView, className }: Props) {
   return (
     <article
       className={cn(
-        "card-lift group relative flex flex-col overflow-hidden rounded-3xl border border-border bg-card",
+        "card-lift group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card",
         className,
       )}
     >
-      <div className="relative aspect-square overflow-hidden bg-surface">
+      <div className="relative aspect-square w-full overflow-hidden bg-surface">
+
         <Link
           to="/product/$slug"
           params={{ slug: product.slug }}
