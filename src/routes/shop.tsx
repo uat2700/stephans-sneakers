@@ -342,7 +342,7 @@ function Shop() {
           {products.isLoading ? (
             <ProductGridSkeleton />
           ) : filtered.length ? (
-            <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 sm:gap-5 xl:grid-cols-3">
               {filtered.map((p) => (
                 <ProductCard key={p.id} product={p} onQuickView={setQuick} />
               ))}
