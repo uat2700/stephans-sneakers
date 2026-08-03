@@ -113,61 +113,120 @@ function ProductPage() {
 
       <div className="mt-6 grid gap-10 lg:grid-cols-2">
         <div>
-          <div
-            className={cn(
-              "relative aspect-square overflow-hidden rounded-3xl border border-border bg-surface",
-              image && "cursor-zoom-in",
-            )}
-            onClick={() => image && setZoom((z) => !z)}
-          >
-            {image ? (
-              <img
-                src={image}
-                alt={images[activeImage]?.alt ?? product.name}
-                className={cn(
-                  "h-full w-full object-cover transition-transform duration-500",
-                  zoom && "scale-150 cursor-zoom-out",
-                )}
-              />
+          {/* Mobile: swipeable gallery */}
+          <div className="sm:hidden">
+            {images.length ? (
+              <>
+                <div
+                  className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  onScroll={(e) => {
+                    const el = e.currentTarget;
+                    setActiveImage(
+                      Math.round(el.scrollLeft / Math.max(1, el.clientWidth)),
+                    );
+                  }}
+                >
+                  {images.map((img, i) => (
+                    <div
+                      key={img.id}
+                      className="relative aspect-square w-full shrink-0 snap-center overflow-hidden rounded-3xl border border-border bg-surface"
+                    >
+                      <img
+                        src={img.url}
+                        alt={img.alt ?? product.name}
+                        loading={i === 0 ? "eager" : "lazy"}
+                        className="h-full w-full object-cover"
+                      />
+                      {discount && i === 0 ? (
+                        <Badge className="absolute left-4 top-4 rounded-full bg-foreground text-background">
+                          -{discount}%
+                        </Badge>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+                {images.length > 1 ? (
+                  <div className="mt-3 flex justify-center gap-1.5">
+                    {images.map((img, i) => (
+                      <span
+                        key={img.id}
+                        className={cn(
+                          "h-1.5 rounded-full transition-all",
+                          i === activeImage
+                            ? "w-5 bg-foreground"
+                            : "w-1.5 bg-border",
+                        )}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+              </>
             ) : (
-              <div className="grid h-full place-items-center text-sm text-muted-foreground">
+              <div className="grid aspect-square place-items-center rounded-3xl border border-border bg-surface text-sm text-muted-foreground">
                 No image
               </div>
             )}
-            {discount ? (
-              <Badge className="absolute left-4 top-4 rounded-full bg-foreground text-background">
-                -{discount}%
-              </Badge>
-            ) : null}
           </div>
 
-          {images.length > 1 ? (
-            <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
-              {images.map((img, i) => (
-                <button
-                  key={img.id}
-                  type="button"
-                  onClick={() => {
-                    setActiveImage(i);
-                    setZoom(false);
-                  }}
-                  aria-label={`View image ${i + 1}`}
+          {/* Desktop: main image with zoom + thumbnails */}
+          <div className="hidden sm:block">
+            <div
+              className={cn(
+                "relative aspect-square overflow-hidden rounded-3xl border border-border bg-surface",
+                image && "cursor-zoom-in",
+              )}
+              onClick={() => image && setZoom((z) => !z)}
+            >
+              {image ? (
+                <img
+                  src={image}
+                  alt={images[activeImage]?.alt ?? product.name}
                   className={cn(
-                    "h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-surface",
-                    i === activeImage ? "border-foreground" : "border-transparent",
+                    "h-full w-full object-cover transition-transform duration-500",
+                    zoom && "scale-150 cursor-zoom-out",
                   )}
-                >
-                  <img
-                    src={img.url}
-                    alt={img.alt ?? ""}
-                    loading="lazy"
-                    className="h-full w-full object-cover"
-                  />
-                </button>
-              ))}
+                />
+              ) : (
+                <div className="grid h-full place-items-center text-sm text-muted-foreground">
+                  No image
+                </div>
+              )}
+              {discount ? (
+                <Badge className="absolute left-4 top-4 rounded-full bg-foreground text-background">
+                  -{discount}%
+                </Badge>
+              ) : null}
             </div>
-          ) : null}
+
+            {images.length > 1 ? (
+              <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
+                {images.map((img, i) => (
+                  <button
+                    key={img.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveImage(i);
+                      setZoom(false);
+                    }}
+                    aria-label={`View image ${i + 1}`}
+                    className={cn(
+                      "h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-surface",
+                      i === activeImage ? "border-foreground" : "border-transparent",
+                    )}
+                  >
+                    <img
+                      src={img.url}
+                      alt={img.alt ?? ""}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
         </div>
+
 
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
