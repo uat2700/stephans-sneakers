@@ -57,6 +57,8 @@ function ProductPage() {
   const [color, setColor] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const [zoom, setZoom] = useState(false);
+  const recentIds = useRecentlyViewed(product?.id);
+
 
   if (isLoading) {
     return (
