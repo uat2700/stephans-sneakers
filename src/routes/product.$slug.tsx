@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/accordion";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
+import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
+
 import { discountPercent, formatPrice } from "@/lib/format";
 import { productQuery, productsQuery } from "@/lib/catalog";
 import { productMessage, whatsappLink } from "@/lib/whatsapp";
