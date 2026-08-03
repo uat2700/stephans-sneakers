@@ -335,7 +335,58 @@ function Shop() {
         </div>
       </form>
 
+      <div className="sticky top-[60px] z-30 -mx-4 mt-4 border-b border-border bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
+        <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <button
+            type="button"
+            onClick={clearAll}
+            className={`h-9 shrink-0 rounded-full border px-4 text-xs font-semibold transition ${
+              activeFilters === 0
+                ? "border-foreground bg-foreground text-background"
+                : "border-border"
+            }`}
+          >
+            All
+          </button>
+          {(brands.data ?? []).map((b) => (
+            <button
+              key={b.id}
+              type="button"
+              onClick={() =>
+                setSearch({ brand: search.brand === b.slug ? undefined : b.slug })
+              }
+              className={`h-9 shrink-0 rounded-full border px-4 text-xs font-semibold transition ${
+                search.brand === b.slug
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border"
+              }`}
+            >
+              {b.name}
+            </button>
+          ))}
+          {(categories.data ?? []).map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() =>
+                setSearch({
+                  category: search.category === c.slug ? undefined : c.slug,
+                })
+              }
+              className={`h-9 shrink-0 rounded-full border px-4 text-xs font-semibold transition ${
+                search.category === c.slug
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border"
+              }`}
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="mt-8 gap-10 lg:grid lg:grid-cols-[240px_minmax(0,1fr)]">
+
         <aside className="hidden lg:block">{filterPanel}</aside>
 
         <div>

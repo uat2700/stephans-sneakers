@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/accordion";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
+import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
+
 import { discountPercent, formatPrice } from "@/lib/format";
 import { productQuery, productsQuery } from "@/lib/catalog";
 import { productMessage, whatsappLink } from "@/lib/whatsapp";
@@ -57,6 +59,8 @@ function ProductPage() {
   const [color, setColor] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const [zoom, setZoom] = useState(false);
+  const recentIds = useRecentlyViewed(product?.id);
+
 
   if (isLoading) {
     return (
@@ -97,6 +101,12 @@ function ProductPage() {
   const related = (all ?? [])
     .filter((p) => p.id !== product.id && p.brand_id === product.brand_id)
     .slice(0, 4);
+  const recentlyViewed = recentIds
+    .map((id) => (all ?? []).find((p) => p.id === id))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p))
+    .slice(0, 4);
+
+
 
   return (
     <div className="container-page py-8 lg:py-12">
@@ -113,61 +123,120 @@ function ProductPage() {
 
       <div className="mt-6 grid gap-10 lg:grid-cols-2">
         <div>
-          <div
-            className={cn(
-              "relative aspect-square overflow-hidden rounded-3xl border border-border bg-surface",
-              image && "cursor-zoom-in",
-            )}
-            onClick={() => image && setZoom((z) => !z)}
-          >
-            {image ? (
-              <img
-                src={image}
-                alt={images[activeImage]?.alt ?? product.name}
-                className={cn(
-                  "h-full w-full object-cover transition-transform duration-500",
-                  zoom && "scale-150 cursor-zoom-out",
-                )}
-              />
+          {/* Mobile: swipeable gallery */}
+          <div className="sm:hidden">
+            {images.length ? (
+              <>
+                <div
+                  className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  onScroll={(e) => {
+                    const el = e.currentTarget;
+                    setActiveImage(
+                      Math.round(el.scrollLeft / Math.max(1, el.clientWidth)),
+                    );
+                  }}
+                >
+                  {images.map((img, i) => (
+                    <div
+                      key={img.id}
+                      className="relative aspect-square w-full shrink-0 snap-center overflow-hidden rounded-3xl border border-border bg-surface"
+                    >
+                      <img
+                        src={img.url}
+                        alt={img.alt ?? product.name}
+                        loading={i === 0 ? "eager" : "lazy"}
+                        className="h-full w-full object-cover"
+                      />
+                      {discount && i === 0 ? (
+                        <Badge className="absolute left-4 top-4 rounded-full bg-foreground text-background">
+                          -{discount}%
+                        </Badge>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+                {images.length > 1 ? (
+                  <div className="mt-3 flex justify-center gap-1.5">
+                    {images.map((img, i) => (
+                      <span
+                        key={img.id}
+                        className={cn(
+                          "h-1.5 rounded-full transition-all",
+                          i === activeImage
+                            ? "w-5 bg-foreground"
+                            : "w-1.5 bg-border",
+                        )}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+              </>
             ) : (
-              <div className="grid h-full place-items-center text-sm text-muted-foreground">
+              <div className="grid aspect-square place-items-center rounded-3xl border border-border bg-surface text-sm text-muted-foreground">
                 No image
               </div>
             )}
-            {discount ? (
-              <Badge className="absolute left-4 top-4 rounded-full bg-foreground text-background">
-                -{discount}%
-              </Badge>
-            ) : null}
           </div>
 
-          {images.length > 1 ? (
-            <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
-              {images.map((img, i) => (
-                <button
-                  key={img.id}
-                  type="button"
-                  onClick={() => {
-                    setActiveImage(i);
-                    setZoom(false);
-                  }}
-                  aria-label={`View image ${i + 1}`}
+          {/* Desktop: main image with zoom + thumbnails */}
+          <div className="hidden sm:block">
+            <div
+              className={cn(
+                "relative aspect-square overflow-hidden rounded-3xl border border-border bg-surface",
+                image && "cursor-zoom-in",
+              )}
+              onClick={() => image && setZoom((z) => !z)}
+            >
+              {image ? (
+                <img
+                  src={image}
+                  alt={images[activeImage]?.alt ?? product.name}
                   className={cn(
-                    "h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-surface",
-                    i === activeImage ? "border-foreground" : "border-transparent",
+                    "h-full w-full object-cover transition-transform duration-500",
+                    zoom && "scale-150 cursor-zoom-out",
                   )}
-                >
-                  <img
-                    src={img.url}
-                    alt={img.alt ?? ""}
-                    loading="lazy"
-                    className="h-full w-full object-cover"
-                  />
-                </button>
-              ))}
+                />
+              ) : (
+                <div className="grid h-full place-items-center text-sm text-muted-foreground">
+                  No image
+                </div>
+              )}
+              {discount ? (
+                <Badge className="absolute left-4 top-4 rounded-full bg-foreground text-background">
+                  -{discount}%
+                </Badge>
+              ) : null}
             </div>
-          ) : null}
+
+            {images.length > 1 ? (
+              <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
+                {images.map((img, i) => (
+                  <button
+                    key={img.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveImage(i);
+                      setZoom(false);
+                    }}
+                    aria-label={`View image ${i + 1}`}
+                    className={cn(
+                      "h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-surface",
+                      i === activeImage ? "border-foreground" : "border-transparent",
+                    )}
+                  >
+                    <img
+                      src={img.url}
+                      alt={img.alt ?? ""}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
         </div>
+
 
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -362,6 +431,68 @@ function ProductPage() {
           </div>
         </section>
       ) : null}
+
+      {recentlyViewed.length ? (
+        <section className="mt-16">
+          <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight">
+            Recently viewed
+          </h2>
+          <div className="mt-6 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+            {recentlyViewed.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {/* Mobile sticky action bar */}
+      <div className="fixed inset-x-0 bottom-16 z-40 border-t border-border bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
+        <div className="flex items-center gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[11px] text-muted-foreground">
+              {chosenSize ? `Size ${chosenSize}` : "Select a size"}
+            </p>
+            <p className="truncate text-base font-bold leading-tight">
+              {formatPrice(product.selling_price)}
+            </p>
+          </div>
+          <Button
+            className="h-11 shrink-0 rounded-full px-4 text-xs"
+            disabled={product.stock <= 0}
+            onClick={() => {
+              addItem({
+                productId: product.id,
+                slug: product.slug,
+                name: product.name,
+                price: product.selling_price,
+                image: images[0]?.url ?? null,
+                size: chosenSize,
+                color: chosenColor,
+                quantity: qty,
+              });
+              toast.success("Added to cart", { description: product.name });
+            }}
+          >
+            Add to cart
+          </Button>
+          <a
+            href={whatsappLink(
+              productMessage({
+                name: product.name,
+                price: product.selling_price,
+                size: chosenSize,
+              }),
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Order on WhatsApp"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-whatsapp text-whatsapp-foreground"
+          >
+            <WhatsAppIcon className="h-5 w-5" />
+          </a>
+        </div>
+      </div>
     </div>
+
   );
 }
