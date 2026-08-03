@@ -145,7 +145,7 @@ export function ProductCard({ product, onQuickView, className }: Props) {
                 key={i}
                 className={cn(
                   "h-3 w-3",
-                  i < Math.round(rating?.average ?? 5) && "fill-current",
+                  i < Math.round(rating?.average ?? 0) && "fill-current",
                 )}
               />
             ))}
