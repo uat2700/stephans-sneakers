@@ -424,7 +424,7 @@ function ProductPage() {
           <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight">
             You may also like
           </h2>
-          <div className="mt-6 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+          <div className="mt-6 grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
             {related.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
@@ -437,7 +437,7 @@ function ProductPage() {
           <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight">
             Recently viewed
           </h2>
-          <div className="mt-6 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+          <div className="mt-6 grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
             {recentlyViewed.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}

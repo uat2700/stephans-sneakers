@@ -39,7 +39,7 @@ function WishlistPage() {
         {products.isLoading ? (
           <ProductGridSkeleton count={4} />
         ) : saved.length ? (
-          <div className="grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
             {saved.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
