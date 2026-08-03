@@ -101,6 +101,12 @@ function ProductPage() {
   const related = (all ?? [])
     .filter((p) => p.id !== product.id && p.brand_id === product.brand_id)
     .slice(0, 4);
+  const recentlyViewed = recentIds
+    .map((id) => (all ?? []).find((p) => p.id === id))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p))
+    .slice(0, 4);
+
+
 
   return (
     <div className="container-page py-8 lg:py-12">
