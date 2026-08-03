@@ -425,6 +425,68 @@ function ProductPage() {
           </div>
         </section>
       ) : null}
+
+      {recentlyViewed.length ? (
+        <section className="mt-16">
+          <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight">
+            Recently viewed
+          </h2>
+          <div className="mt-6 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+            {recentlyViewed.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {/* Mobile sticky action bar */}
+      <div className="fixed inset-x-0 bottom-16 z-40 border-t border-border bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
+        <div className="flex items-center gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[11px] text-muted-foreground">
+              {chosenSize ? `Size ${chosenSize}` : "Select a size"}
+            </p>
+            <p className="truncate text-base font-bold leading-tight">
+              {formatPrice(product.selling_price)}
+            </p>
+          </div>
+          <Button
+            className="h-11 shrink-0 rounded-full px-4 text-xs"
+            disabled={product.stock <= 0}
+            onClick={() => {
+              addItem({
+                productId: product.id,
+                slug: product.slug,
+                name: product.name,
+                price: product.selling_price,
+                image: images[0]?.url ?? null,
+                size: chosenSize,
+                color: chosenColor,
+                quantity: qty,
+              });
+              toast.success("Added to cart", { description: product.name });
+            }}
+          >
+            Add to cart
+          </Button>
+          <a
+            href={whatsappLink(
+              productMessage({
+                name: product.name,
+                price: product.selling_price,
+                size: chosenSize,
+              }),
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Order on WhatsApp"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-whatsapp text-whatsapp-foreground"
+          >
+            <WhatsAppIcon className="h-5 w-5" />
+          </a>
+        </div>
+      </div>
     </div>
+
   );
 }
