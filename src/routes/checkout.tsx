@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
+import { placeOrder } from "@/lib/orders.functions";
 import { toast } from "sonner";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { Button } from "@/components/ui/button";
@@ -92,15 +94,14 @@ function Checkout() {
       });
   }, [user]);
 
+  const submitOrder = useServerFn(placeOrder);
+
   const place = useMutation({
     mutationFn: async () => {
-      const message = cartMessage(cart.items, cart.total);
-
       if (user) {
-        const { data: order, error } = await supabase
-          .from("orders")
-          .insert({
-            user_id: user.id,
+        // Prices/totals are recalculated server-side from the product catalog.
+        const order = await submitOrder({
+          data: {
             full_name: form.full_name.trim(),
             phone: form.phone.trim(),
             email: form.email.trim() || null,
@@ -108,31 +109,20 @@ function Checkout() {
             city: form.city.trim(),
             region: form.region,
             notes: form.notes.trim() || null,
-            subtotal: cart.subtotal,
-            delivery_fee: cart.deliveryFee,
-            total: cart.total,
-          })
-          .select("id, order_number")
-          .single();
-        if (error) throw error;
+            items: cart.items.map((i) => ({
+              product_id: i.productId,
+              size: i.size,
+              color: i.color,
+              quantity: i.quantity,
+            })),
+          },
+        });
 
-        const { error: itemsError } = await supabase.from("order_items").insert(
-          cart.items.map((i) => ({
-            order_id: order.id,
-            product_id: i.productId,
-            product_name: i.name,
-            size: i.size,
-            color: i.color,
-            unit_price: i.price,
-            quantity: i.quantity,
-          })),
-        );
-        if (itemsError) throw itemsError;
-
+        const message = cartMessage(order.items, order.total);
         return { message: `${message}\n\nOrder ref: ${order.order_number}` };
       }
 
-      return { message };
+      return { message: cartMessage(cart.items, cart.total) };
     },
     onSuccess: ({ message }) => {
       window.open(whatsappLink(message), "_blank", "noopener,noreferrer");
