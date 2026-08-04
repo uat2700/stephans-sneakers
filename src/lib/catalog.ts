@@ -30,7 +30,7 @@ export type Product = {
   description: string | null;
   brand_id: string | null;
   category_id: string | null;
-  supplier_price: number;
+  supplier_price?: number;
   selling_price: number;
   compare_at_price: number | null;
   sizes: string[];
@@ -52,7 +52,7 @@ export type Product = {
 };
 
 const PRODUCT_SELECT = `
-  id, name, slug, description, brand_id, category_id, supplier_price, selling_price,
+  id, name, slug, description, brand_id, category_id, selling_price,
   compare_at_price, sizes, colors, gender, stock, is_featured, is_new, is_active,
   popularity, tags, seo_title, seo_description, ai_caption, created_at,
   brands ( id, name, slug, logo_url, is_featured ),
@@ -65,7 +65,9 @@ function normalize(row: Record<string, unknown>): Product {
   return {
     ...p,
     selling_price: Number(p.selling_price),
-    supplier_price: Number(p.supplier_price),
+    ...(p.supplier_price === undefined
+      ? {}
+      : { supplier_price: Number(p.supplier_price) }),
     compare_at_price:
       p.compare_at_price === null ? null : Number(p.compare_at_price),
     sizes: p.sizes ?? [],
