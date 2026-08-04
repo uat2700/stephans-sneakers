@@ -101,12 +101,8 @@ export const adminProductsQuery = () =>
   queryOptions({
     queryKey: ["admin-products"],
     queryFn: async (): Promise<Product[]> => {
-      const { data, error } = await supabase
-        .from("products")
-        .select(PRODUCT_SELECT)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []).map(normalize);
+      const rows = await listAdminProducts();
+      return rows.map((row) => normalize(row as unknown as Record<string, unknown>));
     },
   });
 
