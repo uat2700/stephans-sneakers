@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Product } from "@/lib/catalog";
 
 const ADMIN_PRODUCT_SELECT = `
   id, name, slug, description, brand_id, category_id, supplier_price, selling_price,
@@ -31,5 +32,5 @@ export const listAdminProducts = createServerFn({ method: "POST" })
       .select(ADMIN_PRODUCT_SELECT)
       .order("created_at", { ascending: false });
     if (error) throw new Error("Could not load products");
-    return (data ?? []) as Record<string, unknown>[];
+    return (data ?? []) as unknown as Product[];
   });
