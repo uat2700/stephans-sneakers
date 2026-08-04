@@ -18,6 +18,9 @@ export function BottomNav() {
   const wishlist = useWishlist();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
+  // Product pages have their own sticky buy bar at the bottom on mobile.
+  if (pathname.startsWith("/product/")) return null;
+
   return (
     <nav
       aria-label="Bottom navigation"
