@@ -91,14 +91,25 @@ export function BrandRail({ brands }: { brands: Brand[] }) {
 
       <div
         ref={railRef}
-        className="mt-6 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0"
+        onPointerDown={pause}
+        onPointerUp={resume}
+        onPointerCancel={resume}
+        onMouseEnter={pause}
+        onMouseLeave={resume}
+        onTouchStart={pause}
+        onTouchEnd={resume}
+        onFocusCapture={pause}
+        onBlurCapture={resume}
+        className="mt-6 -mx-4 flex gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0"
       >
-        {brands.map((b) => (
+        {[...brands, ...brands].map((b, i) => (
           <Link
-            key={b.id}
+            key={`${b.id}-${i}`}
             to="/shop"
             search={{ brand: b.slug }}
-            className="card-lift group relative w-[62%] shrink-0 snap-start overflow-hidden rounded-3xl border border-border bg-background sm:w-[38%] lg:w-[23%]"
+            aria-hidden={i >= brands.length ? true : undefined}
+            tabIndex={i >= brands.length ? -1 : undefined}
+            className="card-lift group relative w-[62%] shrink-0 overflow-hidden rounded-3xl border border-border bg-background sm:w-[38%] lg:w-[23%]"
           >
             <div className="aspect-[4/3] w-full overflow-hidden bg-surface">
               {b.logo_url ? (
@@ -127,6 +138,7 @@ export function BrandRail({ brands }: { brands: Brand[] }) {
             </div>
           </Link>
         ))}
+
       </div>
     </div>
   );
