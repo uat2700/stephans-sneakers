@@ -446,7 +446,7 @@ function ProductPage() {
       ) : null}
 
       {/* Mobile sticky action bar */}
-      <div className="fixed inset-x-0 bottom-16 z-40 border-t border-border bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
         <div className="flex items-center gap-2">
           <div className="min-w-0 flex-1">
             <p className="truncate text-[11px] text-muted-foreground">
