@@ -547,6 +547,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_product_views: {
+        Args: { _product_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "customer"
