@@ -17,6 +17,7 @@ import {
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
+import { useTrackProductView } from "@/hooks/use-track-product-view";
 
 import { discountPercent, formatPrice } from "@/lib/format";
 import { productQuery, productsQuery } from "@/lib/catalog";
@@ -60,6 +61,7 @@ function ProductPage() {
   const [qty, setQty] = useState(1);
   const [zoom, setZoom] = useState(false);
   const recentIds = useRecentlyViewed(product?.id);
+  useTrackProductView(product?.id);
 
 
   if (isLoading) {
