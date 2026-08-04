@@ -72,7 +72,8 @@ function Home() {
   const all = products.data ?? [];
   const newest = all.filter((p) => p.is_new).slice(0, 4);
   const byPopularity = [...all].sort((a, b) => b.popularity - a.popularity);
-  const trending = byPopularity.slice(0, 4);
+  const visited = byPopularity.filter((p) => p.popularity > 0);
+  const trending = (visited.length >= 2 ? visited : byPopularity).slice(0, 4);
   const bestSellers = (byPopularity.slice(4, 8).length
     ? byPopularity.slice(4, 8)
     : byPopularity.slice(0, 4)
@@ -229,7 +230,7 @@ function Home() {
             Trending sneakers
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            The pairs everyone is asking about right now.
+            The most-viewed pairs on the store right now.
           </p>
           <div className="mt-8 grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
             {trending.map((p) => (
