@@ -31,5 +31,5 @@ export const listAdminProducts = createServerFn({ method: "POST" })
       .select(ADMIN_PRODUCT_SELECT)
       .order("created_at", { ascending: false });
     if (error) throw new Error("Could not load products");
-    return (data ?? []) as unknown[];
+    return (data ?? []) as Record<string, unknown>[];
   });
