@@ -1,16 +1,62 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Brand } from "@/lib/catalog";
 
 export function BrandRail({ brands }: { brands: Brand[] }) {
   const railRef = useRef<HTMLDivElement>(null);
+  const pausedRef = useRef(false);
+
+  // Endless marquee: the list is rendered twice and the scroll position wraps
+  // at the halfway point, so it never reaches an end. Users can still swipe or
+  // drag freely — auto-scroll pauses while they interact.
+  useEffect(() => {
+    const el = railRef.current;
+    if (!el || brands.length === 0) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let frame = 0;
+    let last = performance.now();
+
+    const wrap = () => {
+      const half = el.scrollWidth / 2;
+      if (half <= 0) return;
+      if (el.scrollLeft >= half) el.scrollLeft -= half;
+      else if (el.scrollLeft <= 0) el.scrollLeft += half;
+    };
+
+    const tick = (now: number) => {
+      const dt = Math.min(now - last, 64);
+      last = now;
+      if (!pausedRef.current) {
+        el.scrollLeft += (dt / 1000) * 28; // ~28px per second
+        const half = el.scrollWidth / 2;
+        if (half > 0 && el.scrollLeft >= half) el.scrollLeft -= half;
+      }
+      frame = requestAnimationFrame(tick);
+    };
+
+    frame = requestAnimationFrame(tick);
+    el.addEventListener("scroll", wrap, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      el.removeEventListener("scroll", wrap);
+    };
+  }, [brands.length]);
+
+  const pause = () => {
+    pausedRef.current = true;
+  };
+  const resume = () => {
+    pausedRef.current = false;
+  };
 
   const scrollBy = (dir: 1 | -1) => {
     const el = railRef.current;
     if (!el) return;
     el.scrollBy({ left: dir * Math.max(240, el.clientWidth * 0.8), behavior: "smooth" });
   };
+
 
   return (
     <div className="relative">
