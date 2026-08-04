@@ -444,8 +444,6 @@ function ProductPage() {
           </div>
         </section>
       ) : null}
-
-    </div>
     </div>
 
   );
