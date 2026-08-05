@@ -93,8 +93,8 @@ export function SiteHeader() {
           <button
             type="button"
             onClick={toggle}
-            aria-label="Toggle dark mode"
-            className="hidden h-10 w-10 place-items-center rounded-full hover:bg-surface sm:grid"
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            className="grid h-10 w-10 place-items-center rounded-full hover:bg-surface"
           >
             {theme === "dark" ? (
               <Sun className="h-[18px] w-[18px]" aria-hidden="true" />
