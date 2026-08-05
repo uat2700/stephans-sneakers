@@ -100,7 +100,7 @@ export function BrandRail({ brands }: { brands: Brand[] }) {
             search={{ brand: b.slug }}
             aria-hidden={i >= brands.length ? true : undefined}
             tabIndex={i >= brands.length ? -1 : undefined}
-            className="card-lift group relative w-[62%] shrink-0 overflow-hidden rounded-3xl border border-border bg-background sm:w-[38%] lg:w-[23%]"
+            className="card-lift group relative w-[62%] shrink-0 snap-start overflow-hidden rounded-3xl border border-border bg-background sm:w-[38%] lg:w-[23%]"
           >
             <div className="aspect-[4/3] w-full overflow-hidden bg-surface">
               {b.logo_url ? (
