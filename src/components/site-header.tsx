@@ -93,8 +93,8 @@ export function SiteHeader() {
           <button
             type="button"
             onClick={toggle}
-            aria-label="Toggle dark mode"
-            className="hidden h-10 w-10 place-items-center rounded-full hover:bg-surface sm:grid"
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            className="grid h-10 w-10 place-items-center rounded-full hover:bg-surface"
           >
             {theme === "dark" ? (
               <Sun className="h-[18px] w-[18px]" aria-hidden="true" />
@@ -196,7 +196,19 @@ export function SiteHeader() {
               )}
             </nav>
           </AnimatePresence>
-          <div className="p-4">
+          <div className="space-y-2 p-4">
+            <button
+              type="button"
+              onClick={toggle}
+              className="flex h-11 w-full items-center justify-between rounded-xl border border-border px-4 text-sm font-medium hover:bg-surface"
+            >
+              <span>{theme === "dark" ? "Dark mode" : "Light mode"}</span>
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Moon className="h-4 w-4" aria-hidden="true" />
+              )}
+            </button>
             <a
               href={whatsappLink(generalWhatsappMessage)}
               target="_blank"
