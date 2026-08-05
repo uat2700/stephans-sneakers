@@ -238,11 +238,15 @@ function Admin() {
         <Tabs defaultValue="products" className="mt-8">
           <TabsList>
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="ai">AI import</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="taxonomy">Brands & categories</TabsTrigger>
           </TabsList>
           <TabsContent value="products" className="mt-6">
             <ProductsPanel />
+          </TabsContent>
+          <TabsContent value="ai" className="mt-6">
+            <AiImport />
           </TabsContent>
           <TabsContent value="orders" className="mt-6">
             <OrdersPanel />
@@ -252,6 +256,7 @@ function Admin() {
           </TabsContent>
 
         </Tabs>
+
       </div>
     </Gate>
   );
