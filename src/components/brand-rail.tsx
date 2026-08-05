@@ -6,28 +6,46 @@ import type { Brand } from "@/lib/catalog";
 export function BrandRail({ brands }: { brands: Brand[] }) {
   const railRef = useRef<HTMLDivElement>(null);
   const pausedRef = useRef(false);
+  const indexRef = useRef(0);
 
-  // Endless brand-by-brand marquee: the list is rendered twice and the scroll
-  // position wraps at the halfway point. Auto-advance moves exactly one card at
-  // a time and pauses while the user interacts.
+  // Endless brand-by-brand marquee: the list is rendered twice, we advance one
+  // card per tick and silently jump back to the first copy once the second copy
+  // starts, so the loop never ends. Pauses while the user interacts.
   useEffect(() => {
     const el = railRef.current;
     if (!el || brands.length === 0) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const step = () => {
-      if (pausedRef.current) return;
-      const half = el.scrollWidth / 2;
-      if (half > 0 && el.scrollLeft >= half - 1) {
-        el.scrollLeft -= half;
-      }
+    const cardStep = () => {
       const card = el.firstElementChild as HTMLElement | null;
-      if (!card) return;
+      if (!card) return 0;
       const gap = parseFloat(getComputedStyle(el).columnGap || "0") || 0;
-      el.scrollBy({ left: card.offsetWidth + gap, behavior: "smooth" });
+      return card.offsetWidth + gap;
     };
 
-    const id = window.setInterval(step, 2600);
+    const tick = () => {
+      if (pausedRef.current) return;
+      const step = cardStep();
+      if (!step) return;
+
+      // Resync the index with wherever the user left the rail after swiping.
+      indexRef.current = Math.round(el.scrollLeft / step);
+
+      if (indexRef.current >= brands.length) {
+        // Instant, invisible rewind to the identical position in copy #1.
+        el.style.scrollSnapType = "none";
+        el.style.scrollBehavior = "auto";
+        el.scrollLeft -= brands.length * step;
+        indexRef.current -= brands.length;
+        el.style.scrollBehavior = "";
+        el.style.scrollSnapType = "";
+      }
+
+      indexRef.current += 1;
+      el.scrollTo({ left: indexRef.current * step, behavior: "smooth" });
+    };
+
+    const id = window.setInterval(tick, 2600);
     return () => window.clearInterval(id);
   }, [brands.length]);
 
@@ -46,6 +64,7 @@ export function BrandRail({ brands }: { brands: Brand[] }) {
     const amount = card ? card.offsetWidth + gap : Math.max(240, el.clientWidth * 0.8);
     el.scrollBy({ left: dir * amount, behavior: "smooth" });
   };
+
 
 
 
@@ -91,7 +110,7 @@ export function BrandRail({ brands }: { brands: Brand[] }) {
         onTouchEnd={resume}
         onFocusCapture={pause}
         onBlurCapture={resume}
-        className="mt-6 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0"
+        className="mt-6 -mx-4 flex snap-x snap-proximity gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0"
       >
         {[...brands, ...brands].map((b, i) => (
           <Link
