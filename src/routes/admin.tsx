@@ -215,50 +215,77 @@ function ProductsPanel() {
   );
 }
 
+const TABS = [
+  { value: "products", label: "Products" },
+  { value: "ai", label: "AI import" },
+  { value: "orders", label: "Orders" },
+  { value: "taxonomy", label: "Brands & categories" },
+];
+
 function Admin() {
   return (
     <Gate>
-      <div className="container-page py-10">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h1 className="font-display text-3xl font-extrabold uppercase tracking-tight">
-              Admin dashboard
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Manage products, stock, pricing, brands and categories.
-            </p>
+      <div className="min-h-screen bg-surface/40">
+        <div className="border-b border-border bg-card/80 backdrop-blur">
+          <div className="container-page flex flex-wrap items-center justify-between gap-4 py-6">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">
+                Stephans Collection
+              </p>
+              <h1 className="mt-1 font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
+                Admin dashboard
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Products, stock, pricing, orders and brands — all in one place.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="ghost" className="rounded-full">
+                <Link to="/">View store</Link>
+              </Button>
+              <Button
+                variant="outline"
+                className="rounded-full"
+                onClick={() => supabase.auth.signOut()}
+              >
+                Sign out
+              </Button>
+            </div>
           </div>
-          <Button
-            variant="outline"
-            className="rounded-full"
-            onClick={() => supabase.auth.signOut()}
-          >
-            Sign out
-          </Button>
         </div>
 
-        <Tabs defaultValue="products" className="mt-8">
-          <TabsList>
-            <TabsTrigger value="products">Products</TabsTrigger>
-            <TabsTrigger value="ai">AI import</TabsTrigger>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="taxonomy">Brands & categories</TabsTrigger>
-          </TabsList>
-          <TabsContent value="products" className="mt-6">
-            <ProductsPanel />
-          </TabsContent>
-          <TabsContent value="ai" className="mt-6">
-            <AiImport />
-          </TabsContent>
-          <TabsContent value="orders" className="mt-6">
-            <OrdersPanel />
-          </TabsContent>
-          <TabsContent value="taxonomy" className="mt-6">
-            <TaxonomyManager />
-          </TabsContent>
+        <div className="container-page space-y-6 py-6 sm:py-8">
+          <AdminStats />
 
-        </Tabs>
+          <Tabs defaultValue="products">
+            <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+              <TabsList className="h-auto w-max rounded-full border border-border bg-card p-1">
+                {TABS.map((tab) => (
+                  <TabsTrigger
+                    key={tab.value}
+                    value={tab.value}
+                    className="rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wide data-[state=active]:bg-foreground data-[state=active]:text-background"
+                  >
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
 
+            <TabsContent value="products" className="mt-6">
+              <ProductsPanel />
+            </TabsContent>
+            <TabsContent value="ai" className="mt-6">
+              <AiImport />
+            </TabsContent>
+            <TabsContent value="orders" className="mt-6">
+              <OrdersPanel />
+            </TabsContent>
+            <TabsContent value="taxonomy" className="mt-6">
+              <TaxonomyManager />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </Gate>
   );
