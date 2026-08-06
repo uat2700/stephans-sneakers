@@ -290,6 +290,24 @@ function Home() {
         <InstagramGallery products={all} />
       </section>
 
+      {trending.length ? (
+        <section className="container-page py-14">
+          <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
+            Trending sneakers
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            The most-viewed pairs on the store right now.
+          </p>
+          <div className="mt-8 grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+            {trending.map((p) => (
+              <ProductCard key={p.id} product={p} onQuickView={setQuick} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+
+
       <section className="container-page pb-16">
         <div className="rounded-[2rem] bg-foreground px-6 py-14 text-center text-background">
           <h2 className="font-display text-3xl font-extrabold uppercase tracking-tight">
