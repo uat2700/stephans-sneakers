@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { trackProductView } from "@/lib/product-views.functions";
+
 
 const KEY = "sc-viewed-products";
 const WINDOW_MS = 1000 * 60 * 60 * 6; // count one view per product per 6 hours
