@@ -36,6 +36,9 @@ export function useTrackProductView(productId: string | undefined) {
       /* ignore quota errors */
     }
 
-    void supabase.rpc("increment_product_views", { _product_id: productId });
+    void trackProductView({ data: { productId } }).catch(() => {
+      /* view counting is best-effort */
+    });
+
   }, [productId]);
 }
