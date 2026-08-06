@@ -73,7 +73,7 @@ function Home() {
   const newest = all.filter((p) => p.is_new).slice(0, 4);
   const byPopularity = [...all].sort((a, b) => b.popularity - a.popularity);
   const visited = byPopularity.filter((p) => p.popularity > 0);
-  const trending = (visited.length >= 2 ? visited : byPopularity).slice(0, 4);
+  const trending = visited.slice(0, 4);
   const bestSellers = (byPopularity.slice(4, 8).length
     ? byPopularity.slice(4, 8)
     : byPopularity.slice(0, 4)
@@ -224,21 +224,6 @@ function Home() {
         </section>
       ) : null}
 
-      {trending.length ? (
-        <section className="container-page py-14">
-          <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
-            Trending sneakers
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            The most-viewed pairs on the store right now.
-          </p>
-          <div className="mt-8 grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
-            {trending.map((p) => (
-              <ProductCard key={p.id} product={p} onQuickView={setQuick} />
-            ))}
-          </div>
-        </section>
-      ) : null}
 
 
       {newest.length ? (
