@@ -17,6 +17,7 @@ import { ProductForm } from "@/components/admin/product-form";
 import { TaxonomyManager } from "@/components/admin/taxonomy-manager";
 import { OrdersPanel } from "@/components/admin/orders-panel";
 import { AiImport } from "@/components/admin/ai-import";
+import { AdminStats } from "@/components/admin/admin-stats";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
