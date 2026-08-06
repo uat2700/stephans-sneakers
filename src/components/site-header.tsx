@@ -113,7 +113,7 @@ export function SiteHeader() {
           <Link
             to="/wishlist"
             aria-label="Wishlist"
-            className="relative grid h-10 w-10 place-items-center rounded-full hover:bg-surface"
+            className="relative hidden h-10 w-10 place-items-center rounded-full hover:bg-surface lg:grid"
           >
             <Heart className="h-[18px] w-[18px]" aria-hidden="true" />
             {wishlist.ids.length > 0 ? (
@@ -137,10 +137,11 @@ export function SiteHeader() {
           <Link
             to="/account"
             aria-label="My account"
-            className="grid h-10 w-10 place-items-center rounded-full hover:bg-surface"
+            className="hidden h-10 w-10 place-items-center rounded-full hover:bg-surface lg:grid"
           >
             <User className="h-[18px] w-[18px]" aria-hidden="true" />
           </Link>
+
           <a
             href={whatsappLink(generalWhatsappMessage)}
             target="_blank"
