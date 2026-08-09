@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Sparkles, Trash2, Upload } from "lucide-react";
+import { Loader2, Sparkles, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadProductImage } from "@/lib/storage";
@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 
 type Row = {
   key: string;
-  imageUrl: string;
+  images: string[];
   status: "analysing" | "ready" | "failed";
   name: string;
   brandName: string;
@@ -41,6 +41,14 @@ type Row = {
 
 const NONE = "__none__";
 
+/** Signature used to decide whether two photos are the same sneaker. */
+const signature = (brand: string, name: string) =>
+  `${brand.trim().toLowerCase()}|${name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()}`;
+
 export function AiImport() {
   const queryClient = useQueryClient();
   const brands = useQuery(brandsQuery());
@@ -49,6 +57,7 @@ export function AiImport() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [busy, setBusy] = useState(false);
+  const [grouped, setGrouped] = useState(0);
 
   const patch = (key: string, next: Partial<Row>) =>
     setRows((prev) => prev.map((r) => (r.key === key ? { ...r, ...next } : r)));
@@ -56,6 +65,7 @@ export function AiImport() {
   async function handleFiles(files: FileList | null) {
     if (!files?.length) return;
     setBusy(true);
+    setGrouped(0);
     const brandNames = (brands.data ?? []).map((b) => b.name);
     const categoryNames = (categories.data ?? []).map((c) => c.name);
 
@@ -67,7 +77,7 @@ export function AiImport() {
           ...prev,
           {
             key,
-            imageUrl,
+            images: [imageUrl],
             status: "analysing",
             name: "",
             brandName: "",
@@ -94,10 +104,38 @@ export function AiImport() {
           (c) => c.name.toLowerCase() === result.category.trim().toLowerCase(),
         );
 
+        const brandName = matchedBrand?.name ?? result.brand;
+        const sig = signature(brandName, result.name);
+
+        // Group this photo into an existing sneaker when it's the same pair.
+        let merged = false;
+        setRows((prev) => {
+          const target = result.name.trim()
+            ? prev.find(
+                (r) =>
+                  r.key !== key &&
+                  r.status === "ready" &&
+                  signature(r.brandName, r.name) === sig,
+              )
+            : undefined;
+          if (!target) return prev;
+          merged = true;
+          return prev
+            .filter((r) => r.key !== key)
+            .map((r) =>
+              r.key === target.key ? { ...r, images: [...r.images, imageUrl] } : r,
+            );
+        });
+
+        if (merged) {
+          setGrouped((n) => n + 1);
+          continue;
+        }
+
         patch(key, {
           status: "ready",
           name: result.name,
-          brandName: matchedBrand?.name ?? result.brand,
+          brandName,
           brandId: matchedBrand?.id ?? null,
           categoryId: matchedCategory?.id ?? null,
           gender: GENDER_OPTIONS.includes(result.gender) ? result.gender : "unisex",
@@ -116,6 +154,27 @@ export function AiImport() {
     setBusy(false);
     if (inputRef.current) inputRef.current.value = "";
   }
+
+  const removeImage = (key: string, url: string) =>
+    setRows((prev) =>
+      prev
+        .map((r) =>
+          r.key === key ? { ...r, images: r.images.filter((i) => i !== url) } : r,
+        )
+        .filter((r) => r.images.length > 0),
+    );
+
+  const splitImage = (key: string, url: string) =>
+    setRows((prev) => {
+      const source = prev.find((r) => r.key === key);
+      if (!source || source.images.length < 2) return prev;
+      return [
+        ...prev.map((r) =>
+          r.key === key ? { ...r, images: r.images.filter((i) => i !== url) } : r,
+        ),
+        { ...source, key: crypto.randomUUID(), images: [url] },
+      ];
+    });
 
   const publish = useMutation({
     mutationFn: async () => {
@@ -171,18 +230,21 @@ export function AiImport() {
           .single();
         if (error) throw error;
 
-        const { error: imageError } = await supabase.from("product_images").insert({
-          product_id: data.id,
-          url: row.imageUrl,
-          alt: name,
-          position: 0,
-        });
+        const { error: imageError } = await supabase.from("product_images").insert(
+          row.images.map((url, index) => ({
+            product_id: data.id,
+            url,
+            alt: name,
+            position: index,
+          })),
+        );
         if (imageError) throw imageError;
       }
     },
     onSuccess: () => {
       toast.success("Sneakers published to the store");
       setRows([]);
+      setGrouped(0);
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["brands"] });
@@ -199,6 +261,8 @@ export function AiImport() {
       })),
     );
 
+  const readyCount = rows.filter((r) => r.status === "ready").length;
+
   return (
     <div>
       <div className="rounded-3xl border border-dashed border-border bg-card p-6 text-center">
@@ -208,7 +272,8 @@ export function AiImport() {
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
           Upload sneaker photos and AI will detect the brand and product name for
-          each pair. You only set the price and sizes.
+          each pair. Photos of the same sneaker are grouped into one product
+          automatically — you only set the price and sizes.
         </p>
         <input
           ref={inputRef}
@@ -230,6 +295,11 @@ export function AiImport() {
           )}
           {busy ? "Analysing photos…" : "Upload sneaker photos"}
         </Button>
+        {grouped > 0 ? (
+          <p className="mt-3 text-xs text-muted-foreground">
+            {grouped} photo{grouped === 1 ? "" : "s"} grouped with a matching sneaker.
+          </p>
+        ) : null}
       </div>
 
       {rows.length ? (
@@ -240,12 +310,45 @@ export function AiImport() {
               className="rounded-3xl border border-border bg-card p-4 sm:p-5"
             >
               <div className="flex gap-4">
-                <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-muted">
-                  <img
-                    src={row.imageUrl}
-                    alt={row.name || "Uploaded sneaker"}
-                    className="h-full w-full object-cover"
-                  />
+                <div className="w-24 shrink-0 space-y-2">
+                  {row.images.map((url, index) => (
+                    <div
+                      key={url}
+                      className="group relative h-24 w-24 overflow-hidden rounded-2xl bg-muted"
+                    >
+                      <img
+                        src={url}
+                        alt={row.name || "Uploaded sneaker"}
+                        className="h-full w-full object-cover"
+                      />
+                      {row.images.length > 1 ? (
+                        <>
+                          <button
+                            type="button"
+                            aria-label="Remove this photo"
+                            onClick={() => removeImage(row.key, url)}
+                            className="absolute right-1 top-1 rounded-full bg-background/90 p-1"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                          {index > 0 ? (
+                            <button
+                              type="button"
+                              onClick={() => splitImage(row.key, url)}
+                              className="absolute inset-x-1 bottom-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold"
+                            >
+                              Separate
+                            </button>
+                          ) : null}
+                        </>
+                      ) : null}
+                    </div>
+                  ))}
+                  {row.images.length > 1 ? (
+                    <p className="text-center text-[11px] text-muted-foreground">
+                      {row.images.length} photos grouped
+                    </p>
+                  ) : null}
                 </div>
                 <div className="min-w-0 flex-1">
                   {row.status === "analysing" ? (
@@ -413,6 +516,11 @@ export function AiImport() {
                         <Badge variant="secondary">
                           AI confidence {Math.round(row.confidence * 100)}%
                         </Badge>
+                        {row.images.length > 1 ? (
+                          <Badge variant="secondary">
+                            {row.images.length} photos
+                          </Badge>
+                        ) : null}
                       </div>
                     </div>
                   )}
@@ -420,7 +528,7 @@ export function AiImport() {
                 <Button
                   size="icon"
                   variant="ghost"
-                  aria-label="Remove photo"
+                  aria-label="Remove sneaker"
                   className="shrink-0"
                   onClick={() =>
                     setRows((prev) => prev.filter((r) => r.key !== row.key))
@@ -448,8 +556,7 @@ export function AiImport() {
               {publish.isPending ? (
                 <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
               ) : null}
-              Publish {rows.filter((r) => r.status === "ready").length} sneaker
-              {rows.filter((r) => r.status === "ready").length === 1 ? "" : "s"}
+              Publish {readyCount} sneaker{readyCount === 1 ? "" : "s"}
             </Button>
           </div>
         </div>
