@@ -175,19 +175,19 @@ export function ProductCard({ product, onQuickView, className }: Props) {
 
         {product.sizes.length ? (
           <ul
-            className="flex flex-wrap gap-1.5 overflow-hidden"
+            className="flex flex-wrap gap-1 overflow-hidden"
             aria-label="Available sizes"
           >
             {product.sizes.slice(0, 3).map((size) => (
               <li
                 key={size}
-                className="rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-semibold leading-none text-muted-foreground"
+                className="rounded-full border border-border bg-surface px-1.5 py-0.5 text-[10px] font-semibold leading-none text-muted-foreground"
               >
                 {size}
               </li>
             ))}
             {product.sizes.length > 3 ? (
-              <li className="rounded-full border border-dashed border-border px-2.5 py-1 text-[11px] font-semibold leading-none text-muted-foreground">
+              <li className="rounded-full border border-dashed border-border px-1.5 py-0.5 text-[10px] font-semibold leading-none text-muted-foreground">
                 +{product.sizes.length - 3}
               </li>
             ) : null}
@@ -199,7 +199,7 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           <span className="truncate">Delivery in 1–3 days</span>
         </p>
 
-        <div className="mt-auto grid gap-2 pt-2">
+        <div className="mt-auto flex items-center gap-1.5 pt-1.5">
           <a
             href={whatsappLink(
               productMessage({
@@ -210,14 +210,17 @@ export function ProductCard({ product, onQuickView, className }: Props) {
             )}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-whatsapp px-2 text-xs font-semibold text-whatsapp-foreground transition hover:opacity-90 active:scale-[0.98] sm:gap-2 sm:px-3 sm:text-sm"
+            aria-label="Order on WhatsApp"
+            className="inline-flex h-8 flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full bg-whatsapp px-2 text-[11px] font-semibold text-whatsapp-foreground transition hover:opacity-90 active:scale-[0.98] sm:text-xs"
           >
-            <WhatsAppIcon className="hidden h-4 w-4 shrink-0 min-[420px]:block" /> Order on WhatsApp
+            <WhatsAppIcon className="h-3.5 w-3.5 shrink-0" /> WhatsApp
           </a>
           <Button
             type="button"
             variant="outline"
+            size="icon"
             disabled={!inStock}
+            aria-label="Add to cart"
             onClick={() => {
               addItem({
                 productId: product.id,
@@ -231,11 +234,12 @@ export function ProductCard({ product, onQuickView, className }: Props) {
               });
               toast.success("Added to cart", { description: product.name });
             }}
-            className="h-11 w-full rounded-full px-2 text-xs font-semibold whitespace-nowrap transition active:scale-[0.98] sm:px-3 sm:text-sm"
+            className="h-8 w-8 shrink-0 rounded-full transition active:scale-[0.98]"
           >
-            <ShoppingBag className="hidden h-4 w-4 shrink-0 min-[420px]:block" aria-hidden="true" /> Add to cart
+            <ShoppingBag className="h-3.5 w-3.5" aria-hidden="true" />
           </Button>
         </div>
+
       </div>
     </motion.article>
   );
