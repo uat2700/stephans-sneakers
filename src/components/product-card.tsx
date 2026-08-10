@@ -32,6 +32,17 @@ export function ProductCard({ product, onQuickView, className }: Props) {
   const lowStock = inStock && product.stock <= 3;
   const favourite = wishlist.has(product.id);
   const rating = stats.data?.[product.id] ?? null;
+  const numericSizes = product.sizes
+    .map((s) => Number(String(s).replace(/[^0-9.]/g, "")))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  const sizeRange = numericSizes.length
+    ? (() => {
+        const min = Math.min(...numericSizes);
+        const max = Math.max(...numericSizes);
+        return min === max ? `${min}` : `${min}–${max}`;
+      })()
+    : (product.sizes[0] ?? null);
+
 
   return (
     <motion.article
@@ -152,7 +163,7 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           </span>
           <span className="truncate">
             {rating
-              ? `${rating.average.toFixed(1)} · ${rating.count} review${rating.count === 1 ? "" : "s"}`
+              ? `${rating.average.toFixed(1)} (${rating.count})`
               : "New listing"}
           </span>
         </div>
@@ -173,31 +184,17 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           ) : null}
         </div>
 
-        {product.sizes.length ? (
-          <ul
-            className="flex flex-wrap gap-1 overflow-hidden"
-            aria-label="Available sizes"
-          >
-            {product.sizes.slice(0, 3).map((size) => (
-              <li
-                key={size}
-                className="rounded-full border border-border bg-surface px-1.5 py-0.5 text-[10px] font-semibold leading-none text-muted-foreground"
-              >
-                {size}
-              </li>
-            ))}
-            {product.sizes.length > 3 ? (
-              <li className="rounded-full border border-dashed border-border px-1.5 py-0.5 text-[10px] font-semibold leading-none text-muted-foreground">
-                +{product.sizes.length - 3}
-              </li>
-            ) : null}
-          </ul>
+        {sizeRange ? (
+          <p className="truncate text-[11px] font-medium text-muted-foreground">
+            Sizes {sizeRange}
+          </p>
         ) : null}
 
         <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
           <Truck className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           <span className="truncate">Delivery in 1–3 days</span>
         </p>
+
 
         <div className="mt-auto flex items-center gap-1.5 pt-1.5">
           <a
