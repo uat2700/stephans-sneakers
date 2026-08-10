@@ -134,22 +134,33 @@ function Checkout() {
               callback_url: `${window.location.origin}/payment-callback`,
             },
           });
-          return { redirect: authorization_url as string };
+          return { redirect: authorization_url, message: null as string | null };
         }
 
         const message = cartMessage(order.items, order.total);
-        return { message: `${message}\n\nOrder ref: ${order.order_number}` };
+        return {
+          redirect: null as string | null,
+          message: `${message}\n\nOrder ref: ${order.order_number}`,
+        };
       }
 
-      return { message: cartMessage(cart.items, cart.total) };
+      return {
+        redirect: null as string | null,
+        message: cartMessage(cart.items, cart.total),
+      };
     },
     onSuccess: (result) => {
-      if ("redirect" in result && result.redirect) {
+      if (result.redirect) {
         cart.clear();
         window.location.href = result.redirect;
         return;
       }
-      window.open(whatsappLink(result.message!), "_blank", "noopener,noreferrer");
+      window.open(
+        whatsappLink(result.message ?? ""),
+        "_blank",
+        "noopener,noreferrer",
+      );
+
       cart.clear();
       toast.success("Order placed — confirm it on WhatsApp");
       void navigate({ to: user ? "/account" : "/shop" });
