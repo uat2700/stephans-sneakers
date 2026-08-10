@@ -3,6 +3,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
 import { placeOrder } from "@/lib/orders.functions";
+import { initPaystackPayment } from "@/lib/paystack.functions";
+
 import { toast } from "sonner";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { Button } from "@/components/ui/button";
@@ -69,6 +71,8 @@ function Checkout() {
   const navigate = useNavigate();
   const { user } = useSession();
   const [form, setForm] = useState<Form>(empty);
+  const [payment, setPayment] = useState<"whatsapp" | "paystack">("whatsapp");
+
 
   const set = <K extends keyof Form>(key: K, value: Form[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
