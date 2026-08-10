@@ -11,6 +11,8 @@ const orderSchema = z.object({
   city: z.string().trim().min(2).max(120),
   region: z.string().trim().min(2).max(120),
   notes: z.string().trim().max(1000).nullable(),
+  payment_method: z.enum(["whatsapp", "paystack"]).default("whatsapp"),
+
   items: z
     .array(
       z.object({
