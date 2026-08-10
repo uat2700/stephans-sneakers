@@ -194,9 +194,10 @@ function Checkout() {
         Checkout
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Pay on delivery. We confirm every order on WhatsApp before dispatch. Card
-        payments (Paystack) coming soon.
+        Pay securely by card or mobile money with Paystack, or pay on delivery
+        and confirm your order on WhatsApp.
       </p>
+
 
       <form
         className="mt-8 grid gap-8 lg:grid-cols-[1.4fr_1fr]"
@@ -296,6 +297,54 @@ function Checkout() {
             />
           </div>
 
+          <div className="grid gap-3">
+            <Label>Payment method</Label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {(
+                [
+                  {
+                    id: "whatsapp",
+                    title: "Pay on delivery",
+                    hint: "Confirm on WhatsApp, pay when it arrives.",
+                  },
+                  {
+                    id: "paystack",
+                    title: "Pay now (Paystack)",
+                    hint: "Card, mobile money or bank transfer.",
+                  },
+                ] as const
+              ).map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => setPayment(option.id)}
+                  aria-pressed={payment === option.id}
+                  className={`rounded-2xl border p-4 text-left transition ${
+                    payment === option.id
+                      ? "border-foreground bg-surface"
+                      : "border-border hover:border-foreground/40"
+                  }`}
+                >
+                  <span className="block text-sm font-semibold">
+                    {option.title}
+                  </span>
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    {option.hint}
+                  </span>
+                </button>
+              ))}
+            </div>
+            {payment === "paystack" && !user ? (
+              <p className="text-xs text-destructive">
+                Please{" "}
+                <Link to="/auth" className="font-medium underline">
+                  sign in
+                </Link>{" "}
+                to pay online.
+              </p>
+            ) : null}
+          </div>
+
           {!user && (
             <p className="text-xs text-muted-foreground">
               <Link to="/auth" className="font-medium underline">
@@ -304,6 +353,7 @@ function Checkout() {
               to save this order to your account and track it later.
             </p>
           )}
+
         </div>
 
         <aside className="h-fit rounded-3xl border border-border bg-card p-6">
