@@ -3,9 +3,13 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
 import { placeOrder } from "@/lib/orders.functions";
+import { initPaystackPayment } from "@/lib/paystack.functions";
+
 import { toast } from "sonner";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
+import { CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -69,6 +73,8 @@ function Checkout() {
   const navigate = useNavigate();
   const { user } = useSession();
   const [form, setForm] = useState<Form>(empty);
+  const [payment, setPayment] = useState<"whatsapp" | "paystack">("whatsapp");
+
 
   const set = <K extends keyof Form>(key: K, value: Form[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -95,6 +101,7 @@ function Checkout() {
   }, [user]);
 
   const submitOrder = useServerFn(placeOrder);
+  const startPaystack = useServerFn(initPaystackPayment);
 
   const place = useMutation({
     mutationFn: async () => {
@@ -109,6 +116,7 @@ function Checkout() {
             city: form.city.trim(),
             region: form.region,
             notes: form.notes.trim() || null,
+            payment_method: payment,
             items: cart.items.map((i) => ({
               product_id: i.productId,
               size: i.size,
@@ -118,14 +126,43 @@ function Checkout() {
           },
         });
 
+        if (payment === "paystack") {
+          const email = form.email.trim() || user.email || "";
+          if (!email) throw new Error("Email is required for card payments");
+          const { authorization_url } = await startPaystack({
+            data: {
+              order_number: order.order_number,
+              email,
+              callback_url: `${window.location.origin}/payment-callback`,
+            },
+          });
+          return { redirect: authorization_url, message: null as string | null };
+        }
+
         const message = cartMessage(order.items, order.total);
-        return { message: `${message}\n\nOrder ref: ${order.order_number}` };
+        return {
+          redirect: null as string | null,
+          message: `${message}\n\nOrder ref: ${order.order_number}`,
+        };
       }
 
-      return { message: cartMessage(cart.items, cart.total) };
+      return {
+        redirect: null as string | null,
+        message: cartMessage(cart.items, cart.total),
+      };
     },
-    onSuccess: ({ message }) => {
-      window.open(whatsappLink(message), "_blank", "noopener,noreferrer");
+    onSuccess: (result) => {
+      if (result.redirect) {
+        cart.clear();
+        window.location.href = result.redirect;
+        return;
+      }
+      window.open(
+        whatsappLink(result.message ?? ""),
+        "_blank",
+        "noopener,noreferrer",
+      );
+
       cart.clear();
       toast.success("Order placed — confirm it on WhatsApp");
       void navigate({ to: user ? "/account" : "/shop" });
@@ -135,6 +172,7 @@ function Checkout() {
         error instanceof Error ? error.message : "Could not place your order",
       ),
   });
+
 
   if (cart.items.length === 0 && !place.isPending) {
     return (
@@ -158,9 +196,10 @@ function Checkout() {
         Checkout
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Pay on delivery. We confirm every order on WhatsApp before dispatch. Card
-        payments (Paystack) coming soon.
+        Pay securely by card or mobile money with Paystack, or pay on delivery
+        and confirm your order on WhatsApp.
       </p>
+
 
       <form
         className="mt-8 grid gap-8 lg:grid-cols-[1.4fr_1fr]"
@@ -260,6 +299,54 @@ function Checkout() {
             />
           </div>
 
+          <div className="grid gap-3">
+            <Label>Payment method</Label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {(
+                [
+                  {
+                    id: "whatsapp",
+                    title: "Pay on delivery",
+                    hint: "Confirm on WhatsApp, pay when it arrives.",
+                  },
+                  {
+                    id: "paystack",
+                    title: "Pay now (Paystack)",
+                    hint: "Card, mobile money or bank transfer.",
+                  },
+                ] as const
+              ).map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => setPayment(option.id)}
+                  aria-pressed={payment === option.id}
+                  className={`rounded-2xl border p-4 text-left transition ${
+                    payment === option.id
+                      ? "border-foreground bg-surface"
+                      : "border-border hover:border-foreground/40"
+                  }`}
+                >
+                  <span className="block text-sm font-semibold">
+                    {option.title}
+                  </span>
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    {option.hint}
+                  </span>
+                </button>
+              ))}
+            </div>
+            {payment === "paystack" && !user ? (
+              <p className="text-xs text-destructive">
+                Please{" "}
+                <Link to="/auth" className="font-medium underline">
+                  sign in
+                </Link>{" "}
+                to pay online.
+              </p>
+            ) : null}
+          </div>
+
           {!user && (
             <p className="text-xs text-muted-foreground">
               <Link to="/auth" className="font-medium underline">
@@ -268,6 +355,7 @@ function Checkout() {
               to save this order to your account and track it later.
             </p>
           )}
+
         </div>
 
         <aside className="h-fit rounded-3xl border border-border bg-card p-6">
@@ -304,14 +392,28 @@ function Checkout() {
             </div>
           </div>
 
-          <Button
-            type="submit"
-            disabled={place.isPending}
-            className="mt-6 h-11 w-full gap-2 rounded-full bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90"
-          >
-            <WhatsAppIcon className="h-4 w-4" />
-            {place.isPending ? "Placing order…" : "Place order on WhatsApp"}
-          </Button>
+          {payment === "paystack" ? (
+            <Button
+              type="submit"
+              disabled={place.isPending || !user}
+              className="mt-6 h-11 w-full gap-2 rounded-full"
+            >
+              <CreditCard className="h-4 w-4" />
+              {place.isPending
+                ? "Redirecting to Paystack…"
+                : `Pay ${formatPrice(cart.total)} now`}
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              disabled={place.isPending}
+              className="mt-6 h-11 w-full gap-2 rounded-full bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90"
+            >
+              <WhatsAppIcon className="h-4 w-4" />
+              {place.isPending ? "Placing order…" : "Place order on WhatsApp"}
+            </Button>
+          )}
+
           <Button
             asChild
             variant="outline"
