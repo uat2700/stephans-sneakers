@@ -421,6 +421,10 @@ function ProductPage() {
         </div>
       </div>
 
+      <ProductReviews productId={product.id} />
+
+
+
       {related.length ? (
         <section className="mt-16">
           <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight">
