@@ -7,7 +7,9 @@ import { initPaystackPayment } from "@/lib/paystack.functions";
 
 import { toast } from "sonner";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
+import { CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -390,14 +392,28 @@ function Checkout() {
             </div>
           </div>
 
-          <Button
-            type="submit"
-            disabled={place.isPending}
-            className="mt-6 h-11 w-full gap-2 rounded-full bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90"
-          >
-            <WhatsAppIcon className="h-4 w-4" />
-            {place.isPending ? "Placing order…" : "Place order on WhatsApp"}
-          </Button>
+          {payment === "paystack" ? (
+            <Button
+              type="submit"
+              disabled={place.isPending || !user}
+              className="mt-6 h-11 w-full gap-2 rounded-full"
+            >
+              <CreditCard className="h-4 w-4" />
+              {place.isPending
+                ? "Redirecting to Paystack…"
+                : `Pay ${formatPrice(cart.total)} now`}
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              disabled={place.isPending}
+              className="mt-6 h-11 w-full gap-2 rounded-full bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90"
+            >
+              <WhatsAppIcon className="h-4 w-4" />
+              {place.isPending ? "Placing order…" : "Place order on WhatsApp"}
+            </Button>
+          )}
+
           <Button
             asChild
             variant="outline"
