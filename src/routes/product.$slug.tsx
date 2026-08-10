@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Heart, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { ProductCard } from "@/components/product-card";
+import { ProductReviews } from "@/components/product-reviews";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -420,6 +421,10 @@ function ProductPage() {
           </Accordion>
         </div>
       </div>
+
+      <ProductReviews productId={product.id} />
+
+
 
       {related.length ? (
         <section className="mt-16">
