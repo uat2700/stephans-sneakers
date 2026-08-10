@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as PaymentCallbackRouteImport } from './routes/payment-callback'
 import { Route as NewArrivalsRouteImport } from './routes/new-arrivals'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -31,6 +32,11 @@ const WishlistRoute = WishlistRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentCallbackRoute = PaymentCallbackRouteImport.update({
+  id: '/payment-callback',
+  path: '/payment-callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewArrivalsRoute = NewArrivalsRouteImport.update({
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/new-arrivals': typeof NewArrivalsRoute
+  '/payment-callback': typeof PaymentCallbackRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/new-arrivals': typeof NewArrivalsRoute
+  '/payment-callback': typeof PaymentCallbackRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/new-arrivals': typeof NewArrivalsRoute
+  '/payment-callback': typeof PaymentCallbackRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/new-arrivals'
+    | '/payment-callback'
     | '/shop'
     | '/wishlist'
     | '/product/$slug'
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/new-arrivals'
+    | '/payment-callback'
     | '/shop'
     | '/wishlist'
     | '/product/$slug'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/new-arrivals'
+    | '/payment-callback'
     | '/shop'
     | '/wishlist'
     | '/product/$slug'
@@ -194,6 +206,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
   NewArrivalsRoute: typeof NewArrivalsRoute
+  PaymentCallbackRoute: typeof PaymentCallbackRoute
   ShopRoute: typeof ShopRoute
   WishlistRoute: typeof WishlistRoute
   ProductSlugRoute: typeof ProductSlugRoute
@@ -213,6 +226,13 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment-callback': {
+      id: '/payment-callback'
+      path: '/payment-callback'
+      fullPath: '/payment-callback'
+      preLoaderRoute: typeof PaymentCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/new-arrivals': {
@@ -306,6 +326,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
   NewArrivalsRoute: NewArrivalsRoute,
+  PaymentCallbackRoute: PaymentCallbackRoute,
   ShopRoute: ShopRoute,
   WishlistRoute: WishlistRoute,
   ProductSlugRoute: ProductSlugRoute,
