@@ -95,6 +95,7 @@ function Checkout() {
   }, [user]);
 
   const submitOrder = useServerFn(placeOrder);
+  const startPaystack = useServerFn(initPaystackPayment);
 
   const place = useMutation({
     mutationFn: async () => {
@@ -109,6 +110,7 @@ function Checkout() {
             city: form.city.trim(),
             region: form.region,
             notes: form.notes.trim() || null,
+            payment_method: payment,
             items: cart.items.map((i) => ({
               product_id: i.productId,
               size: i.size,
@@ -118,14 +120,32 @@ function Checkout() {
           },
         });
 
+        if (payment === "paystack") {
+          const email = form.email.trim() || user.email || "";
+          if (!email) throw new Error("Email is required for card payments");
+          const { authorization_url } = await startPaystack({
+            data: {
+              order_number: order.order_number,
+              email,
+              callback_url: `${window.location.origin}/payment-callback`,
+            },
+          });
+          return { redirect: authorization_url as string };
+        }
+
         const message = cartMessage(order.items, order.total);
         return { message: `${message}\n\nOrder ref: ${order.order_number}` };
       }
 
       return { message: cartMessage(cart.items, cart.total) };
     },
-    onSuccess: ({ message }) => {
-      window.open(whatsappLink(message), "_blank", "noopener,noreferrer");
+    onSuccess: (result) => {
+      if ("redirect" in result && result.redirect) {
+        cart.clear();
+        window.location.href = result.redirect;
+        return;
+      }
+      window.open(whatsappLink(result.message!), "_blank", "noopener,noreferrer");
       cart.clear();
       toast.success("Order placed — confirm it on WhatsApp");
       void navigate({ to: user ? "/account" : "/shop" });
@@ -135,6 +155,7 @@ function Checkout() {
         error instanceof Error ? error.message : "Could not place your order",
       ),
   });
+
 
   if (cart.items.length === 0 && !place.isPending) {
     return (
