@@ -1,16 +1,14 @@
 import { Link } from "@tanstack/react-router";
-import { Heart, ShoppingBag, Eye, Star, Truck } from "lucide-react";
+import { Heart, ShoppingBag, Eye, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { discountPercent, formatPrice } from "@/lib/format";
 import { primaryImage, reviewStatsQuery, type Product } from "@/lib/catalog";
-import { productMessage, whatsappLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 type Props = {
