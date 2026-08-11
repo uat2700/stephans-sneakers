@@ -1,16 +1,14 @@
 import { Link } from "@tanstack/react-router";
-import { Heart, ShoppingBag, Eye, Star, Truck } from "lucide-react";
+import { Heart, ShoppingBag, Eye, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { discountPercent, formatPrice } from "@/lib/format";
 import { primaryImage, reviewStatsQuery, type Product } from "@/lib/catalog";
-import { productMessage, whatsappLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -32,16 +30,6 @@ export function ProductCard({ product, onQuickView, className }: Props) {
   const lowStock = inStock && product.stock <= 3;
   const favourite = wishlist.has(product.id);
   const rating = stats.data?.[product.id] ?? null;
-  const numericSizes = product.sizes
-    .map((s) => Number(String(s).replace(/[^0-9.]/g, "")))
-    .filter((n) => Number.isFinite(n) && n > 0);
-  const sizeRange = numericSizes.length
-    ? (() => {
-        const min = Math.min(...numericSizes);
-        const max = Math.max(...numericSizes);
-        return min === max ? `${min}` : `${min}–${max}`;
-      })()
-    : (product.sizes[0] ?? null);
 
 
   return (
@@ -184,40 +172,11 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           ) : null}
         </div>
 
-        {sizeRange ? (
-          <p className="truncate text-[11px] font-medium text-muted-foreground">
-            Sizes {sizeRange}
-          </p>
-        ) : null}
-
-        <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <Truck className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          <span className="truncate">Delivery in 1–3 days</span>
-        </p>
-
-
-        <div className="mt-auto flex items-center gap-1.5 pt-1.5">
-          <a
-            href={whatsappLink(
-              productMessage({
-                name: product.name,
-                price: product.selling_price,
-                size: product.sizes[0],
-              }),
-            )}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Order on WhatsApp"
-            className="inline-flex h-8 flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full bg-whatsapp px-2 text-[11px] font-semibold text-whatsapp-foreground transition hover:opacity-90 active:scale-[0.98] sm:text-xs"
-          >
-            <WhatsAppIcon className="h-3.5 w-3.5 shrink-0" /> WhatsApp
-          </a>
+        <div className="mt-auto pt-1.5">
           <Button
             type="button"
-            variant="outline"
-            size="icon"
+            size="sm"
             disabled={!inStock}
-            aria-label="Add to cart"
             onClick={() => {
               addItem({
                 productId: product.id,
@@ -231,9 +190,9 @@ export function ProductCard({ product, onQuickView, className }: Props) {
               });
               toast.success("Added to cart", { description: product.name });
             }}
-            className="h-8 w-8 shrink-0 rounded-full transition active:scale-[0.98]"
+            className="h-8 w-full gap-1.5 rounded-full text-[11px] font-semibold transition active:scale-[0.98] sm:text-xs"
           >
-            <ShoppingBag className="h-3.5 w-3.5" aria-hidden="true" />
+            <ShoppingBag className="h-3.5 w-3.5" aria-hidden="true" /> Add to cart
           </Button>
         </div>
 
