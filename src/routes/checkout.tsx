@@ -73,7 +73,7 @@ function Checkout() {
   const navigate = useNavigate();
   const { user } = useSession();
   const [form, setForm] = useState<Form>(empty);
-  const [payment, setPayment] = useState<"whatsapp" | "paystack">("whatsapp");
+  const [payment, setPayment] = useState<"whatsapp" | "paystack">("paystack");
 
 
   const set = <K extends keyof Form>(key: K, value: Form[K]) =>
