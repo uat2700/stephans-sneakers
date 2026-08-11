@@ -32,16 +32,6 @@ export function ProductCard({ product, onQuickView, className }: Props) {
   const lowStock = inStock && product.stock <= 3;
   const favourite = wishlist.has(product.id);
   const rating = stats.data?.[product.id] ?? null;
-  const numericSizes = product.sizes
-    .map((s) => Number(String(s).replace(/[^0-9.]/g, "")))
-    .filter((n) => Number.isFinite(n) && n > 0);
-  const sizeRange = numericSizes.length
-    ? (() => {
-        const min = Math.min(...numericSizes);
-        const max = Math.max(...numericSizes);
-        return min === max ? `${min}` : `${min}–${max}`;
-      })()
-    : (product.sizes[0] ?? null);
 
 
   return (
