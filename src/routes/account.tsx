@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { LogOut } from "lucide-react";
+import { LogOut, MapPin, Package, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,6 +60,7 @@ function Account() {
   const { user, loading } = useSession();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile>(empty);
+  const [section, setSection] = useState<"profile" | "orders">("profile");
 
   const set = <K extends keyof Profile>(key: K, value: Profile[K]) =>
     setProfile((p) => ({ ...p, [key]: value }));
@@ -146,7 +147,7 @@ function Account() {
   }
 
   return (
-    <div className="container-page max-w-4xl py-12">
+    <div className="container-page max-w-4xl pb-28 pt-8 sm:py-12">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-extrabold uppercase tracking-tight">
@@ -166,17 +167,39 @@ function Account() {
         </Button>
       </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.2fr]">
+      <div className="mt-7 grid grid-cols-2 rounded-lg border border-border bg-muted p-1 lg:hidden">
+        <Button
+          type="button"
+          variant={section === "profile" ? "default" : "ghost"}
+          className="gap-2 rounded-md"
+          onClick={() => setSection("profile")}
+        >
+          <UserRound className="h-4 w-4" /> Details
+        </Button>
+        <Button
+          type="button"
+          variant={section === "orders" ? "default" : "ghost"}
+          className="gap-2 rounded-md"
+          onClick={() => setSection("orders")}
+        >
+          <Package className="h-4 w-4" /> Orders
+        </Button>
+      </div>
+
+      <div className="mt-5 grid gap-8 lg:mt-8 lg:grid-cols-[1fr_1.2fr]">
         <form
-          className="grid h-fit gap-5 rounded-3xl border border-border bg-card p-6"
+          className={`${section === "profile" ? "grid" : "hidden"} h-fit gap-5 rounded-lg border border-border bg-card p-5 sm:p-6 lg:grid`}
           onSubmit={(e) => {
             e.preventDefault();
             save.mutate();
           }}
         >
-          <h2 className="font-display text-lg font-bold uppercase tracking-tight">
-            Delivery details
-          </h2>
+          <div className="flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+            <h2 className="font-display text-lg font-bold uppercase tracking-tight">
+              Delivery details
+            </h2>
+          </div>
           <div className="grid gap-2">
             <Label htmlFor="full_name">Full name</Label>
             <Input
@@ -232,14 +255,14 @@ function Account() {
           </div>
           <Button
             type="submit"
-            className="rounded-full"
+            className="sticky bottom-[4.75rem] z-10 rounded-md shadow-lg shadow-background/40 lg:static lg:shadow-none"
             disabled={save.isPending}
           >
             {save.isPending ? "Saving…" : "Save details"}
           </Button>
         </form>
 
-        <section className="rounded-3xl border border-border bg-card p-6">
+        <section className={`${section === "orders" ? "block" : "hidden"} rounded-lg border border-border bg-card p-5 sm:p-6 lg:block`}>
           <h2 className="font-display text-lg font-bold uppercase tracking-tight">
             Order history
           </h2>
