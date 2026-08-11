@@ -156,6 +156,22 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           </span>
         </div>
 
+        {product.sizes.length ? (
+          <p className="truncate text-[11px] font-medium text-muted-foreground">
+            Sizes{" "}
+            {(() => {
+              const nums = product.sizes
+                .map((s) => Number(s))
+                .filter((n) => Number.isFinite(n))
+                .sort((a, b) => a - b);
+              if (!nums.length) return product.sizes.join(", ");
+              const min = nums[0];
+              const max = nums[nums.length - 1];
+              return min === max ? `${min}` : `${min}–${max}`;
+            })()}
+          </p>
+        ) : null}
+
         <div className="flex min-w-0 flex-nowrap items-baseline gap-2 overflow-hidden">
           <span className="whitespace-nowrap text-xl font-extrabold tracking-tight sm:text-2xl">
             {formatPrice(product.selling_price)}
@@ -171,6 +187,7 @@ export function ProductCard({ product, onQuickView, className }: Props) {
             </span>
           ) : null}
         </div>
+
 
         <div className="mt-auto pt-1.5">
           <Button
