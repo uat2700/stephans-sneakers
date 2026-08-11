@@ -7,19 +7,36 @@ export function useSession() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
+    let done = false;
+    const settle = (next: Session | null) => {
+      done = true;
       setSession(next);
       setLoading(false);
+    };
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
+      settle(next);
     });
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
-    return () => sub.subscription.unsubscribe();
+
+    supabase.auth
+      .getSession()
+      .then(({ data }) => settle(data.session))
+      .catch(() => settle(null));
+
+    // Safety net: never leave the UI stuck on a loading state.
+    const timer = window.setTimeout(() => {
+      if (!done) setLoading(false);
+    }, 4000);
+
+    return () => {
+      window.clearTimeout(timer);
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   return { session, user: session?.user ?? null, loading };
 }
+
 
 export function useIsAdmin(user: User | null) {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);

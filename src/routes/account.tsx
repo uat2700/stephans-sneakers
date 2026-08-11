@@ -19,6 +19,7 @@ import { formatPrice } from "@/lib/format";
 import { REGIONS } from "@/lib/site";
 
 export const Route = createFileRoute("/account")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "My Account — Stephans Collection" },
