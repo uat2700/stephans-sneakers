@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PaymentCallbackRouteImport } from './routes/payment-callback'
 import { Route as NewArrivalsRouteImport } from './routes/new-arrivals'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -32,6 +33,11 @@ const WishlistRoute = WishlistRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PaymentCallbackRoute = PaymentCallbackRouteImport.update({
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/payment-callback': typeof PaymentCallbackRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/payment-callback': typeof PaymentCallbackRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/payment-callback': typeof PaymentCallbackRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/wishlist': typeof WishlistRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/new-arrivals'
     | '/payment-callback'
+    | '/reset-password'
     | '/shop'
     | '/wishlist'
     | '/product/$slug'
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/new-arrivals'
     | '/payment-callback'
+    | '/reset-password'
     | '/shop'
     | '/wishlist'
     | '/product/$slug'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/new-arrivals'
     | '/payment-callback'
+    | '/reset-password'
     | '/shop'
     | '/wishlist'
     | '/product/$slug'
@@ -207,6 +219,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   NewArrivalsRoute: typeof NewArrivalsRoute
   PaymentCallbackRoute: typeof PaymentCallbackRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ShopRoute: typeof ShopRoute
   WishlistRoute: typeof WishlistRoute
   ProductSlugRoute: typeof ProductSlugRoute
@@ -226,6 +239,13 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/payment-callback': {
@@ -327,6 +347,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   NewArrivalsRoute: NewArrivalsRoute,
   PaymentCallbackRoute: PaymentCallbackRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ShopRoute: ShopRoute,
   WishlistRoute: WishlistRoute,
   ProductSlugRoute: ProductSlugRoute,
@@ -334,13 +355,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

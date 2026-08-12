@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Bell, Heart, Moon, ShoppingBag, Sun, User, X } from "lucide-react";
+import { Bell, Heart, Moon, ShoppingBag, Sun, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { AccountMenu } from "@/components/account-menu";
 import { SearchPanel } from "@/components/search-panel";
+
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
@@ -134,13 +136,8 @@ export function SiteHeader() {
               </span>
             ) : null}
           </Link>
-          <Link
-            to="/account"
-            aria-label="My account"
-            className="hidden h-10 w-10 place-items-center rounded-full hover:bg-surface lg:grid"
-          >
-            <User className="h-[18px] w-[18px]" aria-hidden="true" />
-          </Link>
+          <AccountMenu className="hidden lg:grid" />
+
 
           <a
             href={whatsappLink(generalWhatsappMessage)}
