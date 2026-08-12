@@ -1,46 +1,30 @@
-## Stephans Collection — Phase 1
+## Customer accounts & profiles
 
-A premium, mobile-first sneaker storefront with a real database behind it, so you can upload your own products right away. Accounts, checkout and full admin analytics come in later phases.
+Shoppers get a proper account: sign up / sign in with email (or one-tap Google), then manage their profile, photo, login details and delete their account.
 
-### Design system
-- Palette: black `#111111`, white `#FFFFFF`, light gray `#F5F5F5`, WhatsApp green `#25D366` as the only accent, all defined as semantic tokens with light + dark mode.
-- Luxury/StockX feel: generous white space, rounded cards, subtle shadows, tight modern typography, card lift on hover, smooth fade/slide entrances.
-- Mobile-first: sticky header, slide-out nav drawer, bottom-safe sticky action bars on product and cart.
+### Sign in / sign up (`/auth`)
+- One page for customers with Sign in / Create account tabs (email + password) and a **Continue with Google** button.
+- After signing in, customers land on **My Account** — today the page always sends people to the admin dashboard, which is wrong for shoppers. Admins still reach `/admin` from a link shown only to them.
+- "Forgot password?" link sends a reset email.
+- New route **`/reset-password`** where the emailed link lands so a new password can actually be set.
+- Signing up with email shows a "check your email to confirm" state instead of pretending the person is logged in.
 
-### Pages in this phase
-1. **Home** (`/`) — full-bleed hero with headline "Premium Sneakers at Affordable Prices", subtitle, and two CTAs (Shop Now, Chat on WhatsApp). Below: Featured Products, New Arrivals, Popular Brands, Why Choose Stephans Collection, Testimonials, Newsletter signup, Footer.
-2. **Shop** (`/shop`) — responsive product grid with instant search, filters (brand, price range, size, gender, color, availability) in a mobile filter sheet, and sorting (Latest, Price ↑, Price ↓, Most Popular).
-3. **Product details** (`/product/$slug`) — image gallery with zoom, description, brand, sizes, colors, price, delivery info, return policy, reviews section, related sneakers. Actions: Add to Cart, Buy Now, Order via WhatsApp.
-4. **Cart** (`/cart`) — quantity updates, remove, subtotal, delivery fee, total; Continue Shopping, Checkout (placeholder for phase 2), WhatsApp Order.
-5. **Brands / New Arrivals / About / Contact** — real routes with their own SEO metadata.
-6. **Admin** (`/admin`) — password-protected via Cloud auth: add/edit/delete products, multi-image upload to Cloud storage, stock and price management, brand & category management. Enough to get your catalogue live.
+### My Account (`/account`)
+Keeps the current Details / Orders tabs and adds a third: **Settings**.
+- **Details** (existing): full name, phone, delivery address, city, region — used to autofill checkout.
+- **Profile photo**: upload/replace an avatar; shown as a small avatar in the header and at the top of the account page. Stored in a new public `avatars` storage bucket, each customer only able to write their own file.
+- **Settings**:
+  - Change password (asks for the new password twice).
+  - Change email (sends a confirmation to the new address).
+  - **Delete my account** behind a type-to-confirm dialog: removes the profile, cart, wishlist and reviews, deletes the login, then signs out. Past orders are kept for records with the customer link removed.
+- Signed-out visitors see the existing sign-in prompt.
 
-### Product card
-Large lazy-loaded image, brand mark, name, selling price (with strikethrough + discount badge when applicable), size chips, stock status, favourite heart, Quick View, Add to Cart, Order on WhatsApp.
-
-### WhatsApp ordering
-Every product and the cart deep-link to `wa.me/233508928908` with a pre-filled message:
-```text
-Hello Stephans Collection,
-I'm interested in this sneaker.
-Product: <name>
-Price: GHS <price>
-Size: <selected size>
-Is it still available?
-```
-
-### Data (Lovable Cloud)
-Tables: `brands`, `categories`, `products`, `product_images`, `reviews`, plus `admin` role table (roles kept in a separate `user_roles` table for security). Orders, customers, wishlist and cart tables are created now too so phase 2 plugs straight in.
-
-Each product row carries: id, name, slug, brand, category, description, supplier price, selling price, markup, sizes, colors, stock, is_featured, is_new, tags, SEO title/description, ai_caption, created_at, updated_at — so AI importing and auto-markup can be layered on later with no migration churn.
-
-Public reads are open (anon SELECT on catalogue tables); all writes require an authenticated admin. Images live in a public Cloud storage bucket.
+### Header
+The account icon becomes a small menu driven by the live session: avatar + name, links to My Account / Orders / Wishlist, Dashboard when the person is an admin, and Sign out. Signed-out visitors see "Sign in".
 
 ### Technical notes
-- Stack stays TanStack Start + React + TypeScript + Tailwind v4 (this project's router, not React Router — same routing capability).
-- Cart and wishlist persist in local storage this phase; they migrate to the database when accounts land.
-- Lazy images, per-route SEO metadata, semantic HTML, alt text, keyboard-accessible controls.
-- Paystack/checkout, customer accounts, order history, saved addresses and analytics are deliberately deferred to phase 2.
-
-### Not included in phase 1
-Checkout + Paystack, customer registration/login, order management, coupons, loyalty, PWA, delivery tracking.
+- Migration: add `avatar_url` to `profiles`; create the `avatars` storage bucket with owner-scoped write policies and public read.
+- Account deletion runs through a new authenticated server function that verifies the caller and uses the admin client to remove the auth user, nulling `orders.user_id` first.
+- Google login goes through the Lovable managed OAuth helper with `redirect_uri` set to the site origin; the Google provider is enabled in the same step so first sign-in works. Email/password stays enabled.
+- Sign-out clears cached data and replaces history so Back can't restore a signed-in view.
+- Each new route gets its own title/description metadata; `/reset-password` stays public.
