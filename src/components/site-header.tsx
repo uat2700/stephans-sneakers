@@ -134,13 +134,8 @@ export function SiteHeader() {
               </span>
             ) : null}
           </Link>
-          <Link
-            to="/account"
-            aria-label="My account"
-            className="hidden h-10 w-10 place-items-center rounded-full hover:bg-surface lg:grid"
-          >
-            <User className="h-[18px] w-[18px]" aria-hidden="true" />
-          </Link>
+          <AccountMenu className="hidden lg:grid" />
+
 
           <a
             href={whatsappLink(generalWhatsappMessage)}
