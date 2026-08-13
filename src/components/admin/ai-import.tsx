@@ -126,10 +126,11 @@ export function AiImport() {
         const brandName = matchedBrand?.name ?? result.brand;
         const sig = signature(brandName, result.name);
 
-        // Group this photo into an existing sneaker when it's the same pair.
+        // Group this photo into an existing sneaker when it's the same model,
+        // even if the colourway differs. Admin can still hit "Separate".
         let merged = false;
         setRows((prev) => {
-          const target = result.name.trim()
+          const target = baseName(result.name)
             ? prev.find(
                 (r) =>
                   r.key !== key &&
@@ -142,9 +143,22 @@ export function AiImport() {
           return prev
             .filter((r) => r.key !== key)
             .map((r) =>
-              r.key === target.key ? { ...r, images: [...r.images, imageUrl] } : r,
+              r.key === target.key
+                ? {
+                    ...r,
+                    images: [...r.images, imageUrl],
+                    // keep the shorter (less colour-specific) product name
+                    name:
+                      result.name.trim() &&
+                      result.name.trim().length < r.name.trim().length
+                        ? result.name.trim()
+                        : r.name,
+                    colors: Array.from(new Set([...r.colors, ...result.colors])),
+                  }
+                : r,
             );
         });
+
 
         if (merged) {
           setGrouped((n) => n + 1);
