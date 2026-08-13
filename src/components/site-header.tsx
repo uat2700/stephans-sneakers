@@ -4,8 +4,6 @@ import { Bell, Heart, Moon, ShoppingBag, Sun, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { AccountMenu } from "@/components/account-menu";
-import { SearchPanel } from "@/components/search-panel";
-
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
