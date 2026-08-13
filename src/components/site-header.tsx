@@ -4,8 +4,6 @@ import { Bell, Heart, Moon, ShoppingBag, Sun, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { AccountMenu } from "@/components/account-menu";
-import { SearchPanel } from "@/components/search-panel";
-
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
@@ -89,7 +87,7 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <SearchPanel className="ml-4 hidden flex-1 lg:block" />
+        
 
         <div className="ml-auto flex shrink-0 items-center gap-0.5">
           <button
@@ -147,12 +145,6 @@ export function SiteHeader() {
           >
             <WhatsAppIcon className="h-4 w-4" /> WhatsApp
           </a>
-        </div>
-      </div>
-
-      <div className="border-t border-border bg-background lg:hidden">
-        <div className="container-page py-2.5">
-          <SearchPanel />
         </div>
       </div>
 
