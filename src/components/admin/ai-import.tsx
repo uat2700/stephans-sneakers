@@ -41,13 +41,32 @@ type Row = {
 
 const NONE = "__none__";
 
-/** Signature used to decide whether two photos are the same sneaker. */
-const signature = (brand: string, name: string) =>
-  `${brand.trim().toLowerCase()}|${name
-    .trim()
+/** Colour words are ignored when matching, so colourways group as one product. */
+const COLOR_WORDS = new Set([
+  "black","white","red","blue","green","yellow","orange","purple","pink","brown",
+  "grey","gray","beige","cream","ivory","tan","wheat","navy","teal","olive","khaki",
+  "burgundy","maroon","gold","silver","bronze","charcoal","sand","stone","mint",
+  "lilac","lavender","turquoise","coral","peach","plum","rust","mustard","offwhite",
+  "multicolour","multicolor","multi","triple","panda","bred","oreo","chalk","smoke",
+  "wolf","cool","light","dark","pale","deep","neon","volt","crimson","scarlet",
+  "sail","platinum","anthracite","obsidian","onyx","natural","nubuck","colorway",
+  "colourway",
+]);
+
+/** Model name with colour words stripped, e.g. "6-Inch Premium Boot". */
+const baseName = (name: string) =>
+  name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
-    .trim()}`;
+    .split(" ")
+    .filter((w) => w && !COLOR_WORDS.has(w))
+    .join(" ")
+    .trim();
+
+/** Signature used to decide whether two photos are the same sneaker model. */
+const signature = (brand: string, name: string) =>
+  `${brand.trim().toLowerCase()}|${baseName(name)}`;
+
 
 export function AiImport() {
   const queryClient = useQueryClient();
