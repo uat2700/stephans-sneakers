@@ -347,6 +347,9 @@ export function AiImport() {
           each pair. Photos of the same sneaker are grouped into one product
           automatically — you only set the price and sizes.
         </p>
+        <p className="mx-auto mt-2 max-w-md text-xs text-muted-foreground">
+          You can also paste a copied photo (Ctrl/⌘ + V) or drag photos in here.
+        </p>
         <input
           ref={inputRef}
           type="file"
