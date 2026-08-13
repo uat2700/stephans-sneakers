@@ -348,7 +348,10 @@ export function AiImport() {
           automatically — you only set the price and sizes.
         </p>
         <p className="mx-auto mt-2 max-w-md text-xs text-muted-foreground">
-          You can also paste a copied photo (Ctrl/⌘ + V) or drag photos in here.
+          On a computer you can paste a copied photo (Ctrl/⌘ + V) or drag photos
+          in here. On a phone, pick photos from your gallery or snap them with
+          your camera — long-press a photo elsewhere, copy it, then use Paste
+          photo.
         </p>
         <input
           ref={inputRef}
@@ -358,18 +361,46 @@ export function AiImport() {
           className="hidden"
           onChange={(e) => handleFiles(e.target.files)}
         />
-        <Button
-          className="mt-5 rounded-full"
-          disabled={busy}
-          onClick={() => inputRef.current?.click()}
-        >
-          {busy ? (
-            <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-          ) : (
-            <Upload className="mr-1.5 h-4 w-4" />
-          )}
-          {busy ? "Analysing photos…" : "Upload sneaker photos"}
-        </Button>
+        <input
+          ref={cameraRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          multiple
+          className="hidden"
+          onChange={(e) => handleFiles(e.target.files)}
+        />
+        <div className="mt-5 flex flex-wrap justify-center gap-2">
+          <Button
+            className="rounded-full"
+            disabled={busy}
+            onClick={() => inputRef.current?.click()}
+          >
+            {busy ? (
+              <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="mr-1.5 h-4 w-4" />
+            )}
+            {busy ? "Analysing photos…" : "Upload sneaker photos"}
+          </Button>
+          <Button
+            variant="outline"
+            className="rounded-full sm:hidden"
+            disabled={busy}
+            onClick={() => cameraRef.current?.click()}
+          >
+            <Camera className="mr-1.5 h-4 w-4" /> Take photo
+          </Button>
+          <Button
+            variant="outline"
+            className="rounded-full"
+            disabled={busy}
+            onClick={() => void pasteFromClipboard()}
+          >
+            <ClipboardPaste className="mr-1.5 h-4 w-4" /> Paste photo
+          </Button>
+        </div>
+
         {grouped > 0 ? (
           <p className="mt-3 text-xs text-muted-foreground">
             {grouped} photo{grouped === 1 ? "" : "s"} grouped with a matching sneaker.
