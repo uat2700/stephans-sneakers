@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Sparkles, Trash2, Upload, X } from "lucide-react";
@@ -77,12 +77,14 @@ export function AiImport() {
   const [rows, setRows] = useState<Row[]>([]);
   const [busy, setBusy] = useState(false);
   const [grouped, setGrouped] = useState(0);
+  const [dragging, setDragging] = useState(false);
 
   const patch = (key: string, next: Partial<Row>) =>
     setRows((prev) => prev.map((r) => (r.key === key ? { ...r, ...next } : r)));
 
-  async function handleFiles(files: FileList | null) {
-    if (!files?.length) return;
+  async function handleFiles(input: FileList | File[] | null) {
+    const files = input ? Array.from(input).filter((f) => f.type.startsWith("image/")) : [];
+    if (!files.length) return;
     setBusy(true);
     setGrouped(0);
     const brandNames = (brands.data ?? []).map((b) => b.name);
