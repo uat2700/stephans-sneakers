@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Sparkles, Trash2, Upload, X } from "lucide-react";
+import {
+  Camera,
+  ClipboardPaste,
+  Loader2,
+  Sparkles,
+  Trash2,
+  Upload,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadProductImage } from "@/lib/storage";
@@ -74,6 +82,7 @@ export function AiImport() {
   const categories = useQuery(categoriesQuery());
   const identify = useServerFn(identifySneakerImage);
   const inputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [busy, setBusy] = useState(false);
   const [grouped, setGrouped] = useState(0);
@@ -298,6 +307,30 @@ export function AiImport() {
 
   const readyCount = rows.filter((r) => r.status === "ready").length;
 
+  // Read images from the clipboard on demand (works on phones too).
+  async function pasteFromClipboard() {
+    if (busy) return;
+    try {
+      const items = await navigator.clipboard.read();
+      const files: File[] = [];
+      for (const item of items) {
+        const type = item.types.find((t) => t.startsWith("image/"));
+        if (!type) continue;
+        const blob = await item.getType(type);
+        files.push(
+          new File([blob], `pasted-${files.length + 1}.png`, { type: blob.type }),
+        );
+      }
+      if (!files.length) {
+        toast.error("No photo found on your clipboard");
+        return;
+      }
+      await handleFiles(files);
+    } catch {
+      toast.error("Could not read your clipboard — use Upload instead");
+    }
+  }
+
   // Paste images straight from the clipboard (Ctrl/Cmd + V).
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
@@ -348,7 +381,10 @@ export function AiImport() {
           automatically — you only set the price and sizes.
         </p>
         <p className="mx-auto mt-2 max-w-md text-xs text-muted-foreground">
-          You can also paste a copied photo (Ctrl/⌘ + V) or drag photos in here.
+          On a computer you can paste a copied photo (Ctrl/⌘ + V) or drag photos
+          in here. On a phone, pick photos from your gallery or snap them with
+          your camera — long-press a photo elsewhere, copy it, then use Paste
+          photo.
         </p>
         <input
           ref={inputRef}
@@ -358,18 +394,46 @@ export function AiImport() {
           className="hidden"
           onChange={(e) => handleFiles(e.target.files)}
         />
-        <Button
-          className="mt-5 rounded-full"
-          disabled={busy}
-          onClick={() => inputRef.current?.click()}
-        >
-          {busy ? (
-            <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-          ) : (
-            <Upload className="mr-1.5 h-4 w-4" />
-          )}
-          {busy ? "Analysing photos…" : "Upload sneaker photos"}
-        </Button>
+        <input
+          ref={cameraRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          multiple
+          className="hidden"
+          onChange={(e) => handleFiles(e.target.files)}
+        />
+        <div className="mt-5 flex flex-wrap justify-center gap-2">
+          <Button
+            className="rounded-full"
+            disabled={busy}
+            onClick={() => inputRef.current?.click()}
+          >
+            {busy ? (
+              <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="mr-1.5 h-4 w-4" />
+            )}
+            {busy ? "Analysing photos…" : "Upload sneaker photos"}
+          </Button>
+          <Button
+            variant="outline"
+            className="rounded-full sm:hidden"
+            disabled={busy}
+            onClick={() => cameraRef.current?.click()}
+          >
+            <Camera className="mr-1.5 h-4 w-4" /> Take photo
+          </Button>
+          <Button
+            variant="outline"
+            className="rounded-full"
+            disabled={busy}
+            onClick={() => void pasteFromClipboard()}
+          >
+            <ClipboardPaste className="mr-1.5 h-4 w-4" /> Paste photo
+          </Button>
+        </div>
+
         {grouped > 0 ? (
           <p className="mt-3 text-xs text-muted-foreground">
             {grouped} photo{grouped === 1 ? "" : "s"} grouped with a matching sneaker.
