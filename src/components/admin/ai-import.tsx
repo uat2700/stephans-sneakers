@@ -298,9 +298,46 @@ export function AiImport() {
 
   const readyCount = rows.filter((r) => r.status === "ready").length;
 
+  // Paste images straight from the clipboard (Ctrl/Cmd + V).
+  useEffect(() => {
+    const onPaste = (event: ClipboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      )
+        return;
+      const files = Array.from(event.clipboardData?.files ?? []).filter((f) =>
+        f.type.startsWith("image/"),
+      );
+      if (!files.length || busy) return;
+      event.preventDefault();
+      void handleFiles(files);
+    };
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+  });
+
   return (
     <div>
-      <div className="rounded-3xl border border-dashed border-border bg-card p-6 text-center">
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          if (!busy) void handleFiles(e.dataTransfer.files);
+        }}
+        className={cn(
+          "rounded-3xl border border-dashed bg-card p-6 text-center transition",
+          dragging ? "border-foreground bg-muted" : "border-border",
+        )}
+      >
         <Sparkles className="mx-auto h-6 w-6 text-muted-foreground" aria-hidden="true" />
         <h2 className="mt-3 font-display text-lg font-extrabold uppercase tracking-tight">
           AI photo import
