@@ -148,12 +148,6 @@ export function SiteHeader() {
         </div>
       </div>
 
-      <div className="border-t border-border bg-background lg:hidden">
-        <div className="container-page py-2.5">
-          <SearchPanel />
-        </div>
-      </div>
-
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
         <SheetContent side="left" className="w-[85vw] max-w-sm p-0">
           <SheetTitle className="sr-only">Menu</SheetTitle>
