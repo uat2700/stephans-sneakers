@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Sparkles, Trash2, Upload, X } from "lucide-react";
+import {
+  Camera,
+  ClipboardPaste,
+  Loader2,
+  Sparkles,
+  Trash2,
+  Upload,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadProductImage } from "@/lib/storage";
@@ -74,6 +82,7 @@ export function AiImport() {
   const categories = useQuery(categoriesQuery());
   const identify = useServerFn(identifySneakerImage);
   const inputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [busy, setBusy] = useState(false);
   const [grouped, setGrouped] = useState(0);
@@ -297,6 +306,30 @@ export function AiImport() {
     );
 
   const readyCount = rows.filter((r) => r.status === "ready").length;
+
+  // Read images from the clipboard on demand (works on phones too).
+  async function pasteFromClipboard() {
+    if (busy) return;
+    try {
+      const items = await navigator.clipboard.read();
+      const files: File[] = [];
+      for (const item of items) {
+        const type = item.types.find((t) => t.startsWith("image/"));
+        if (!type) continue;
+        const blob = await item.getType(type);
+        files.push(
+          new File([blob], `pasted-${files.length + 1}.png`, { type: blob.type }),
+        );
+      }
+      if (!files.length) {
+        toast.error("No photo found on your clipboard");
+        return;
+      }
+      await handleFiles(files);
+    } catch {
+      toast.error("Could not read your clipboard — use Upload instead");
+    }
+  }
 
   // Paste images straight from the clipboard (Ctrl/Cmd + V).
   useEffect(() => {
