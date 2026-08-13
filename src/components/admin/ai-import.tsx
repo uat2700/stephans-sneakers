@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Sparkles, Trash2, Upload, X } from "lucide-react";
@@ -77,12 +77,14 @@ export function AiImport() {
   const [rows, setRows] = useState<Row[]>([]);
   const [busy, setBusy] = useState(false);
   const [grouped, setGrouped] = useState(0);
+  const [dragging, setDragging] = useState(false);
 
   const patch = (key: string, next: Partial<Row>) =>
     setRows((prev) => prev.map((r) => (r.key === key ? { ...r, ...next } : r)));
 
-  async function handleFiles(files: FileList | null) {
-    if (!files?.length) return;
+  async function handleFiles(input: FileList | File[] | null) {
+    const files = input ? Array.from(input).filter((f) => f.type.startsWith("image/")) : [];
+    if (!files.length) return;
     setBusy(true);
     setGrouped(0);
     const brandNames = (brands.data ?? []).map((b) => b.name);
@@ -296,9 +298,46 @@ export function AiImport() {
 
   const readyCount = rows.filter((r) => r.status === "ready").length;
 
+  // Paste images straight from the clipboard (Ctrl/Cmd + V).
+  useEffect(() => {
+    const onPaste = (event: ClipboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      )
+        return;
+      const files = Array.from(event.clipboardData?.files ?? []).filter((f) =>
+        f.type.startsWith("image/"),
+      );
+      if (!files.length || busy) return;
+      event.preventDefault();
+      void handleFiles(files);
+    };
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+  });
+
   return (
     <div>
-      <div className="rounded-3xl border border-dashed border-border bg-card p-6 text-center">
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          if (!busy) void handleFiles(e.dataTransfer.files);
+        }}
+        className={cn(
+          "rounded-3xl border border-dashed bg-card p-6 text-center transition",
+          dragging ? "border-foreground bg-muted" : "border-border",
+        )}
+      >
         <Sparkles className="mx-auto h-6 w-6 text-muted-foreground" aria-hidden="true" />
         <h2 className="mt-3 font-display text-lg font-extrabold uppercase tracking-tight">
           AI photo import
@@ -307,6 +346,9 @@ export function AiImport() {
           Upload sneaker photos and AI will detect the brand and product name for
           each pair. Photos of the same sneaker are grouped into one product
           automatically — you only set the price and sizes.
+        </p>
+        <p className="mx-auto mt-2 max-w-md text-xs text-muted-foreground">
+          You can also paste a copied photo (Ctrl/⌘ + V) or drag photos in here.
         </p>
         <input
           ref={inputRef}
