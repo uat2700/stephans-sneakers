@@ -87,7 +87,7 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <SearchPanel className="ml-4 hidden flex-1 lg:block" />
+        
 
         <div className="ml-auto flex shrink-0 items-center gap-0.5">
           <button
