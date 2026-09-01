@@ -247,9 +247,11 @@ export type Database = {
       orders: {
         Row: {
           address: string
+          admin_notes: string | null
           city: string
           created_at: string
           delivery_fee: number
+          discount: number
           email: string | null
           full_name: string
           id: string
@@ -267,9 +269,11 @@ export type Database = {
         }
         Insert: {
           address: string
+          admin_notes?: string | null
           city: string
           created_at?: string
           delivery_fee?: number
+          discount?: number
           email?: string | null
           full_name: string
           id?: string
@@ -287,9 +291,11 @@ export type Database = {
         }
         Update: {
           address?: string
+          admin_notes?: string | null
           city?: string
           created_at?: string
           delivery_fee?: number
+          discount?: number
           email?: string | null
           full_name?: string
           id?: string
@@ -386,8 +392,11 @@ export type Database = {
           gender: string
           id: string
           is_active: boolean
+          is_archived: boolean
+          is_best_seller: boolean
           is_featured: boolean
           is_new: boolean
+          is_on_sale: boolean
           markup_percent: number | null
           name: string
           popularity: number
@@ -395,6 +404,7 @@ export type Database = {
           seo_description: string | null
           seo_title: string | null
           sizes: string[]
+          sku: string | null
           slug: string
           source: string | null
           stock: number
@@ -413,8 +423,11 @@ export type Database = {
           gender?: string
           id?: string
           is_active?: boolean
+          is_archived?: boolean
+          is_best_seller?: boolean
           is_featured?: boolean
           is_new?: boolean
+          is_on_sale?: boolean
           markup_percent?: number | null
           name: string
           popularity?: number
@@ -422,6 +435,7 @@ export type Database = {
           seo_description?: string | null
           seo_title?: string | null
           sizes?: string[]
+          sku?: string | null
           slug: string
           source?: string | null
           stock?: number
@@ -440,8 +454,11 @@ export type Database = {
           gender?: string
           id?: string
           is_active?: boolean
+          is_archived?: boolean
+          is_best_seller?: boolean
           is_featured?: boolean
           is_new?: boolean
+          is_on_sale?: boolean
           markup_percent?: number | null
           name?: string
           popularity?: number
@@ -449,6 +466,7 @@ export type Database = {
           seo_description?: string | null
           seo_title?: string | null
           sizes?: string[]
+          sku?: string | null
           slug?: string
           source?: string | null
           stock?: number

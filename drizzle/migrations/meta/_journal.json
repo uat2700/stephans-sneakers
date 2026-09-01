@@ -8,6 +8,13 @@
       "when": 1788296323118,
       "tag": "0000_admin_panel_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788296452848,
+      "tag": "0001_order_admin_notes_and_discount",
+      "breakpoints": true
     }
   ]
 }
