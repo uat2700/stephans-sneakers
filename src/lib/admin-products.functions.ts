@@ -16,13 +16,11 @@ export const listAdminProducts = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
 
-    const { data: role } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    if (!role) throw new Error("Forbidden");
+    const { data: rank } = await supabase.rpc("admin_rank", {
+      _user_id: userId,
+    });
+    if (Number(rank ?? 0) < 1) throw new Error("Forbidden");
+
 
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"

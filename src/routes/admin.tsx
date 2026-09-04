@@ -1,52 +1,39 @@
-import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useIsAdmin, useSession } from "@/hooks/use-auth";
-import {
-  adminProductsQuery,
-  brandsQuery,
-  categoriesQuery,
-  primaryImage,
-  type Product,
-} from "@/lib/catalog";
-import { formatPrice } from "@/lib/format";
-import { ProductForm } from "@/components/admin/product-form";
-import { TaxonomyManager } from "@/components/admin/taxonomy-manager";
-import { OrdersPanel } from "@/components/admin/orders-panel";
-import { AiImport } from "@/components/admin/ai-import";
-import { AdminStats } from "@/components/admin/admin-stats";
-
+import { useSession } from "@/hooks/use-auth";
+import { useAdminAccess } from "@/hooks/use-admin";
+import { AdminShell } from "@/components/admin/admin-shell";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Admin — Stephans Collection" },
+      { title: "Control panel — Stephans Collection" },
       {
         name: "description",
         content:
-          "Admin dashboard for managing the Stephans Collection sneaker catalogue, stock and pricing.",
+          "Secure admin control panel for Stephans Collection: orders, products, inventory, customers and settings.",
       },
-      { property: "og:title", content: "Admin — Stephans Collection" },
-      { property: "og:description", content: "Manage the sneaker catalogue." },
+      { property: "og:title", content: "Control panel — Stephans Collection" },
+      {
+        property: "og:description",
+        content: "Run the whole sneaker store from one dashboard.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "noindex" },
     ],
   }),
-  component: Admin,
+  component: AdminLayout,
 });
 
-function Gate({ children }: { children: React.ReactNode }) {
+function AdminLayout() {
   const { user, loading } = useSession();
-  const isAdmin = useIsAdmin(user);
+  const { rank, loading: rankLoading } = useAdminAccess(user);
 
-  if (loading || (user && isAdmin === null)) {
+  if (loading || rankLoading || (user && rank === null)) {
     return (
       <div className="container-page flex justify-center py-24">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -61,7 +48,7 @@ function Gate({ children }: { children: React.ReactNode }) {
           Admin access
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Sign in with your admin account to manage the catalogue.
+          Sign in with your team account to open the control panel.
         </p>
         <Button asChild className="mt-6 rounded-full">
           <Link to="/auth">Sign in</Link>
@@ -70,7 +57,7 @@ function Gate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!isAdmin) {
+  if (!rank || rank < 1) {
     return (
       <div className="container-page max-w-md py-20 text-center">
         <h1 className="font-display text-2xl font-extrabold uppercase tracking-tight">
@@ -79,215 +66,25 @@ function Gate({ children }: { children: React.ReactNode }) {
         <p className="mt-3 text-sm text-muted-foreground">
           This account doesn't have admin access yet.
         </p>
-        <Button
-          variant="outline"
-          className="mt-6 rounded-full"
-          onClick={() => supabase.auth.signOut()}
-        >
-          Sign out
-        </Button>
+        <div className="mt-6 flex justify-center gap-2">
+          <Button asChild variant="ghost" className="rounded-full">
+            <Link to="/">Back to store</Link>
+          </Button>
+          <Button
+            variant="outline"
+            className="rounded-full"
+            onClick={() => supabase.auth.signOut()}
+          >
+            Sign out
+          </Button>
+        </div>
       </div>
     );
   }
 
-  return <>{children}</>;
-}
-
-function ProductsPanel() {
-  const queryClient = useQueryClient();
-  const products = useQuery(adminProductsQuery());
-  const brands = useQuery(brandsQuery());
-  const categories = useQuery(categoriesQuery());
-  const [editing, setEditing] = useState<Product | null>(null);
-  const [open, setOpen] = useState(false);
-
-  const remove = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("products").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-products"] });
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-      toast.success("Product deleted");
-    },
-    onError: (e: unknown) =>
-      toast.error(e instanceof Error ? e.message : "Could not delete"),
-  });
-
-  const list = products.data ?? [];
-
   return (
-    <div>
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">
-          {list.length} product{list.length === 1 ? "" : "s"}
-        </p>
-        <Button
-          className="rounded-full"
-          onClick={() => {
-            setEditing(null);
-            setOpen(true);
-          }}
-        >
-          <Plus className="mr-1.5 h-4 w-4" /> Add product
-        </Button>
-      </div>
-
-      {products.isLoading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-        </div>
-      ) : list.length === 0 ? (
-        <p className="py-16 text-center text-sm text-muted-foreground">
-          No products yet. Add your first sneaker to go live.
-        </p>
-      ) : (
-        <ul className="mt-6 divide-y divide-border rounded-3xl border border-border bg-card">
-          {list.map((product) => {
-            const image = primaryImage(product);
-            return (
-              <li
-                key={product.id}
-                className="flex items-center gap-4 p-4 sm:p-5"
-              >
-                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-muted">
-                  {image ? (
-                    <img
-                      src={image}
-                      alt={product.name}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                    />
-                  ) : null}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{product.name}</p>
-                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                    {product.brands?.name ?? "No brand"} ·{" "}
-                    {formatPrice(product.selling_price)} · Stock {product.stock}
-                  </p>
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    {!product.is_active && (
-                      <Badge variant="secondary">Hidden</Badge>
-                    )}
-                    {product.is_featured && <Badge>Featured</Badge>}
-                    {product.is_new && <Badge variant="outline">New</Badge>}
-                  </div>
-                </div>
-                <div className="flex shrink-0 gap-1">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    aria-label={`Edit ${product.name}`}
-                    onClick={() => {
-                      setEditing(product);
-                      setOpen(true);
-                    }}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    aria-label={`Delete ${product.name}`}
-                    onClick={() => {
-                      if (confirm(`Delete "${product.name}"?`))
-                        remove.mutate(product.id);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      <ProductForm
-        open={open}
-        onOpenChange={setOpen}
-        product={editing}
-        brands={brands.data ?? []}
-        categories={categories.data ?? []}
-      />
-    </div>
-  );
-}
-
-const TABS = [
-  { value: "products", label: "Products" },
-  { value: "ai", label: "AI import" },
-  { value: "orders", label: "Orders" },
-  { value: "taxonomy", label: "Brands & categories" },
-];
-
-function Admin() {
-  return (
-    <Gate>
-      <div className="min-h-screen bg-surface/40">
-        <div className="border-b border-border bg-card/80 backdrop-blur">
-          <div className="container-page flex flex-wrap items-center justify-between gap-4 py-6">
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">
-                Stephans Collection
-              </p>
-              <h1 className="mt-1 font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
-                Admin dashboard
-              </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Products, stock, pricing, orders and brands — all in one place.
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button asChild variant="ghost" className="rounded-full">
-                <Link to="/">View store</Link>
-              </Button>
-              <Button
-                variant="outline"
-                className="rounded-full"
-                onClick={() => supabase.auth.signOut()}
-              >
-                Sign out
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="container-page space-y-6 py-6 sm:py-8">
-          <AdminStats />
-
-          <Tabs defaultValue="products">
-            <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-              <TabsList className="h-auto w-max rounded-full border border-border bg-card p-1">
-                {TABS.map((tab) => (
-                  <TabsTrigger
-                    key={tab.value}
-                    value={tab.value}
-                    className="rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wide data-[state=active]:bg-foreground data-[state=active]:text-background"
-                  >
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </div>
-
-            <TabsContent value="products" className="mt-6">
-              <ProductsPanel />
-            </TabsContent>
-            <TabsContent value="ai" className="mt-6">
-              <AiImport />
-            </TabsContent>
-            <TabsContent value="orders" className="mt-6">
-              <OrdersPanel />
-            </TabsContent>
-            <TabsContent value="taxonomy" className="mt-6">
-              <TaxonomyManager />
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
-    </Gate>
+    <AdminShell rank={rank} email={user.email ?? null}>
+      <Outlet />
+    </AdminShell>
   );
 }
