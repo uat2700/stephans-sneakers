@@ -175,6 +175,51 @@ export type Database = {
         }
         Relationships: []
       }
+      coupons: {
+        Row: {
+          code: string
+          created_at: string
+          discount_type: string
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          max_discount: number | null
+          min_order: number
+          starts_at: string | null
+          usage_limit: number | null
+          used_count: number
+          value: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          discount_type?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_discount?: number | null
+          min_order?: number
+          starts_at?: string | null
+          usage_limit?: number | null
+          used_count?: number
+          value?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          discount_type?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_discount?: number | null
+          min_order?: number
+          starts_at?: string | null
+          usage_limit?: number | null
+          used_count?: number
+          value?: number
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           created_at: string
@@ -660,6 +705,7 @@ export type Database = {
         Args: { _product_id: string }
         Returns: undefined
       }
+      redeem_coupon: { Args: { _code: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "customer" | "super_admin" | "manager" | "staff"

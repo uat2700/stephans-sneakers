@@ -15,6 +15,13 @@
       "when": 1788296452848,
       "tag": "0001_order_admin_notes_and_discount",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788569440104,
+      "tag": "0002_coupons_and_stock_sync",
+      "breakpoints": true
     }
   ]
 }
