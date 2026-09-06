@@ -1,13 +1,12 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { deliverySettingsQuery, storeSettingsQuery } from "@/lib/store-settings";
 import {
-  deliverySettingsQuery,
-  setRuntimeDeliverySettings,
-  setRuntimeStoreSettings,
-  storeSettingsQuery,
   DELIVERY_DEFAULTS,
   STORE_DEFAULTS,
-} from "@/lib/store-settings";
+  setRuntimeDeliverySettings,
+  setRuntimeStoreSettings,
+} from "@/lib/store-config";
 
 /** Store details managed from the admin dashboard. */
 export function useStoreSettings() {

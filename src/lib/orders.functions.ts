@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { DELIVERY_DEFAULTS, deliveryFeeFor } from "@/lib/store-settings";
+import { DELIVERY_DEFAULTS, deliveryFeeFor } from "@/lib/store-config";
 
 const orderSchema = z.object({
   full_name: z.string().trim().min(2).max(120),

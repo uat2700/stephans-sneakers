@@ -1,6 +1,6 @@
 import { SITE } from "./site";
 import { formatPrice } from "./format";
-import { currentStoreSettings } from "./store-settings";
+import { currentStoreSettings } from "./store-config";
 
 function storeName() {
   return currentStoreSettings().name || SITE.name;

@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { useDeliverySettings } from "@/hooks/use-store-settings";
-import { deliveryFeeFor } from "@/lib/store-settings";
+import { deliveryFeeFor } from "@/lib/store-config";
 
 export type CartItem = {
   id: string;
