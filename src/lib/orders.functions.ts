@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { SITE } from "@/lib/site";
+import { DELIVERY_DEFAULTS, deliveryFeeFor } from "@/lib/store-settings";
 
 const orderSchema = z.object({
   full_name: z.string().trim().min(2).max(120),
@@ -63,7 +63,17 @@ export const placeOrder = createServerFn({ method: "POST" })
       (sum, i) => sum + i.unit_price * i.quantity,
       0,
     );
-    const delivery_fee = subtotal >= SITE.freeDeliveryFrom ? 0 : SITE.deliveryFee;
+    // Delivery fee comes from the admin-managed settings, never the browser.
+    const { data: deliveryRow } = await supabase
+      .from("store_settings")
+      .select("value")
+      .eq("key", "delivery")
+      .maybeSingle();
+    const deliverySettings = {
+      ...DELIVERY_DEFAULTS,
+      ...((deliveryRow?.value ?? {}) as Partial<typeof DELIVERY_DEFAULTS>),
+    };
+    const delivery_fee = deliveryFeeFor(subtotal, data.region, deliverySettings);
     const total = subtotal + delivery_fee;
 
     const { data: order, error } = await supabase

@@ -17,6 +17,7 @@ import { BottomNav } from "@/components/bottom-nav";
 import { Toaster } from "@/components/ui/sonner";
 import { CartProvider } from "@/hooks/use-cart";
 import { WishlistProvider } from "@/hooks/use-wishlist";
+import { StoreSettingsSync } from "@/hooks/use-store-settings";
 
 function NotFoundComponent() {
   return (
@@ -144,6 +145,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <StoreSettingsSync />
       <CartProvider>
         <WishlistProvider>
           <div className="flex min-h-screen flex-col">
