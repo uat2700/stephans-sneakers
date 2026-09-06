@@ -7,7 +7,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { SITE } from "@/lib/site";
+import { useDeliverySettings } from "@/hooks/use-store-settings";
+import { deliveryFeeFor } from "@/lib/store-config";
 
 export type CartItem = {
   id: string;
@@ -37,6 +38,7 @@ const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = "sc.cart.v1";
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const delivery = useDeliverySettings();
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
@@ -85,9 +87,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const value = useMemo<CartContextValue>(() => {
     const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
     const deliveryFee =
-      items.length === 0 || subtotal >= SITE.freeDeliveryFrom
-        ? 0
-        : SITE.deliveryFee;
+      items.length === 0 ? 0 : deliveryFeeFor(subtotal, null, delivery);
     return {
       items,
       count: items.reduce((sum, i) => sum + i.quantity, 0),
@@ -99,7 +99,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeItem,
       clear,
     };
-  }, [items, addItem, updateQuantity, removeItem, clear]);
+  }, [items, delivery, addItem, updateQuantity, removeItem, clear]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

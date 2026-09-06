@@ -1,0 +1,34 @@
+import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { deliverySettingsQuery, storeSettingsQuery } from "@/lib/store-settings";
+import {
+  DELIVERY_DEFAULTS,
+  STORE_DEFAULTS,
+  setRuntimeDeliverySettings,
+  setRuntimeStoreSettings,
+} from "@/lib/store-config";
+
+/** Store details managed from the admin dashboard. */
+export function useStoreSettings() {
+  const { data } = useQuery(storeSettingsQuery());
+  useEffect(() => {
+    if (data) setRuntimeStoreSettings(data);
+  }, [data]);
+  return data ?? STORE_DEFAULTS;
+}
+
+/** Delivery fees and regions managed from the admin dashboard. */
+export function useDeliverySettings() {
+  const { data } = useQuery(deliverySettingsQuery());
+  useEffect(() => {
+    if (data) setRuntimeDeliverySettings(data);
+  }, [data]);
+  return data ?? DELIVERY_DEFAULTS;
+}
+
+/** Keeps the runtime caches in sync for non-React helpers. */
+export function StoreSettingsSync() {
+  useStoreSettings();
+  useDeliverySettings();
+  return null;
+}

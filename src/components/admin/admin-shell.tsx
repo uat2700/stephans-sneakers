@@ -4,8 +4,10 @@ import {
   Activity,
   BarChart3,
   Boxes,
+  Home,
   LayoutDashboard,
   Menu,
+  MessageSquare,
   Package,
   Settings,
   ShieldCheck,
@@ -13,9 +15,11 @@ import {
   Sparkles,
   Store,
   Tags,
+  Ticket,
   Users,
   type LucideIcon,
 } from "lucide-react";
+
 import { supabase } from "@/integrations/supabase/client";
 import { roleLabelForRank } from "@/hooks/use-admin";
 import { Button } from "@/components/ui/button";
@@ -35,16 +39,20 @@ export const ADMIN_NAV: NavItem[] = [
   { to: "/admin/analytics", label: "Analytics", icon: BarChart3, minRank: 3, group: "Overview" },
   { to: "/admin/orders", label: "Orders", icon: ShoppingBag, minRank: 1, group: "Selling" },
   { to: "/admin/customers", label: "Customers", icon: Users, minRank: 2, group: "Selling" },
+  { to: "/admin/promotions", label: "Coupons", icon: Ticket, minRank: 2, group: "Selling" },
   { to: "/admin/products", label: "Products", icon: Package, minRank: 2, group: "Catalogue" },
   { to: "/admin/inventory", label: "Inventory", icon: Boxes, minRank: 1, group: "Catalogue" },
   { to: "/admin/taxonomy", label: "Brands & categories", icon: Tags, minRank: 2, group: "Catalogue" },
   { to: "/admin/ai", label: "AI assistant", icon: Sparkles, minRank: 2, group: "Catalogue" },
+  { to: "/admin/homepage", label: "Homepage", icon: Home, minRank: 2, group: "Storefront" },
+  { to: "/admin/reviews", label: "Reviews", icon: MessageSquare, minRank: 2, group: "Storefront" },
   { to: "/admin/users", label: "Admin users", icon: ShieldCheck, minRank: 4, group: "Control" },
   { to: "/admin/activity", label: "Activity log", icon: Activity, minRank: 4, group: "Control" },
   { to: "/admin/settings", label: "Settings", icon: Settings, minRank: 3, group: "Control" },
 ];
 
-const GROUPS = ["Overview", "Selling", "Catalogue", "Control"];
+const GROUPS = ["Overview", "Selling", "Catalogue", "Storefront", "Control"];
+
 
 function NavLinks({
   rank,
