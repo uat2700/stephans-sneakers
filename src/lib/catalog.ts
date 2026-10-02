@@ -41,6 +41,9 @@ export type Product = {
   is_featured: boolean;
   is_new: boolean;
   is_active: boolean;
+  is_best_seller?: boolean;
+  is_on_sale?: boolean;
+  is_archived?: boolean;
   popularity: number;
   tags: string[];
   seo_title: string | null;
@@ -55,7 +58,7 @@ export type Product = {
 const PRODUCT_SELECT = `
   id, name, slug, description, brand_id, category_id, selling_price,
   compare_at_price, sizes, colors, gender, stock, is_featured, is_new, is_active,
-  popularity, tags, seo_title, seo_description, ai_caption, created_at,
+  popularity, tags, is_best_seller, is_on_sale, is_archived, seo_title, seo_description, ai_caption, created_at,
   brands ( id, name, slug, logo_url, is_featured ),
   categories ( id, name, slug, image_url ),
   product_images ( id, url, alt, position )
@@ -92,6 +95,7 @@ export const productsQuery = () =>
         .from("products")
         .select(PRODUCT_SELECT)
         .eq("is_active", true)
+        .eq("is_archived", false)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []).map(normalize);
@@ -187,5 +191,20 @@ export const reviewStatsQuery = () =>
           { count: t.count, average: t.sum / t.count },
         ]),
       );
+    },
+  });
+
+/** Per-size quantities managed from Admin → Inventory. */
+export const sizeStockQuery = (productId: string) =>
+  queryOptions({
+    queryKey: ["size-stock", productId],
+    staleTime: 15_000,
+    queryFn: async (): Promise<Record<string, number>> => {
+      const { data, error } = await supabase
+        .from("product_size_stock")
+        .select("size, quantity")
+        .eq("product_id", productId);
+      if (error) throw error;
+      return Object.fromEntries((data ?? []).map((r) => [r.size, r.quantity]));
     },
   });
