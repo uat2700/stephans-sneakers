@@ -21,7 +21,9 @@ import {
   type Product,
 } from "@/lib/catalog";
 import { SITE } from "@/lib/site";
-import { generalWhatsappMessage, whatsappLink } from "@/lib/whatsapp";
+import { generalMessage, whatsappLink } from "@/lib/whatsapp";
+import { activeBannersQuery, homepageSettingsQuery, HOMEPAGE_DEFAULTS } from "@/lib/store-settings";
+import { useStoreSettings } from "@/hooks/use-store-settings";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -66,6 +68,9 @@ function Home() {
   const products = useQuery(productsQuery());
   const brands = useQuery(brandsQuery());
   const categories = useQuery(categoriesQuery());
+  const hp = useQuery(homepageSettingsQuery()).data ?? HOMEPAGE_DEFAULTS;
+  const banners = useQuery(activeBannersQuery());
+  const store = useStoreSettings();
 
   const featured = (products.data ?? []).filter((p) => p.is_featured).slice(0, 8);
   const list = featured.length ? featured : (products.data ?? []).slice(0, 8);
@@ -74,7 +79,8 @@ function Home() {
   const byPopularity = [...all].sort((a, b) => b.popularity - a.popularity);
   const visited = byPopularity.filter((p) => p.popularity > 0);
   const trending = visited.slice(0, 4);
-  const bestSellers = (byPopularity.slice(4, 8).length
+  const flaggedBest = all.filter((p) => (p as Product & { is_best_seller?: boolean }).is_best_seller);
+  const bestSellers = flaggedBest.length ? flaggedBest.slice(0, 4) : (byPopularity.slice(4, 8).length
     ? byPopularity.slice(4, 8)
     : byPopularity.slice(0, 4)
   ).filter((p) => !trending.includes(p) || byPopularity.length <= 4);
@@ -92,12 +98,12 @@ function Home() {
               Now delivering nationwide
             </span>
             <h1 className="mt-5 font-display text-4xl font-extrabold uppercase leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl">
-              Step into
-              <span className="block text-muted-foreground">your next pair</span>
+              {hp.hero_title}
+              <span className="block text-muted-foreground">{hp.hero_subtitle}</span>
             </h1>
             <p className="mt-5 max-w-md text-base text-muted-foreground">
-              {SITE.tagline}. Curated drops, honest prices and instant ordering on
-              WhatsApp.
+              {hp.hero_note ||
+                `${SITE.tagline}. Curated drops, honest prices and instant ordering on WhatsApp.`}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg" className="rounded-full px-7">
@@ -107,7 +113,7 @@ function Home() {
                 </Link>
               </Button>
               <a
-                href={whatsappLink(generalWhatsappMessage)}
+                href={whatsappLink(generalMessage())}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex h-11 items-center gap-2 rounded-full bg-whatsapp px-7 text-sm font-semibold text-whatsapp-foreground transition hover:opacity-90"
@@ -163,6 +169,33 @@ function Home() {
         </div>
       </section>
 
+      {hp.show_banners && banners.data?.length ? (
+        <section aria-label="Promotions" className="container-page pt-10">
+          <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
+            {banners.data.map((b) => {
+              const inner = (
+                <div className="relative h-44 w-[85vw] max-w-xl shrink-0 snap-start overflow-hidden rounded-3xl bg-surface sm:h-56">
+                  {b.image_url ? (
+                    <img src={b.image_url} alt={b.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                  ) : null}
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
+                  <div className="absolute bottom-0 p-5">
+                    <p className="font-display text-xl font-extrabold uppercase tracking-tight">{b.title}</p>
+                    {b.subtitle ? <p className="text-sm text-muted-foreground">{b.subtitle}</p> : null}
+                  </div>
+                </div>
+              );
+              return b.link_url ? (
+                <a key={b.id} href={b.link_url}>{inner}</a>
+              ) : (
+                <div key={b.id}>{inner}</div>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
+
+      {hp.show_featured ? (
       <section className="container-page py-14">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
           <div className="min-w-0">
@@ -203,8 +236,9 @@ function Home() {
           )}
         </div>
       </section>
+      ) : null}
 
-      {brands.data?.length ? (
+      {hp.show_brands && brands.data?.length ? (
         <section className="border-y border-border bg-surface">
           <div className="container-page py-12">
             <BrandRail brands={brands.data} />
@@ -212,11 +246,13 @@ function Home() {
         </section>
       ) : null}
 
-      <section className="container-page py-12">
-        <CategoryRail categories={categories.data ?? []} />
-      </section>
+      {hp.show_categories ? (
+        <section className="container-page py-12">
+          <CategoryRail categories={categories.data ?? []} />
+        </section>
+      ) : null}
 
-      {deals.length ? (
+      {hp.show_flash_sale && deals.length ? (
         <section className="border-y border-border bg-surface">
           <div className="container-page py-14">
             <FlashSale products={deals} onQuickView={setQuick} />
@@ -226,7 +262,7 @@ function Home() {
 
 
 
-      {newest.length ? (
+      {hp.show_new && newest.length ? (
         <section className="container-page py-14">
           <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
             New arrivals
@@ -239,7 +275,7 @@ function Home() {
         </section>
       ) : null}
 
-      {bestSellers.length ? (
+      {hp.show_best_sellers && bestSellers.length ? (
         <section className="container-page py-14">
           <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
             Best sellers
@@ -255,6 +291,7 @@ function Home() {
         </section>
       ) : null}
 
+      {hp.show_testimonials ? (
       <section className="container-page py-14">
         <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
           What customers say
@@ -282,15 +319,21 @@ function Home() {
         </div>
       </section>
 
-      <section className="container-page py-6">
-        <NewsletterSignup />
-      </section>
+      ) : null}
 
-      <section className="container-page py-14">
-        <InstagramGallery products={all} />
-      </section>
+      {hp.show_newsletter ? (
+        <section className="container-page py-6">
+          <NewsletterSignup />
+        </section>
+      ) : null}
 
-      {trending.length ? (
+      {hp.show_instagram ? (
+        <section className="container-page py-14">
+          <InstagramGallery products={all} />
+        </section>
+      ) : null}
+
+      {hp.show_trending && trending.length ? (
         <section className="container-page py-14">
           <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
             Trending sneakers
@@ -318,12 +361,12 @@ function Home() {
             minutes.
           </p>
           <a
-            href={whatsappLink(generalWhatsappMessage)}
+            href={whatsappLink(generalMessage())}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-7 inline-flex h-12 items-center gap-2 rounded-full bg-whatsapp px-8 font-semibold text-whatsapp-foreground"
           >
-            <WhatsAppIcon className="h-5 w-5" /> Message {SITE.name}
+            <WhatsAppIcon className="h-5 w-5" /> Message {store.name}
           </a>
         </div>
       </section>
