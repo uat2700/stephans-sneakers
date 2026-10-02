@@ -21,7 +21,7 @@ import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { useTrackProductView } from "@/hooks/use-track-product-view";
 
 import { discountPercent, formatPrice } from "@/lib/format";
-import { productQuery, productsQuery } from "@/lib/catalog";
+import { productQuery, productsQuery, sizeStockQuery } from "@/lib/catalog";
 import { productMessage, whatsappLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
@@ -63,6 +63,13 @@ function ProductPage() {
   const [zoom, setZoom] = useState(false);
   const recentIds = useRecentlyViewed(product?.id);
   useTrackProductView(product?.id);
+  const sizeStock = useQuery({
+    ...sizeStockQuery(product?.id ?? ""),
+    enabled: Boolean(product?.id),
+  }).data;
+  // A size is unavailable only when inventory has been set for it and is 0.
+  const isSizeAvailable = (s: string) =>
+    !sizeStock || sizeStock[s] === undefined || sizeStock[s] > 0;
 
 
   if (isLoading) {
@@ -99,7 +106,7 @@ function ProductPage() {
   const images = product.product_images;
   const image = images[activeImage]?.url ?? null;
   const discount = discountPercent(product.selling_price, product.compare_at_price);
-  const chosenSize = size ?? product.sizes[0] ?? null;
+  const chosenSize = size ?? product.sizes.find(isSizeAvailable) ?? null;
   const chosenColor = color ?? product.colors[0] ?? null;
   const related = (all ?? [])
     .filter((p) => p.id !== product.id && p.brand_id === product.brand_id)
@@ -279,8 +286,12 @@ function ProductPage() {
                     key={s}
                     type="button"
                     onClick={() => setSize(s)}
+                    disabled={!isSizeAvailable(s)}
+                    aria-label={isSizeAvailable(s) ? `Size ${s}` : `Size ${s} unavailable`}
                     className={cn(
                       "h-11 min-w-14 rounded-xl border px-4 text-sm font-semibold transition",
+                      !isSizeAvailable(s) &&
+                        "cursor-not-allowed border-dashed text-muted-foreground line-through opacity-50",
                       chosenSize === s
                         ? "border-foreground bg-foreground text-background"
                         : "border-border hover:border-foreground",
