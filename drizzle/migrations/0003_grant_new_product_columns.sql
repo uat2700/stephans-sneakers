@@ -1,0 +1,1 @@
+GRANT SELECT (is_best_seller, is_on_sale, is_archived, sku) ON public.products TO anon, authenticated;
