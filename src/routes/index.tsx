@@ -6,6 +6,7 @@ import heroImage from "@/assets/hero-sneaker.jpg";
 import { BrandRail } from "@/components/brand-rail";
 import { CategoryRail } from "@/components/category-rail";
 import { FlashSale } from "@/components/flash-sale";
+import { HeroShowcase } from "@/components/hero-showcase";
 import { NewsletterSignup } from "@/components/newsletter-signup";
 import { InstagramGallery } from "@/components/instagram-gallery";
 import { ProductCard } from "@/components/product-card";
@@ -136,15 +137,7 @@ function Home() {
           </div>
 
           <div className="relative">
-            <div className="overflow-hidden rounded-[2rem] bg-background shadow-xl">
-              <img
-                src={heroImage}
-                alt="Premium white high-top sneaker"
-                width={1920}
-                height={1280}
-                className="h-full w-full object-cover"
-              />
-            </div>
+            <HeroShowcase products={featured} fallbackImage={heroImage} />
           </div>
         </div>
       </section>
