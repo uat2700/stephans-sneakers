@@ -137,7 +137,11 @@ function Home() {
           </div>
 
           <div className="relative">
-            <HeroShowcase products={featured} fallbackImage={heroImage} />
+            <HeroShowcase
+              products={featured}
+              banners={hp.show_banners ? banners.data ?? [] : []}
+              fallbackImage={heroImage}
+            />
           </div>
         </div>
       </section>
@@ -162,31 +166,6 @@ function Home() {
         </div>
       </section>
 
-      {hp.show_banners && banners.data?.length ? (
-        <section aria-label="Promotions" className="container-page pt-10">
-          <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
-            {banners.data.map((b) => {
-              const inner = (
-                <div className="relative h-44 w-[85vw] max-w-xl shrink-0 snap-start overflow-hidden rounded-3xl bg-surface sm:h-56">
-                  {b.image_url ? (
-                    <img src={b.image_url} alt={b.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
-                  ) : null}
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
-                  <div className="absolute bottom-0 p-5">
-                    <p className="font-display text-xl font-extrabold uppercase tracking-tight">{b.title}</p>
-                    {b.subtitle ? <p className="text-sm text-muted-foreground">{b.subtitle}</p> : null}
-                  </div>
-                </div>
-              );
-              return b.link_url ? (
-                <a key={b.id} href={b.link_url}>{inner}</a>
-              ) : (
-                <div key={b.id}>{inner}</div>
-              );
-            })}
-          </div>
-        </section>
-      ) : null}
 
       {hp.show_featured ? (
       <section className="container-page py-14">
