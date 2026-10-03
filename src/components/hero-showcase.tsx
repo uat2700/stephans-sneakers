@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import type { Product } from "@/lib/catalog";
-import { formatPrice } from "@/lib/site";
+import { formatPrice } from "@/lib/format";
 
 /**
  * Rotating hero showcase. Cycles through the products the admin marks as
