@@ -29,6 +29,13 @@
       "when": 1790916767383,
       "tag": "0003_grant_new_product_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791083135977,
+      "tag": "0004_product_image_color_variant",
+      "breakpoints": true
     }
   ]
 }
