@@ -795,7 +795,6 @@ export function AiImport() {
                         </div>
                       </div>
                       <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
-                      <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
                         <Badge variant="secondary">
                           {row.variants.length} colour{row.variants.length === 1 ? "" : "s"}
                         </Badge>
