@@ -103,11 +103,16 @@ function ProductPage() {
     );
   }
 
-  const images = product.product_images;
-  const image = images[activeImage]?.url ?? null;
+  const chosenColor = color ?? product.colors[0] ?? null;
+  const colorImages = chosenColor
+    ? product.product_images.filter(
+        (i) => i.color && i.color.toLowerCase() === chosenColor.toLowerCase(),
+      )
+    : [];
+  const images = colorImages.length ? colorImages : product.product_images;
+  const image = images[activeImage]?.url ?? images[0]?.url ?? null;
   const discount = discountPercent(product.selling_price, product.compare_at_price);
   const chosenSize = size ?? product.sizes.find(isSizeAvailable) ?? null;
-  const chosenColor = color ?? product.colors[0] ?? null;
   const related = (all ?? [])
     .filter((p) => p.id !== product.id && p.brand_id === product.brand_id)
     .slice(0, 4);

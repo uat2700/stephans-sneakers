@@ -7,6 +7,7 @@ export type ProductImage = {
   url: string;
   alt: string | null;
   position: number;
+  color?: string | null;
 };
 
 export type Brand = {
@@ -61,7 +62,7 @@ const PRODUCT_SELECT = `
   popularity, tags, is_best_seller, is_on_sale, is_archived, seo_title, seo_description, ai_caption, created_at,
   brands ( id, name, slug, logo_url, is_featured ),
   categories ( id, name, slug, image_url ),
-  product_images ( id, url, alt, position )
+  product_images ( id, url, alt, position, color )
 `;
 
 function normalize(row: Record<string, unknown>): Product {

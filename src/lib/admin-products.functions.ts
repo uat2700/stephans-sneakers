@@ -8,7 +8,7 @@ const ADMIN_PRODUCT_SELECT = `
   popularity, tags, seo_title, seo_description, ai_caption, created_at,
   brands ( id, name, slug, logo_url, is_featured ),
   categories ( id, name, slug, image_url ),
-  product_images ( id, url, alt, position )
+  product_images ( id, url, alt, position, color )
 `;
 
 export const listAdminProducts = createServerFn({ method: "POST" })
