@@ -319,7 +319,7 @@ function ProductPage() {
                   <button
                     key={c}
                     type="button"
-                    onClick={() => setColor(c)}
+                    onClick={() => { setColor(c); setActiveImage(0); }}
                     className={cn(
                       "h-10 rounded-xl border px-4 text-sm font-medium transition",
                       chosenColor === c
