@@ -531,7 +531,6 @@ export function AiImport() {
               key={row.key}
               className="rounded-3xl border border-border bg-card p-4 sm:p-5"
             >
-              <div className="flex gap-4">
               {row.status === "ready" && row.review ? (
                 <div className="mb-3 flex items-center gap-2 rounded-2xl border border-border bg-muted px-3 py-2 text-xs">
                   <AlertTriangle className="h-4 w-4 shrink-0" />
