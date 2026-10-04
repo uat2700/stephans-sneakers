@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
+  AlertTriangle,
   Camera,
   ClipboardPaste,
   Loader2,
@@ -30,9 +31,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
+type Variant = { key: string; color: string; images: string[] };
+
 type Row = {
   key: string;
-  images: string[];
+  variants: Variant[];
   status: "analysing" | "ready" | "failed";
   name: string;
   brandName: string;
@@ -40,14 +43,15 @@ type Row = {
   categoryId: string | null;
   gender: string;
   description: string;
-  colors: string[];
   confidence: number;
+  review: boolean;
   price: string;
   sizes: string[];
   stock: string;
 };
 
 const NONE = "__none__";
+const LOW_CONFIDENCE = 0.7;
 
 /** Colour words are ignored when matching, so colourways group as one product. */
 const COLOR_WORDS = new Set([
@@ -75,6 +79,25 @@ const baseName = (name: string) =>
 const signature = (brand: string, name: string) =>
   `${brand.trim().toLowerCase()}|${baseName(name)}`;
 
+const sameColor = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+const imageCount = (r: Row) => r.variants.reduce((n, v) => n + v.images.length, 0);
+const colorsOf = (r: Row) =>
+  Array.from(new Set(r.variants.map((v) => v.color.trim()).filter(Boolean)));
+
+/** Adds a photo to the matching colour variant of a row, or a new variant. */
+function addToVariant(variants: Variant[], color: string, url: string): Variant[] {
+  const match = variants.find((v) => sameColor(v.color, color));
+  if (match)
+    return variants.map((v) => (v === match ? { ...v, images: [...v.images, url] } : v));
+  return [...variants, { key: crypto.randomUUID(), color, images: [url] }];
+}
+
+const stripImage = (row: Row, url: string): Row => ({
+  ...row,
+  variants: row.variants
+    .map((v) => ({ ...v, images: v.images.filter((i) => i !== url) }))
+    .filter((v) => v.images.length > 0),
+});
 
 export function AiImport() {
   const queryClient = useQueryClient();
@@ -107,7 +130,7 @@ export function AiImport() {
           ...prev,
           {
             key,
-            images: [imageUrl],
+            variants: [{ key: crypto.randomUUID(), color: "", images: [imageUrl] }],
             status: "analysing",
             name: "",
             brandName: "",
@@ -115,8 +138,8 @@ export function AiImport() {
             categoryId: null,
             gender: "unisex",
             description: "",
-            colors: [],
             confidence: 0,
+            review: false,
             price: "",
             sizes: [],
             stock: "1",
@@ -135,13 +158,15 @@ export function AiImport() {
         );
 
         const brandName = matchedBrand?.name ?? result.brand;
-        const sig = signature(brandName, result.name);
+        const model = (result.model || result.name).trim();
+        const color = (result.color || result.colors[0] || "").trim();
+        const sig = signature(brandName, model);
+        const unsure = result.confidence < LOW_CONFIDENCE;
 
-        // Group this photo into an existing sneaker when it's the same model,
-        // even if the colourway differs. Admin can still hit "Separate".
+        // Same model → same product; same colour → same variant.
         let merged = false;
         setRows((prev) => {
-          const target = baseName(result.name)
+          const target = baseName(model)
             ? prev.find(
                 (r) =>
                   r.key !== key &&
@@ -157,19 +182,12 @@ export function AiImport() {
               r.key === target.key
                 ? {
                     ...r,
-                    images: [...r.images, imageUrl],
-                    // keep the shorter (less colour-specific) product name
-                    name:
-                      result.name.trim() &&
-                      result.name.trim().length < r.name.trim().length
-                        ? result.name.trim()
-                        : r.name,
-                    colors: Array.from(new Set([...r.colors, ...result.colors])),
+                    variants: addToVariant(r.variants, color, imageUrl),
+                    review: r.review || unsure,
                   }
                 : r,
             );
         });
-
 
         if (merged) {
           setGrouped((n) => n + 1);
@@ -178,14 +196,15 @@ export function AiImport() {
 
         patch(key, {
           status: "ready",
-          name: result.name,
+          name: model,
           brandName,
           brandId: matchedBrand?.id ?? null,
           categoryId: matchedCategory?.id ?? null,
           gender: GENDER_OPTIONS.includes(result.gender) ? result.gender : "unisex",
           description: result.description,
-          colors: result.colors,
+          variants: [{ key: crypto.randomUUID(), color, images: [imageUrl] }],
           confidence: result.confidence,
+          review: unsure,
         });
       } catch (error) {
         patch(key, { status: "failed" });
@@ -202,22 +221,81 @@ export function AiImport() {
   const removeImage = (key: string, url: string) =>
     setRows((prev) =>
       prev
-        .map((r) =>
-          r.key === key ? { ...r, images: r.images.filter((i) => i !== url) } : r,
-        )
-        .filter((r) => r.images.length > 0),
+        .map((r) => (r.key === key ? stripImage(r, url) : r))
+        .filter((r) => r.variants.length > 0),
     );
 
-  const splitImage = (key: string, url: string) =>
+  /** Move a photo to another colour of the same product ("new" = new colour). */
+  const moveToVariant = (rowKey: string, url: string, target: string) =>
+    setRows((prev) =>
+      prev.map((r) => {
+        if (r.key !== rowKey) return r;
+        const stripped = stripImage(r, url);
+        if (target === "new")
+          return {
+            ...stripped,
+            variants: [...stripped.variants, { key: crypto.randomUUID(), color: "New colour", images: [url] }],
+          };
+        const exists = stripped.variants.some((v) => v.key === target);
+        const color = r.variants.find((v) => v.key === target)?.color ?? "";
+        return exists
+          ? {
+              ...stripped,
+              variants: stripped.variants.map((v) =>
+                v.key === target ? { ...v, images: [...v.images, url] } : v,
+              ),
+            }
+          : { ...stripped, variants: [...stripped.variants, { key: target, color, images: [url] }] };
+      }),
+    );
+
+  /** Move a photo to another product ("new" = new product). Keeps its colour. */
+  const moveToProduct = (rowKey: string, url: string, target: string) =>
     setRows((prev) => {
-      const source = prev.find((r) => r.key === key);
-      if (!source || source.images.length < 2) return prev;
-      return [
-        ...prev.map((r) =>
-          r.key === key ? { ...r, images: r.images.filter((i) => i !== url) } : r,
-        ),
-        { ...source, key: crypto.randomUUID(), images: [url] },
-      ];
+      const source = prev.find((r) => r.key === rowKey);
+      if (!source) return prev;
+      const color = source.variants.find((v) => v.images.includes(url))?.color ?? "";
+      let next = prev.map((r) => (r.key === rowKey ? stripImage(r, url) : r));
+      if (target === "new") {
+        next = [
+          ...next,
+          {
+            ...source,
+            key: crypto.randomUUID(),
+            variants: [{ key: crypto.randomUUID(), color, images: [url] }],
+          },
+        ];
+      } else {
+        next = next.map((r) =>
+          r.key === target ? { ...r, variants: addToVariant(r.variants, color, url) } : r,
+        );
+      }
+      return next.filter((r) => r.variants.length > 0);
+    });
+
+  const renameVariant = (rowKey: string, variantKey: string, color: string) =>
+    setRows((prev) =>
+      prev.map((r) =>
+        r.key === rowKey
+          ? { ...r, variants: r.variants.map((v) => (v.key === variantKey ? { ...v, color } : v)) }
+          : r,
+      ),
+    );
+
+  /** Merge a whole product group into another one. */
+  const mergeInto = (rowKey: string, target: string) =>
+    setRows((prev) => {
+      const source = prev.find((r) => r.key === rowKey);
+      if (!source) return prev;
+      return prev
+        .filter((r) => r.key !== rowKey)
+        .map((r) => {
+          if (r.key !== target) return r;
+          let variants = r.variants;
+          for (const v of source.variants)
+            for (const url of v.images) variants = addToVariant(variants, v.color, url);
+          return { ...r, variants };
+        });
     });
 
   const publish = useMutation({
@@ -266,7 +344,7 @@ export function AiImport() {
             gender: row.gender,
             stock: Number(row.stock || 0),
             sizes: row.sizes,
-            colors: row.colors,
+            colors: colorsOf(row),
             is_active: true,
             is_new: true,
           })
@@ -274,11 +352,15 @@ export function AiImport() {
           .single();
         if (error) throw error;
 
+        const images = row.variants.flatMap((v) =>
+          v.images.map((url) => ({ url, color: v.color.trim() || null })),
+        );
         const { error: imageError } = await supabase.from("product_images").insert(
-          row.images.map((url, index) => ({
+          images.map((img, index) => ({
             product_id: data.id,
-            url,
-            alt: name,
+            url: img.url,
+            color: img.color,
+            alt: img.color ? `${name} – ${img.color}` : name,
             position: index,
           })),
         );
@@ -306,6 +388,7 @@ export function AiImport() {
     );
 
   const readyCount = rows.filter((r) => r.status === "ready").length;
+
 
   // Read images from the clipboard on demand (works on phones too).
   async function pasteFromClipboard() {
@@ -377,8 +460,8 @@ export function AiImport() {
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
           Upload sneaker photos and AI will detect the brand and product name for
-          each pair. Photos of the same sneaker are grouped into one product
-          automatically — you only set the price and sizes.
+          each pair. Photos of the same model are grouped into one product, with each
+          colour as its own variant — you only set the price and sizes.
         </p>
         <p className="mx-auto mt-2 max-w-md text-xs text-muted-foreground">
           On a computer you can paste a copied photo (Ctrl/⌘ + V) or drag photos
@@ -436,7 +519,7 @@ export function AiImport() {
 
         {grouped > 0 ? (
           <p className="mt-3 text-xs text-muted-foreground">
-            {grouped} photo{grouped === 1 ? "" : "s"} grouped with a matching sneaker.
+            {grouped} photo{grouped === 1 ? "" : "s"} grouped into an existing sneaker as a colour or extra angle.
           </p>
         ) : null}
       </div>
@@ -449,44 +532,110 @@ export function AiImport() {
               className="rounded-3xl border border-border bg-card p-4 sm:p-5"
             >
               <div className="flex gap-4">
-                <div className="w-24 shrink-0 space-y-2">
-                  {row.images.map((url, index) => (
-                    <div
-                      key={url}
-                      className="group relative h-24 w-24 overflow-hidden rounded-2xl bg-muted"
-                    >
-                      <img
-                        src={url}
-                        alt={row.name || "Uploaded sneaker"}
-                        className="h-full w-full object-cover"
+              {row.status === "ready" && row.review ? (
+                <div className="mb-3 flex items-center gap-2 rounded-2xl border border-border bg-muted px-3 py-2 text-xs">
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
+                  <span className="flex-1">
+                    Possible match — the AI wasn't sure these photos belong together. Please check the grouping.
+                  </span>
+                  <button
+                    type="button"
+                    className="font-semibold underline underline-offset-4"
+                    onClick={() => patch(row.key, { review: false })}
+                  >
+                    Looks right
+                  </button>
+                </div>
+              ) : null}
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <div className="space-y-3 sm:w-64 sm:shrink-0">
+                  {row.variants.map((variant) => (
+                    <div key={variant.key} className="rounded-2xl border border-border p-2">
+                      <Input
+                        aria-label="Colour name"
+                        value={variant.color}
+                        placeholder="Colour"
+                        disabled={row.status !== "ready"}
+                        onChange={(e) => renameVariant(row.key, variant.key, e.target.value)}
+                        className="mb-2 h-8 text-xs font-semibold"
                       />
-                      {row.images.length > 1 ? (
-                        <>
-                          <button
-                            type="button"
-                            aria-label="Remove this photo"
-                            onClick={() => removeImage(row.key, url)}
-                            className="absolute right-1 top-1 rounded-full bg-background/90 p-1"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                          {index > 0 ? (
-                            <button
-                              type="button"
-                              onClick={() => splitImage(row.key, url)}
-                              className="absolute inset-x-1 bottom-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold"
-                            >
-                              Separate
-                            </button>
-                          ) : null}
-                        </>
-                      ) : null}
+                      <div className="flex flex-wrap gap-2">
+                        {variant.images.map((url) => (
+                          <div key={url} className="w-[4.5rem]">
+                            <div className="relative h-[4.5rem] w-[4.5rem] overflow-hidden rounded-xl bg-muted">
+                              <img
+                                src={url}
+                                alt={`${row.name || "Sneaker"} ${variant.color}`}
+                                className="h-full w-full object-cover"
+                              />
+                              {imageCount(row) > 1 ? (
+                                <button
+                                  type="button"
+                                  aria-label="Remove this photo"
+                                  onClick={() => removeImage(row.key, url)}
+                                  className="absolute right-1 top-1 rounded-full bg-background/90 p-1"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              ) : null}
+                            </div>
+                            {row.status === "ready" ? (
+                              <>
+                                <select
+                                  aria-label="Move to colour"
+                                  value=""
+                                  onChange={(e) => e.target.value && moveToVariant(row.key, url, e.target.value)}
+                                  className="mt-1 w-full rounded-md border border-border bg-background px-1 py-0.5 text-[10px]"
+                                >
+                                  <option value="">Colour…</option>
+                                  {row.variants
+                                    .filter((v) => v.key !== variant.key)
+                                    .map((v) => (
+                                      <option key={v.key} value={v.key}>
+                                        {v.color || "Unnamed"}
+                                      </option>
+                                    ))}
+                                  <option value="new">+ New colour</option>
+                                </select>
+                                <select
+                                  aria-label="Move to product"
+                                  value=""
+                                  onChange={(e) => e.target.value && moveToProduct(row.key, url, e.target.value)}
+                                  className="mt-1 w-full rounded-md border border-border bg-background px-1 py-0.5 text-[10px]"
+                                >
+                                  <option value="">Product…</option>
+                                  {rows
+                                    .filter((r) => r.key !== row.key && r.status === "ready")
+                                    .map((r) => (
+                                      <option key={r.key} value={r.key}>
+                                        {r.name || "Untitled"}
+                                      </option>
+                                    ))}
+                                  <option value="new">+ New product</option>
+                                </select>
+                              </>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ))}
-                  {row.images.length > 1 ? (
-                    <p className="text-center text-[11px] text-muted-foreground">
-                      {row.images.length} photos grouped
-                    </p>
+                  {row.status === "ready" && rows.some((r) => r.key !== row.key && r.status === "ready") ? (
+                    <select
+                      aria-label="Merge into another product"
+                      value=""
+                      onChange={(e) => e.target.value && mergeInto(row.key, e.target.value)}
+                      className="w-full rounded-full border border-border bg-background px-3 py-1.5 text-xs"
+                    >
+                      <option value="">Merge this product into…</option>
+                      {rows
+                        .filter((r) => r.key !== row.key && r.status === "ready")
+                        .map((r) => (
+                          <option key={r.key} value={r.key}>
+                            {r.name || "Untitled"}
+                          </option>
+                        ))}
+                    </select>
                   ) : null}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -647,19 +796,16 @@ export function AiImport() {
                         </div>
                       </div>
                       <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
-                        {row.colors.map((c) => (
-                          <Badge key={c} variant="outline">
-                            {c}
-                          </Badge>
-                        ))}
+                      <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
+                        <Badge variant="secondary">
+                          {row.variants.length} colour{row.variants.length === 1 ? "" : "s"}
+                        </Badge>
                         <Badge variant="secondary">
                           AI confidence {Math.round(row.confidence * 100)}%
                         </Badge>
-                        {row.images.length > 1 ? (
-                          <Badge variant="secondary">
-                            {row.images.length} photos
-                          </Badge>
-                        ) : null}
+                        <Badge variant="secondary">
+                          {imageCount(row)} photo{imageCount(row) === 1 ? "" : "s"}
+                        </Badge>
                       </div>
                     </div>
                   )}
