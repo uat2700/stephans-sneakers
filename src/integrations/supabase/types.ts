@@ -398,6 +398,7 @@ export type Database = {
       }
       product_size_stock: {
         Row: {
+          color: string
           id: string
           product_id: string
           quantity: number
@@ -405,6 +406,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          color?: string
           id?: string
           product_id: string
           quantity?: number
@@ -412,6 +414,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          color?: string
           id?: string
           product_id?: string
           quantity?: number

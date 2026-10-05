@@ -17,16 +17,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type SizeStock = { id: string; product_id: string; size: string; quantity: number };
+type SizeStock = {
+  id: string;
+  product_id: string;
+  size: string;
+  color: string;
+  quantity: number;
+};
 
 const sizeStockQuery = {
   queryKey: ["size-stock"],
   queryFn: async (): Promise<SizeStock[]> => {
     const { data, error } = await supabase
       .from("product_size_stock")
-      .select("id, product_id, size, quantity");
+      .select("id, product_id, size, color, quantity");
     if (error) throw error;
-    return data ?? [];
+    return (data ?? []) as SizeStock[];
   },
 };
 
@@ -43,25 +49,36 @@ function SizeEditor({
 }) {
   const queryClient = useQueryClient();
   const sizes = product.sizes.length ? product.sizes : [];
+  // One stock grid per colour; products without colours use a single "" group.
+  const colorGroups = product.colors.length ? product.colors : [""];
+  const keyFor = (color: string, size: string) => `${color}|${size}`;
   const [draft, setDraft] = useState<Record<string, string>>(() =>
     Object.fromEntries(
-      sizes.map((size) => [
-        size,
-        String(rows.find((r) => r.size === size)?.quantity ?? 0),
-      ]),
+      colorGroups.flatMap((color) =>
+        sizes.map((size) => [
+          keyFor(color, size),
+          String(
+            rows.find((r) => r.size === size && r.color === color)?.quantity ??
+              0,
+          ),
+        ]),
+      ),
     ),
   );
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = sizes.map((size) => ({
-        product_id: product.id,
-        size,
-        quantity: Math.max(0, Number(draft[size] ?? 0) || 0),
-      }));
+      const payload = colorGroups.flatMap((color) =>
+        sizes.map((size) => ({
+          product_id: product.id,
+          size,
+          color,
+          quantity: Math.max(0, Number(draft[keyFor(color, size)] ?? 0) || 0),
+        })),
+      );
       const { error } = await supabase
         .from("product_size_stock")
-        .upsert(payload, { onConflict: "product_id,size" });
+        .upsert(payload, { onConflict: "product_id,size,color" });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -91,37 +108,47 @@ function SizeEditor({
   }
 
   return (
-    <div className="border-t border-border bg-surface/40 px-4 py-4">
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-8">
-        {sizes.map((size) => {
-          const quantity = Number(draft[size] ?? 0) || 0;
-          return (
-            <label key={size} className="block">
-              <span className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                {size}
-                {quantity === 0 ? (
-                  <span className="text-destructive">out</span>
-                ) : quantity <= threshold ? (
-                  <span className="text-gold">low</span>
-                ) : null}
-              </span>
-              <Input
-                type="number"
-                min={0}
-                inputMode="numeric"
-                value={draft[size] ?? "0"}
-                onChange={(e) =>
-                  setDraft((prev) => ({ ...prev, [size]: e.target.value }))
-                }
-                className="mt-1 h-9 rounded-xl text-sm"
-              />
-            </label>
-          );
-        })}
-      </div>
+    <div className="space-y-5 border-t border-border bg-surface/40 px-4 py-4">
+      {colorGroups.map((color) => (
+        <div key={color || "__all"}>
+          {color ? (
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              {color}
+            </p>
+          ) : null}
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-8">
+            {sizes.map((size) => {
+              const key = keyFor(color, size);
+              const quantity = Number(draft[key] ?? 0) || 0;
+              return (
+                <label key={size} className="block">
+                  <span className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {size}
+                    {quantity === 0 ? (
+                      <span className="text-destructive">out</span>
+                    ) : quantity <= threshold ? (
+                      <span className="text-gold">low</span>
+                    ) : null}
+                  </span>
+                  <Input
+                    type="number"
+                    min={0}
+                    inputMode="numeric"
+                    value={draft[key] ?? "0"}
+                    onChange={(e) =>
+                      setDraft((prev) => ({ ...prev, [key]: e.target.value }))
+                    }
+                    className="mt-1 h-9 rounded-xl text-sm"
+                  />
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      ))}
       <Button
         size="sm"
-        className="mt-3 rounded-full"
+        className="rounded-full"
         disabled={save.isPending}
         onClick={() => save.mutate()}
       >

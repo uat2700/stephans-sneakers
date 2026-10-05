@@ -68,8 +68,14 @@ function ProductPage() {
     enabled: Boolean(product?.id),
   }).data;
   // A size is unavailable only when inventory has been set for it and is 0.
-  const isSizeAvailable = (s: string) =>
-    !sizeStock || sizeStock[s] === undefined || sizeStock[s] > 0;
+  // Stock is keyed "color|size"; fall back to the all-colours ("|size") row.
+  const isSizeAvailable = (s: string, forColor?: string | null) => {
+    if (!sizeStock) return true;
+    const colorKey = `${(forColor ?? "").toLowerCase()}|${s}`;
+    const genericKey = `|${s}`;
+    const qty = sizeStock[colorKey] ?? sizeStock[genericKey];
+    return qty === undefined || qty > 0;
+  };
 
 
   if (isLoading) {
@@ -112,7 +118,8 @@ function ProductPage() {
   const images = colorImages.length ? colorImages : product.product_images;
   const image = images[activeImage]?.url ?? images[0]?.url ?? null;
   const discount = discountPercent(product.selling_price, product.compare_at_price);
-  const chosenSize = size ?? product.sizes.find(isSizeAvailable) ?? null;
+  const chosenSize =
+    size ?? product.sizes.find((s) => isSizeAvailable(s, chosenColor)) ?? null;
   const related = (all ?? [])
     .filter((p) => p.id !== product.id && p.brand_id === product.brand_id)
     .slice(0, 4);
@@ -291,11 +298,11 @@ function ProductPage() {
                     key={s}
                     type="button"
                     onClick={() => setSize(s)}
-                    disabled={!isSizeAvailable(s)}
-                    aria-label={isSizeAvailable(s) ? `Size ${s}` : `Size ${s} unavailable`}
+                    disabled={!isSizeAvailable(s, chosenColor)}
+                    aria-label={isSizeAvailable(s, chosenColor) ? `Size ${s}` : `Size ${s} unavailable`}
                     className={cn(
                       "h-11 min-w-14 rounded-xl border px-4 text-sm font-semibold transition",
-                      !isSizeAvailable(s) &&
+                      !isSizeAvailable(s, chosenColor) &&
                         "cursor-not-allowed border-dashed text-muted-foreground line-through opacity-50",
                       chosenSize === s
                         ? "border-foreground bg-foreground text-background"
@@ -319,7 +326,7 @@ function ProductPage() {
                   <button
                     key={c}
                     type="button"
-                    onClick={() => { setColor(c); setActiveImage(0); }}
+                    onClick={() => { setColor(c); setActiveImage(0); setSize(null); }}
                     className={cn(
                       "h-10 rounded-xl border px-4 text-sm font-medium transition",
                       chosenColor === c

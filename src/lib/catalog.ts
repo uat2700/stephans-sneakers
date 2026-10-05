@@ -203,9 +203,15 @@ export const sizeStockQuery = (productId: string) =>
     queryFn: async (): Promise<Record<string, number>> => {
       const { data, error } = await supabase
         .from("product_size_stock")
-        .select("size, quantity")
+        .select("size, color, quantity")
         .eq("product_id", productId);
       if (error) throw error;
-      return Object.fromEntries((data ?? []).map((r) => [r.size, r.quantity]));
+      // Keyed "color|size" (lowercased colour; "" = applies to all colours).
+      return Object.fromEntries(
+        (data ?? []).map((r) => [
+          `${(r.color ?? "").toLowerCase()}|${r.size}`,
+          r.quantity,
+        ]),
+      );
     },
   });
