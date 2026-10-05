@@ -68,8 +68,14 @@ function ProductPage() {
     enabled: Boolean(product?.id),
   }).data;
   // A size is unavailable only when inventory has been set for it and is 0.
-  const isSizeAvailable = (s: string) =>
-    !sizeStock || sizeStock[s] === undefined || sizeStock[s] > 0;
+  // Stock is keyed "color|size"; fall back to the all-colours ("|size") row.
+  const isSizeAvailable = (s: string, forColor?: string | null) => {
+    if (!sizeStock) return true;
+    const colorKey = `${(forColor ?? "").toLowerCase()}|${s}`;
+    const genericKey = `|${s}`;
+    const qty = sizeStock[colorKey] ?? sizeStock[genericKey];
+    return qty === undefined || qty > 0;
+  };
 
 
   if (isLoading) {
