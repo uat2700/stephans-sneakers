@@ -18,5 +18,5 @@
 - [x] AI returns model + colour per photo; same model groups into one product, same colour into one variant
 - [x] Review screen: colour groups, rename colour, move photo to colour/product, merge products, low-confidence warning
 - [x] Photos saved with colour; product page gallery switches by selected colour
-- [ ] Stock per colour + size (needs inventory restructure)
+- [x] Stock per colour + size (product_size_stock.color, colour-grouped inventory editor, per-colour size availability, colour-aware delivery decrement)
 - [ ] Colour swatches on product cards, colour filter/search, duplicate detection vs existing products, import summary
