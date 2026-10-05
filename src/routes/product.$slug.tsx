@@ -298,11 +298,11 @@ function ProductPage() {
                     key={s}
                     type="button"
                     onClick={() => setSize(s)}
-                    disabled={!isSizeAvailable(s)}
-                    aria-label={isSizeAvailable(s) ? `Size ${s}` : `Size ${s} unavailable`}
+                    disabled={!isSizeAvailable(s, chosenColor)}
+                    aria-label={isSizeAvailable(s, chosenColor) ? `Size ${s}` : `Size ${s} unavailable`}
                     className={cn(
                       "h-11 min-w-14 rounded-xl border px-4 text-sm font-semibold transition",
-                      !isSizeAvailable(s) &&
+                      !isSizeAvailable(s, chosenColor) &&
                         "cursor-not-allowed border-dashed text-muted-foreground line-through opacity-50",
                       chosenSize === s
                         ? "border-foreground bg-foreground text-background"
