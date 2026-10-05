@@ -118,7 +118,8 @@ function ProductPage() {
   const images = colorImages.length ? colorImages : product.product_images;
   const image = images[activeImage]?.url ?? images[0]?.url ?? null;
   const discount = discountPercent(product.selling_price, product.compare_at_price);
-  const chosenSize = size ?? product.sizes.find(isSizeAvailable) ?? null;
+  const chosenSize =
+    size ?? product.sizes.find((s) => isSizeAvailable(s, chosenColor)) ?? null;
   const related = (all ?? [])
     .filter((p) => p.id !== product.id && p.brand_id === product.brand_id)
     .slice(0, 4);
