@@ -49,25 +49,36 @@ function SizeEditor({
 }) {
   const queryClient = useQueryClient();
   const sizes = product.sizes.length ? product.sizes : [];
+  // One stock grid per colour; products without colours use a single "" group.
+  const colorGroups = product.colors.length ? product.colors : [""];
+  const keyFor = (color: string, size: string) => `${color}|${size}`;
   const [draft, setDraft] = useState<Record<string, string>>(() =>
     Object.fromEntries(
-      sizes.map((size) => [
-        size,
-        String(rows.find((r) => r.size === size)?.quantity ?? 0),
-      ]),
+      colorGroups.flatMap((color) =>
+        sizes.map((size) => [
+          keyFor(color, size),
+          String(
+            rows.find((r) => r.size === size && r.color === color)?.quantity ??
+              0,
+          ),
+        ]),
+      ),
     ),
   );
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = sizes.map((size) => ({
-        product_id: product.id,
-        size,
-        quantity: Math.max(0, Number(draft[size] ?? 0) || 0),
-      }));
+      const payload = colorGroups.flatMap((color) =>
+        sizes.map((size) => ({
+          product_id: product.id,
+          size,
+          color,
+          quantity: Math.max(0, Number(draft[keyFor(color, size)] ?? 0) || 0),
+        })),
+      );
       const { error } = await supabase
         .from("product_size_stock")
-        .upsert(payload, { onConflict: "product_id,size" });
+        .upsert(payload, { onConflict: "product_id,size,color" });
       if (error) throw error;
     },
     onSuccess: () => {
