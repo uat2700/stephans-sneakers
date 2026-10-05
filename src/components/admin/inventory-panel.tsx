@@ -17,16 +17,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type SizeStock = { id: string; product_id: string; size: string; quantity: number };
+type SizeStock = {
+  id: string;
+  product_id: string;
+  size: string;
+  color: string;
+  quantity: number;
+};
 
 const sizeStockQuery = {
   queryKey: ["size-stock"],
   queryFn: async (): Promise<SizeStock[]> => {
     const { data, error } = await supabase
       .from("product_size_stock")
-      .select("id, product_id, size, quantity");
+      .select("id, product_id, size, color, quantity");
     if (error) throw error;
-    return data ?? [];
+    return (data ?? []) as SizeStock[];
   },
 };
 
