@@ -108,37 +108,47 @@ function SizeEditor({
   }
 
   return (
-    <div className="border-t border-border bg-surface/40 px-4 py-4">
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-8">
-        {sizes.map((size) => {
-          const quantity = Number(draft[size] ?? 0) || 0;
-          return (
-            <label key={size} className="block">
-              <span className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                {size}
-                {quantity === 0 ? (
-                  <span className="text-destructive">out</span>
-                ) : quantity <= threshold ? (
-                  <span className="text-gold">low</span>
-                ) : null}
-              </span>
-              <Input
-                type="number"
-                min={0}
-                inputMode="numeric"
-                value={draft[size] ?? "0"}
-                onChange={(e) =>
-                  setDraft((prev) => ({ ...prev, [size]: e.target.value }))
-                }
-                className="mt-1 h-9 rounded-xl text-sm"
-              />
-            </label>
-          );
-        })}
-      </div>
+    <div className="space-y-5 border-t border-border bg-surface/40 px-4 py-4">
+      {colorGroups.map((color) => (
+        <div key={color || "__all"}>
+          {color ? (
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              {color}
+            </p>
+          ) : null}
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-8">
+            {sizes.map((size) => {
+              const key = keyFor(color, size);
+              const quantity = Number(draft[key] ?? 0) || 0;
+              return (
+                <label key={size} className="block">
+                  <span className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {size}
+                    {quantity === 0 ? (
+                      <span className="text-destructive">out</span>
+                    ) : quantity <= threshold ? (
+                      <span className="text-gold">low</span>
+                    ) : null}
+                  </span>
+                  <Input
+                    type="number"
+                    min={0}
+                    inputMode="numeric"
+                    value={draft[key] ?? "0"}
+                    onChange={(e) =>
+                      setDraft((prev) => ({ ...prev, [key]: e.target.value }))
+                    }
+                    className="mt-1 h-9 rounded-xl text-sm"
+                  />
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      ))}
       <Button
         size="sm"
-        className="mt-3 rounded-full"
+        className="rounded-full"
         disabled={save.isPending}
         onClick={() => save.mutate()}
       >
