@@ -13,3 +13,10 @@
 ## Next
 - Only approved reviews public (verify), analytics from real data (verify)
 - Realtime refresh for products/orders where practical
+
+## AI importer colour variants
+- [x] AI returns model + colour per photo; same model groups into one product, same colour into one variant
+- [x] Review screen: colour groups, rename colour, move photo to colour/product, merge products, low-confidence warning
+- [x] Photos saved with colour; product page gallery switches by selected colour
+- [ ] Stock per colour + size (needs inventory restructure)
+- [ ] Colour swatches on product cards, colour filter/search, duplicate detection vs existing products, import summary

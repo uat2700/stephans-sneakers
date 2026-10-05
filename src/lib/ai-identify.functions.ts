@@ -38,13 +38,8 @@ export const identifySneakerImage = createServerFn({ method: "POST" })
   .inputValidator((data: Input) => data)
   .handler(async ({ data, context }): Promise<IdentifiedSneaker> => {
     const { supabase, userId } = context;
-    const { data: role } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    if (!role) throw new Error("Forbidden");
+    const { data: rank } = await supabase.rpc("admin_rank", { _user_id: userId });
+    if (Number(rank ?? 0) < 2) throw new Error("Forbidden");
 
     const key = process.env["LOVABLE_API_KEY"];
     if (!key) throw new Error("AI is not configured");
