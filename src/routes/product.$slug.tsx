@@ -191,19 +191,29 @@ function ProductPage() {
         <div>
           {/* Mobile: swipeable gallery */}
           <div className="sm:hidden">
-            {images.length ? (
+            {slides.length ? (
               <>
                 <div
                   ref={mobileGalleryRef}
                   className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                   onScroll={(e) => {
                     const el = e.currentTarget;
-                    setActiveImage(
-                      Math.round(el.scrollLeft / Math.max(1, el.clientWidth)),
+                    const idx = Math.round(
+                      el.scrollLeft / Math.max(1, el.clientWidth),
                     );
+                    setActiveImage(idx);
+                    const slideColor = slides[idx]?.color;
+                    if (
+                      slideColor &&
+                      slideColor.toLowerCase() !==
+                        (chosenColor ?? "").toLowerCase()
+                    ) {
+                      setColor(slideColor);
+                      setSize(null);
+                    }
                   }}
                 >
-                  {images.map((img, i) => (
+                  {slides.map((img, i) => (
                     <div
                       key={img.id}
                       className="relative aspect-square w-full shrink-0 snap-center overflow-hidden rounded-3xl border border-border bg-surface"
@@ -219,12 +229,17 @@ function ProductPage() {
                           -{discount}%
                         </Badge>
                       ) : null}
+                      {img.color ? (
+                        <span className="absolute bottom-3 left-3 rounded-full bg-background/90 px-3 py-1 text-[11px] font-semibold shadow-sm backdrop-blur">
+                          {img.color}
+                        </span>
+                      ) : null}
                     </div>
                   ))}
                 </div>
-                {images.length > 1 ? (
+                {slides.length > 1 ? (
                   <div className="mt-3 flex justify-center gap-1.5">
-                    {images.map((img, i) => (
+                    {slides.map((img, i) => (
                       <span
                         key={img.id}
                         className={cn(
