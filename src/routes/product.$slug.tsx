@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Heart, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
@@ -21,7 +21,12 @@ import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { useTrackProductView } from "@/hooks/use-track-product-view";
 
 import { discountPercent, formatPrice } from "@/lib/format";
-import { productQuery, productsQuery, sizeStockQuery } from "@/lib/catalog";
+import {
+  productQuery,
+  productsQuery,
+  sizeStockQuery,
+  type ProductImage,
+} from "@/lib/catalog";
 import { productMessage, whatsappLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
