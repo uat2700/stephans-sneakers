@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Heart, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
@@ -21,7 +21,12 @@ import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { useTrackProductView } from "@/hooks/use-track-product-view";
 
 import { discountPercent, formatPrice } from "@/lib/format";
-import { productQuery, productsQuery, sizeStockQuery } from "@/lib/catalog";
+import {
+  productQuery,
+  productsQuery,
+  sizeStockQuery,
+  type ProductImage,
+} from "@/lib/catalog";
 import { productMessage, whatsappLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
@@ -122,12 +127,39 @@ function ProductPage() {
     product.product_images.find(
       (item) => item.color?.toLowerCase() === colorName.toLowerCase(),
     )?.url ?? null;
+  // Swipe deck: every image, grouped by colour in the order of product.colors,
+  // so swiping the big photo glides from one colour into the next.
+  const slides = useMemo(() => {
+    if (!product.colors.length) return product.product_images;
+    const byColor = new Map<string, ProductImage[]>();
+    for (const img of product.product_images) {
+      const key = (img.color ?? "").toLowerCase();
+      byColor.set(key, [...(byColor.get(key) ?? []), img]);
+    }
+    const ordered: ProductImage[] = [];
+    for (const c of product.colors) {
+      ordered.push(...(byColor.get(c.toLowerCase()) ?? []));
+      byColor.delete(c.toLowerCase());
+    }
+    for (const imgs of byColor.values()) ordered.push(...imgs);
+    return ordered;
+  }, [product]);
+  const firstSlideOfColor = (colorName: string) => {
+    const idx = slides.findIndex(
+      (img) => img.color?.toLowerCase() === colorName.toLowerCase(),
+    );
+    return idx === -1 ? 0 : idx;
+  };
   const selectColor = (nextColor: string) => {
     setColor(nextColor);
     setActiveImage(0);
     setSize(null);
     setZoom(false);
-    mobileGalleryRef.current?.scrollTo({ left: 0, behavior: "smooth" });
+    const target = firstSlideOfColor(nextColor);
+    const el = mobileGalleryRef.current;
+    if (el) {
+      el.scrollTo({ left: target * el.clientWidth, behavior: "smooth" });
+    }
   };
   const discount = discountPercent(product.selling_price, product.compare_at_price);
   const chosenSize =
@@ -159,19 +191,29 @@ function ProductPage() {
         <div>
           {/* Mobile: swipeable gallery */}
           <div className="sm:hidden">
-            {images.length ? (
+            {slides.length ? (
               <>
                 <div
                   ref={mobileGalleryRef}
                   className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                   onScroll={(e) => {
                     const el = e.currentTarget;
-                    setActiveImage(
-                      Math.round(el.scrollLeft / Math.max(1, el.clientWidth)),
+                    const idx = Math.round(
+                      el.scrollLeft / Math.max(1, el.clientWidth),
                     );
+                    setActiveImage(idx);
+                    const slideColor = slides[idx]?.color;
+                    if (
+                      slideColor &&
+                      slideColor.toLowerCase() !==
+                        (chosenColor ?? "").toLowerCase()
+                    ) {
+                      setColor(slideColor);
+                      setSize(null);
+                    }
                   }}
                 >
-                  {images.map((img, i) => (
+                  {slides.map((img, i) => (
                     <div
                       key={img.id}
                       className="relative aspect-square w-full shrink-0 snap-center overflow-hidden rounded-3xl border border-border bg-surface"
@@ -187,12 +229,17 @@ function ProductPage() {
                           -{discount}%
                         </Badge>
                       ) : null}
+                      {img.color ? (
+                        <span className="absolute bottom-3 left-3 rounded-full bg-background/90 px-3 py-1 text-[11px] font-semibold shadow-sm backdrop-blur">
+                          {img.color}
+                        </span>
+                      ) : null}
                     </div>
                   ))}
                 </div>
-                {images.length > 1 ? (
+                {slides.length > 1 ? (
                   <div className="mt-3 flex justify-center gap-1.5">
-                    {images.map((img, i) => (
+                    {slides.map((img, i) => (
                       <span
                         key={img.id}
                         className={cn(
