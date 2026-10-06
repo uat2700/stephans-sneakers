@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Heart, ShoppingBag, Eye, Star } from "lucide-react";
 import { motion } from "framer-motion";
@@ -30,6 +31,27 @@ export function ProductCard({ product, onQuickView, className }: Props) {
   const lowStock = inStock && product.stock <= 3;
   const favourite = wishlist.has(product.id);
   const rating = stats.data?.[product.id] ?? null;
+
+  // Swipe the photo to preview each colour variant.
+  const [colorIdx, setColorIdx] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const swiped = useRef(false);
+  const swipeColors = product.colors.length > 1 ? product.colors : [];
+  const activeColor = swipeColors[colorIdx] ?? null;
+  const colorImage = activeColor
+    ? (product.product_images.find(
+        (i) => i.color?.toLowerCase() === activeColor.toLowerCase(),
+      )?.url ?? null)
+    : null;
+  const displayImage = colorImage ?? image;
+  const stepColor = (dir: 1 | -1) => {
+    if (!swipeColors.length) return;
+    swiped.current = true;
+    setColorIdx(
+      (i) => (i + dir + swipeColors.length) % swipeColors.length,
+    );
+  };
+
 
 
   return (
