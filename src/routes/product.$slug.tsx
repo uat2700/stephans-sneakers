@@ -127,12 +127,39 @@ function ProductPage() {
     product.product_images.find(
       (item) => item.color?.toLowerCase() === colorName.toLowerCase(),
     )?.url ?? null;
+  // Swipe deck: every image, grouped by colour in the order of product.colors,
+  // so swiping the big photo glides from one colour into the next.
+  const slides = useMemo(() => {
+    if (!product.colors.length) return product.product_images;
+    const byColor = new Map<string, ProductImage[]>();
+    for (const img of product.product_images) {
+      const key = (img.color ?? "").toLowerCase();
+      byColor.set(key, [...(byColor.get(key) ?? []), img]);
+    }
+    const ordered: ProductImage[] = [];
+    for (const c of product.colors) {
+      ordered.push(...(byColor.get(c.toLowerCase()) ?? []));
+      byColor.delete(c.toLowerCase());
+    }
+    for (const imgs of byColor.values()) ordered.push(...imgs);
+    return ordered;
+  }, [product]);
+  const firstSlideOfColor = (colorName: string) => {
+    const idx = slides.findIndex(
+      (img) => img.color?.toLowerCase() === colorName.toLowerCase(),
+    );
+    return idx === -1 ? 0 : idx;
+  };
   const selectColor = (nextColor: string) => {
     setColor(nextColor);
     setActiveImage(0);
     setSize(null);
     setZoom(false);
-    mobileGalleryRef.current?.scrollTo({ left: 0, behavior: "smooth" });
+    const target = firstSlideOfColor(nextColor);
+    const el = mobileGalleryRef.current;
+    if (el) {
+      el.scrollTo({ left: target * el.clientWidth, behavior: "smooth" });
+    }
   };
   const discount = discountPercent(product.selling_price, product.compare_at_price);
   const chosenSize =
