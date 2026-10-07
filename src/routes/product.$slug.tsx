@@ -44,6 +44,8 @@ export const Route = createFileRoute("/product/$slug")({
           content: `Buy ${title} at Stephans Collection. Premium sneakers with fast delivery in Ghana and easy WhatsApp ordering.`,
         },
         { property: "og:title", content: `${title} — Stephans Collection` },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
         {
           property: "og:description",
           content: `Buy ${title} with fast delivery across Ghana.`,
@@ -191,7 +193,7 @@ function ProductPage() {
               <>
                 <div
                   ref={mobileGalleryRef}
-                  className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  className="flex snap-x snap-mandatory overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                   onScroll={(e) => {
                     const el = e.currentTarget;
                     const idx = Math.round(
@@ -212,13 +214,13 @@ function ProductPage() {
                   {slides.map((img, i) => (
                     <div
                       key={img.id}
-                      className="relative aspect-square w-full shrink-0 snap-center overflow-hidden rounded-3xl border border-border bg-surface"
+                      className="relative aspect-square w-full shrink-0 snap-center overflow-hidden rounded-3xl border border-border bg-surface p-4"
                     >
                       <img
                         src={img.url}
                         alt={img.alt ?? product.name}
                         loading={i === 0 ? "eager" : "lazy"}
-                        className="h-full w-full object-contain"
+                        className="h-full w-full object-contain object-center"
                       />
                       {discount && i === 0 ? (
                         <Badge className="absolute left-4 top-4 rounded-full bg-foreground text-background">
@@ -260,7 +262,7 @@ function ProductPage() {
           <div className="hidden sm:block">
             <div
               className={cn(
-                "relative aspect-square overflow-hidden rounded-3xl border border-border bg-surface",
+                "relative aspect-square overflow-hidden rounded-3xl border border-border bg-surface p-6",
                 image && "cursor-zoom-in",
               )}
               onClick={() => image && setZoom((z) => !z)}
@@ -270,7 +272,7 @@ function ProductPage() {
                   src={image}
                   alt={images[activeImage]?.alt ?? product.name}
                   className={cn(
-                    "h-full w-full object-contain transition-transform duration-500",
+                     "h-full w-full object-contain object-center transition-transform duration-500",
                     zoom && "scale-150 cursor-zoom-out",
                   )}
                 />
