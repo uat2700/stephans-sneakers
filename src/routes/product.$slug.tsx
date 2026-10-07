@@ -383,7 +383,7 @@ function ProductPage() {
                 </p>
               </div>
               <div
-                className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+                className="grid grid-cols-2 gap-2"
                 aria-label="Available colours"
               >
                 {product.colors.map((c) => {
@@ -397,7 +397,7 @@ function ProductPage() {
                       aria-label={`Show ${c} colour`}
                       aria-pressed={selected}
                       className={cn(
-                        "h-11 shrink-0 snap-start rounded-lg border-2 px-4 text-sm font-semibold",
+                        "h-auto min-h-11 min-w-0 w-full whitespace-normal break-words rounded-lg border-2 px-3 py-2 text-center text-sm font-semibold leading-snug [overflow-wrap:anywhere]",
                         selected
                           ? "border-foreground bg-foreground text-background hover:bg-foreground hover:text-background"
                           : "border-border hover:border-foreground",
