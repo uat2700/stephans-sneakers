@@ -123,10 +123,6 @@ function ProductPage() {
     : [];
   const images = colorImages.length ? colorImages : product.product_images;
   const image = images[activeImage]?.url ?? images[0]?.url ?? null;
-  const colorPreview = (colorName: string) =>
-    product.product_images.find(
-      (item) => item.color?.toLowerCase() === colorName.toLowerCase(),
-    )?.url ?? null;
   // Swipe deck: every image, grouped by colour in the order of product.colors,
   // so swiping the big photo glides from one colour into the next.
   const slides = (() => {
@@ -391,40 +387,24 @@ function ProductPage() {
                 aria-label="Available colours"
               >
                 {product.colors.map((c) => {
-                  const preview = colorPreview(c);
                   const selected = chosenColor === c;
                   return (
-                    <button
+                    <Button
                       key={c}
                       type="button"
+                      variant="outline"
                       onClick={() => selectColor(c)}
                       aria-label={`Show ${c} colour`}
                       aria-pressed={selected}
                       className={cn(
-                        "w-24 shrink-0 snap-start overflow-hidden rounded-xl border-2 bg-surface text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                        "h-11 shrink-0 snap-start rounded-lg border-2 px-4 text-sm font-semibold",
                         selected
-                          ? "border-foreground"
+                          ? "border-foreground bg-foreground text-background hover:bg-foreground hover:text-background"
                           : "border-border hover:border-foreground",
                       )}
                     >
-                      <span className="block aspect-square overflow-hidden border-b border-border">
-                        {preview ? (
-                          <img
-                            src={preview}
-                            alt={`${product.name} in ${c}`}
-                            loading="lazy"
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <span className="grid h-full place-items-center px-2 text-center text-[10px] text-muted-foreground">
-                            {c}
-                          </span>
-                        )}
-                      </span>
-                      <span className="block truncate px-2 py-2 text-center text-xs font-semibold">
-                        {c}
-                      </span>
-                    </button>
+                      {c}
+                    </Button>
                   );
                 })}
               </div>
