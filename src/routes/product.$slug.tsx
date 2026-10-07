@@ -183,8 +183,8 @@ function ProductPage() {
         / <span className="text-foreground">{product.name}</span>
       </nav>
 
-      <div className="mt-6 grid gap-10 lg:grid-cols-2">
-        <div>
+      <div className="mt-6 grid min-w-0 gap-10 lg:grid-cols-2">
+        <div className="min-w-0">
           {/* Mobile: swipeable gallery */}
           <div className="sm:hidden">
             {slides.length ? (
@@ -218,7 +218,7 @@ function ProductPage() {
                         src={img.url}
                         alt={img.alt ?? product.name}
                         loading={i === 0 ? "eager" : "lazy"}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-contain"
                       />
                       {discount && i === 0 ? (
                         <Badge className="absolute left-4 top-4 rounded-full bg-foreground text-background">
@@ -270,7 +270,7 @@ function ProductPage() {
                   src={image}
                   alt={images[activeImage]?.alt ?? product.name}
                   className={cn(
-                    "h-full w-full object-cover transition-transform duration-500",
+                    "h-full w-full object-contain transition-transform duration-500",
                     zoom && "scale-150 cursor-zoom-out",
                   )}
                 />
@@ -316,7 +316,7 @@ function ProductPage() {
         </div>
 
 
-        <div>
+        <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {product.brands?.name ?? "Sneaker"}
           </p>
