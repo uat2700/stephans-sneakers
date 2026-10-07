@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Heart, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
@@ -129,7 +129,7 @@ function ProductPage() {
     )?.url ?? null;
   // Swipe deck: every image, grouped by colour in the order of product.colors,
   // so swiping the big photo glides from one colour into the next.
-  const slides = useMemo(() => {
+  const slides = (() => {
     if (!product.colors.length) return product.product_images;
     const byColor = new Map<string, ProductImage[]>();
     for (const img of product.product_images) {
@@ -143,7 +143,7 @@ function ProductPage() {
     }
     for (const imgs of byColor.values()) ordered.push(...imgs);
     return ordered;
-  }, [product]);
+  })();
   const firstSlideOfColor = (colorName: string) => {
     const idx = slides.findIndex(
       (img) => img.color?.toLowerCase() === colorName.toLowerCase(),
