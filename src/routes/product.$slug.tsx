@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Heart, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
@@ -110,12 +110,30 @@ function ProductPage() {
   }
 
   const chosenColor = color ?? product.colors[0] ?? null;
-  const colorImages = chosenColor
-    ? product.product_images.filter(
-        (i) => i.color && i.color.toLowerCase() === chosenColor.toLowerCase(),
-      )
-    : [];
-  const images = colorImages.length ? colorImages : product.product_images;
+  // All photos, grouped in colour order, so customers can swipe through every colourway.
+  const colorRank = (c?: string | null) => {
+    const i = product.colors.findIndex(
+      (x) => c && x.toLowerCase() === c.toLowerCase(),
+    );
+    return i === -1 ? product.colors.length : i;
+  };
+  const images = [...product.product_images].sort(
+    (a, b) => colorRank(a.color) - colorRank(b.color),
+  );
+  const firstIndexOf = (c: string) =>
+    Math.max(
+      0,
+      images.findIndex((i) => i.color && i.color.toLowerCase() === c.toLowerCase()),
+    );
+  const selectColor = (c: string) => {
+    const idx = firstIndexOf(c);
+    setColor(c);
+    setSize(null);
+    setActiveImage(idx);
+    setZoom(false);
+    const el = galleryRef.current;
+    if (el) el.scrollTo({ left: idx * el.clientWidth, behavior: "smooth" });
+  };
   const image = images[activeImage]?.url ?? images[0]?.url ?? null;
   const discount = discountPercent(product.selling_price, product.compare_at_price);
   const chosenSize =
@@ -150,12 +168,23 @@ function ProductPage() {
             {images.length ? (
               <>
                 <div
+                  ref={galleryRef}
                   className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                   onScroll={(e) => {
                     const el = e.currentTarget;
-                    setActiveImage(
-                      Math.round(el.scrollLeft / Math.max(1, el.clientWidth)),
-                    );
+                    const idx = Math.round(el.scrollLeft / Math.max(1, el.clientWidth));
+                    if (idx === activeImage) return;
+                    setActiveImage(idx);
+                    const c = images[idx]?.color;
+                    if (c && c.toLowerCase() !== (chosenColor ?? "").toLowerCase()) {
+                      const match = product.colors.find(
+                        (x) => x.toLowerCase() === c.toLowerCase(),
+                      );
+                      if (match) {
+                        setColor(match);
+                        setSize(null);
+                      }
+                    }
                   }}
                 >
                   {images.map((img, i) => (
@@ -326,7 +355,7 @@ function ProductPage() {
                   <button
                     key={c}
                     type="button"
-                    onClick={() => { setColor(c); setActiveImage(0); setSize(null); }}
+                    onClick={() => selectColor(c)}
                     className={cn(
                       "h-10 rounded-xl border px-4 text-sm font-medium transition",
                       chosenColor === c
