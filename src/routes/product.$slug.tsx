@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Heart, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
@@ -61,7 +61,6 @@ function ProductPage() {
   const [color, setColor] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const [zoom, setZoom] = useState(false);
-  const mobileGalleryRef = useRef<HTMLDivElement>(null);
   const recentIds = useRecentlyViewed(product?.id);
   useTrackProductView(product?.id);
   const sizeStock = useQuery({
@@ -118,17 +117,6 @@ function ProductPage() {
     : [];
   const images = colorImages.length ? colorImages : product.product_images;
   const image = images[activeImage]?.url ?? images[0]?.url ?? null;
-  const colorPreview = (colorName: string) =>
-    product.product_images.find(
-      (item) => item.color?.toLowerCase() === colorName.toLowerCase(),
-    )?.url ?? null;
-  const selectColor = (nextColor: string) => {
-    setColor(nextColor);
-    setActiveImage(0);
-    setSize(null);
-    setZoom(false);
-    mobileGalleryRef.current?.scrollTo({ left: 0, behavior: "smooth" });
-  };
   const discount = discountPercent(product.selling_price, product.compare_at_price);
   const chosenSize =
     size ?? product.sizes.find((s) => isSizeAvailable(s, chosenColor)) ?? null;
@@ -162,7 +150,6 @@ function ProductPage() {
             {images.length ? (
               <>
                 <div
-                  ref={mobileGalleryRef}
                   className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                   onScroll={(e) => {
                     const el = e.currentTarget;
@@ -331,55 +318,25 @@ function ProductPage() {
 
           {product.colors.length ? (
             <div className="mt-6">
-              <div className="mb-3 flex items-center justify-between gap-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em]">
-                  Colour
-                </p>
-                <p className="truncate text-sm font-semibold" aria-live="polite">
-                  {chosenColor}
-                </p>
-              </div>
-              <div
-                className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
-                aria-label="Available colours"
-              >
-                {product.colors.map((c) => {
-                  const preview = colorPreview(c);
-                  const selected = chosenColor === c;
-                  return (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => selectColor(c)}
-                      aria-label={`Show ${c} colour`}
-                      aria-pressed={selected}
-                      className={cn(
-                        "w-24 shrink-0 snap-start overflow-hidden rounded-xl border-2 bg-surface text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                        selected
-                          ? "border-foreground"
-                          : "border-border hover:border-foreground",
-                      )}
-                    >
-                      <span className="block aspect-square overflow-hidden border-b border-border">
-                        {preview ? (
-                          <img
-                            src={preview}
-                            alt={`${product.name} in ${c}`}
-                            loading="lazy"
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <span className="grid h-full place-items-center px-2 text-center text-[10px] text-muted-foreground">
-                            {c}
-                          </span>
-                        )}
-                      </span>
-                      <span className="block truncate px-2 py-2 text-center text-xs font-semibold">
-                        {c}
-                      </span>
-                    </button>
-                  );
-                })}
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em]">
+                Colour
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {product.colors.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => { setColor(c); setActiveImage(0); setSize(null); }}
+                    className={cn(
+                      "h-10 rounded-xl border px-4 text-sm font-medium transition",
+                      chosenColor === c
+                        ? "border-foreground bg-foreground text-background"
+                        : "border-border hover:border-foreground",
+                    )}
+                  >
+                    {c}
+                  </button>
+                ))}
               </div>
             </div>
           ) : null}

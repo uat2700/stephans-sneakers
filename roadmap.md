@@ -19,5 +19,4 @@
 - [x] Review screen: colour groups, rename colour, move photo to colour/product, merge products, low-confidence warning
 - [x] Photos saved with colour; product page gallery switches by selected colour
 - [x] Stock per colour + size (product_size_stock.color, colour-grouped inventory editor, per-colour size availability, colour-aware delivery decrement)
-- [x] Swipeable visual colour selector on product pages with instant colour-gallery switching
 - [ ] Colour swatches on product cards, colour filter/search, duplicate detection vs existing products, import summary
