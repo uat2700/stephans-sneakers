@@ -21,12 +21,7 @@ import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { useTrackProductView } from "@/hooks/use-track-product-view";
 
 import { discountPercent, formatPrice } from "@/lib/format";
-import {
-  productQuery,
-  productsQuery,
-  sizeStockQuery,
-  type ProductImage,
-} from "@/lib/catalog";
+import { productQuery, productsQuery, sizeStockQuery } from "@/lib/catalog";
 import { productMessage, whatsappLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
@@ -123,39 +118,16 @@ function ProductPage() {
     : [];
   const images = colorImages.length ? colorImages : product.product_images;
   const image = images[activeImage]?.url ?? images[0]?.url ?? null;
-  // Swipe deck: every image, grouped by colour in the order of product.colors,
-  // so swiping the big photo glides from one colour into the next.
-  const slides = (() => {
-    if (!product.colors.length) return product.product_images;
-    const byColor = new Map<string, ProductImage[]>();
-    for (const img of product.product_images) {
-      const key = (img.color ?? "").toLowerCase();
-      byColor.set(key, [...(byColor.get(key) ?? []), img]);
-    }
-    const ordered: ProductImage[] = [];
-    for (const c of product.colors) {
-      ordered.push(...(byColor.get(c.toLowerCase()) ?? []));
-      byColor.delete(c.toLowerCase());
-    }
-    for (const imgs of byColor.values()) ordered.push(...imgs);
-    return ordered;
-  })();
-  const firstSlideOfColor = (colorName: string) => {
-    const idx = slides.findIndex(
-      (img) => img.color?.toLowerCase() === colorName.toLowerCase(),
-    );
-    return idx === -1 ? 0 : idx;
-  };
+  const colorPreview = (colorName: string) =>
+    product.product_images.find(
+      (item) => item.color?.toLowerCase() === colorName.toLowerCase(),
+    )?.url ?? null;
   const selectColor = (nextColor: string) => {
     setColor(nextColor);
     setActiveImage(0);
     setSize(null);
     setZoom(false);
-    const target = firstSlideOfColor(nextColor);
-    const el = mobileGalleryRef.current;
-    if (el) {
-      el.scrollTo({ left: target * el.clientWidth, behavior: "smooth" });
-    }
+    mobileGalleryRef.current?.scrollTo({ left: 0, behavior: "smooth" });
   };
   const discount = discountPercent(product.selling_price, product.compare_at_price);
   const chosenSize =
@@ -183,33 +155,23 @@ function ProductPage() {
         / <span className="text-foreground">{product.name}</span>
       </nav>
 
-      <div className="mt-6 grid min-w-0 gap-10 lg:grid-cols-2">
-        <div className="min-w-0">
+      <div className="mt-6 grid gap-10 lg:grid-cols-2">
+        <div>
           {/* Mobile: swipeable gallery */}
           <div className="sm:hidden">
-            {slides.length ? (
+            {images.length ? (
               <>
                 <div
                   ref={mobileGalleryRef}
                   className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                   onScroll={(e) => {
                     const el = e.currentTarget;
-                    const idx = Math.round(
-                      el.scrollLeft / Math.max(1, el.clientWidth),
+                    setActiveImage(
+                      Math.round(el.scrollLeft / Math.max(1, el.clientWidth)),
                     );
-                    setActiveImage(idx);
-                    const slideColor = slides[idx]?.color;
-                    if (
-                      slideColor &&
-                      slideColor.toLowerCase() !==
-                        (chosenColor ?? "").toLowerCase()
-                    ) {
-                      setColor(slideColor);
-                      setSize(null);
-                    }
                   }}
                 >
-                  {slides.map((img, i) => (
+                  {images.map((img, i) => (
                     <div
                       key={img.id}
                       className="relative aspect-square w-full shrink-0 snap-center overflow-hidden rounded-3xl border border-border bg-surface"
@@ -218,24 +180,19 @@ function ProductPage() {
                         src={img.url}
                         alt={img.alt ?? product.name}
                         loading={i === 0 ? "eager" : "lazy"}
-                        className="h-full w-full object-contain"
+                        className="h-full w-full object-cover"
                       />
                       {discount && i === 0 ? (
                         <Badge className="absolute left-4 top-4 rounded-full bg-foreground text-background">
                           -{discount}%
                         </Badge>
                       ) : null}
-                      {img.color ? (
-                        <span className="absolute bottom-3 left-3 rounded-full bg-background/90 px-3 py-1 text-[11px] font-semibold shadow-sm backdrop-blur">
-                          {img.color}
-                        </span>
-                      ) : null}
                     </div>
                   ))}
                 </div>
-                {slides.length > 1 ? (
+                {images.length > 1 ? (
                   <div className="mt-3 flex justify-center gap-1.5">
-                    {slides.map((img, i) => (
+                    {images.map((img, i) => (
                       <span
                         key={img.id}
                         className={cn(
@@ -270,7 +227,7 @@ function ProductPage() {
                   src={image}
                   alt={images[activeImage]?.alt ?? product.name}
                   className={cn(
-                    "h-full w-full object-contain transition-transform duration-500",
+                    "h-full w-full object-cover transition-transform duration-500",
                     zoom && "scale-150 cursor-zoom-out",
                   )}
                 />
@@ -316,7 +273,7 @@ function ProductPage() {
         </div>
 
 
-        <div className="min-w-0">
+        <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {product.brands?.name ?? "Sneaker"}
           </p>
@@ -387,24 +344,40 @@ function ProductPage() {
                 aria-label="Available colours"
               >
                 {product.colors.map((c) => {
+                  const preview = colorPreview(c);
                   const selected = chosenColor === c;
                   return (
-                    <Button
+                    <button
                       key={c}
                       type="button"
-                      variant="outline"
                       onClick={() => selectColor(c)}
                       aria-label={`Show ${c} colour`}
                       aria-pressed={selected}
                       className={cn(
-                        "h-11 shrink-0 snap-start rounded-lg border-2 px-4 text-sm font-semibold",
+                        "w-24 shrink-0 snap-start overflow-hidden rounded-xl border-2 bg-surface text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                         selected
-                          ? "border-foreground bg-foreground text-background hover:bg-foreground hover:text-background"
+                          ? "border-foreground"
                           : "border-border hover:border-foreground",
                       )}
                     >
-                      {c}
-                    </Button>
+                      <span className="block aspect-square overflow-hidden border-b border-border">
+                        {preview ? (
+                          <img
+                            src={preview}
+                            alt={`${product.name} in ${c}`}
+                            loading="lazy"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="grid h-full place-items-center px-2 text-center text-[10px] text-muted-foreground">
+                            {c}
+                          </span>
+                        )}
+                      </span>
+                      <span className="block truncate px-2 py-2 text-center text-xs font-semibold">
+                        {c}
+                      </span>
+                    </button>
                   );
                 })}
               </div>

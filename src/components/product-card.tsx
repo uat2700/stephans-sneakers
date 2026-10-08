@@ -1,4 +1,3 @@
-import { useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Heart, ShoppingBag, Eye, Star } from "lucide-react";
 import { motion } from "framer-motion";
@@ -32,27 +31,6 @@ export function ProductCard({ product, onQuickView, className }: Props) {
   const favourite = wishlist.has(product.id);
   const rating = stats.data?.[product.id] ?? null;
 
-  // Swipe the photo to preview each colour variant.
-  const [colorIdx, setColorIdx] = useState(0);
-  const touchStartX = useRef<number | null>(null);
-  const swiped = useRef(false);
-  const swipeColors = product.colors.length > 1 ? product.colors : [];
-  const activeColor = swipeColors[colorIdx] ?? null;
-  const colorImage = activeColor
-    ? (product.product_images.find(
-        (i) => i.color?.toLowerCase() === activeColor.toLowerCase(),
-      )?.url ?? null)
-    : null;
-  const displayImage = colorImage ?? image;
-  const stepColor = (dir: 1 | -1) => {
-    if (!swipeColors.length) return;
-    swiped.current = true;
-    setColorIdx(
-      (i) => (i + dir + swipeColors.length) % swipeColors.length,
-    );
-  };
-
-
 
   return (
     <motion.article
@@ -65,36 +43,17 @@ export function ProductCard({ product, onQuickView, className }: Props) {
         className,
       )}
     >
-      <div
-        className="relative aspect-square w-full touch-pan-y overflow-hidden bg-surface"
-        onTouchStart={(e) => {
-          touchStartX.current = e.touches[0].clientX;
-          swiped.current = false;
-        }}
-        onTouchEnd={(e) => {
-          if (touchStartX.current === null) return;
-          const dx = e.changedTouches[0].clientX - touchStartX.current;
-          touchStartX.current = null;
-          if (Math.abs(dx) > 40) stepColor(dx < 0 ? 1 : -1);
-        }}
-      >
+      <div className="relative aspect-square w-full overflow-hidden bg-surface">
+
         <Link
           to="/product/$slug"
           params={{ slug: product.slug }}
           aria-label={product.name}
-          onClick={(e) => {
-            if (swiped.current) {
-              e.preventDefault();
-              swiped.current = false;
-            }
-          }}
         >
-          {displayImage ? (
+          {image ? (
             <img
-              src={displayImage}
-              alt={
-                activeColor ? `${product.name} in ${activeColor}` : product.name
-              }
+              src={image}
+              alt={product.name}
               loading="lazy"
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
@@ -104,29 +63,6 @@ export function ProductCard({ product, onQuickView, className }: Props) {
             </div>
           )}
         </Link>
-
-        {swipeColors.length ? (
-          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-background/80 px-2.5 py-1.5 shadow-sm backdrop-blur">
-            {swipeColors.map((c, i) => (
-              <button
-                key={c}
-                type="button"
-                aria-label={`Show ${c} colour`}
-                aria-pressed={i === colorIdx}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setColorIdx(i);
-                }}
-                className={cn(
-                  "h-1.5 rounded-full transition-all",
-                  i === colorIdx ? "w-4 bg-foreground" : "w-1.5 bg-border",
-                )}
-              />
-            ))}
-            <span className="ml-1 text-[10px] font-semibold">{activeColor}</span>
-          </div>
-        ) : null}
-
 
         <div className="pointer-events-none absolute left-3 top-3 flex flex-col gap-2">
           {discount ? (
