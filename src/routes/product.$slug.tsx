@@ -44,8 +44,6 @@ export const Route = createFileRoute("/product/$slug")({
           content: `Buy ${title} at Stephans Collection. Premium sneakers with fast delivery in Ghana and easy WhatsApp ordering.`,
         },
         { property: "og:title", content: `${title} — Stephans Collection` },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
         {
           property: "og:description",
           content: `Buy ${title} with fast delivery across Ghana.`,
@@ -193,7 +191,7 @@ function ProductPage() {
               <>
                 <div
                   ref={mobileGalleryRef}
-                  className="flex snap-x snap-mandatory overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                   onScroll={(e) => {
                     const el = e.currentTarget;
                     const idx = Math.round(
@@ -214,13 +212,13 @@ function ProductPage() {
                   {slides.map((img, i) => (
                     <div
                       key={img.id}
-                      className="relative aspect-square w-full shrink-0 snap-center overflow-hidden rounded-3xl border border-border bg-surface p-4"
+                      className="relative aspect-square w-full shrink-0 snap-center overflow-hidden rounded-3xl border border-border bg-surface"
                     >
                       <img
                         src={img.url}
                         alt={img.alt ?? product.name}
                         loading={i === 0 ? "eager" : "lazy"}
-                        className="h-full w-full object-contain object-center"
+                        className="h-full w-full object-contain"
                       />
                       {discount && i === 0 ? (
                         <Badge className="absolute left-4 top-4 rounded-full bg-foreground text-background">
@@ -262,7 +260,7 @@ function ProductPage() {
           <div className="hidden sm:block">
             <div
               className={cn(
-                "relative aspect-square overflow-hidden rounded-3xl border border-border bg-surface p-6",
+                "relative aspect-square overflow-hidden rounded-3xl border border-border bg-surface",
                 image && "cursor-zoom-in",
               )}
               onClick={() => image && setZoom((z) => !z)}
@@ -272,7 +270,7 @@ function ProductPage() {
                   src={image}
                   alt={images[activeImage]?.alt ?? product.name}
                   className={cn(
-                     "h-full w-full object-contain object-center transition-transform duration-500",
+                    "h-full w-full object-contain transition-transform duration-500",
                     zoom && "scale-150 cursor-zoom-out",
                   )}
                 />
@@ -385,7 +383,7 @@ function ProductPage() {
                 </p>
               </div>
               <div
-                className="grid grid-cols-2 gap-2"
+                className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
                 aria-label="Available colours"
               >
                 {product.colors.map((c) => {
@@ -399,7 +397,7 @@ function ProductPage() {
                       aria-label={`Show ${c} colour`}
                       aria-pressed={selected}
                       className={cn(
-                        "h-auto min-h-11 min-w-0 w-full whitespace-normal break-words rounded-lg border-2 px-3 py-2 text-center text-sm font-semibold leading-snug [overflow-wrap:anywhere]",
+                        "h-11 shrink-0 snap-start rounded-lg border-2 px-4 text-sm font-semibold",
                         selected
                           ? "border-foreground bg-foreground text-background hover:bg-foreground hover:text-background"
                           : "border-border hover:border-foreground",
