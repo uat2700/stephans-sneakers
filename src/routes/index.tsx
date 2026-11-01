@@ -124,7 +124,7 @@ function Home() {
             </div>
             <dl className="mt-10 grid max-w-md grid-cols-3 gap-4">
               {[
-                ["500+", "Pairs delivered"],
+                ["500+", "Orders delivered"],
                 ["24hr", "Accra delivery"],
                 ["4.9★", "Customer rating"],
               ].map(([value, label]) => (
@@ -175,7 +175,7 @@ function Home() {
               Featured products
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Hand-picked pairs moving fastest this week.
+              Hand-picked items moving fastest this week.
             </p>
           </div>
           <Link
@@ -253,7 +253,7 @@ function Home() {
             Best sellers
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Our most-ordered pairs, restocked regularly.
+            Our most-ordered items, restocked regularly.
           </p>
           <div className="mt-8 grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
             {bestSellers.map((p) => (
@@ -311,7 +311,7 @@ function Home() {
             Trending now
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            The most-viewed pairs on the store right now.
+            The most-viewed items on the store right now.
           </p>
           <div className="mt-8 grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
             {trending.map((p) => (
