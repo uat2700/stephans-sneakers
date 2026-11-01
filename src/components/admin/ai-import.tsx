@@ -75,7 +75,7 @@ const baseName = (name: string) =>
     .join(" ")
     .trim();
 
-/** Signature used to decide whether two photos are the same sneaker model. */
+/** Signature used to decide whether two photos are the same product model. */
 const signature = (brand: string, name: string) =>
   `${brand.trim().toLowerCase()}|${baseName(name)}`;
 

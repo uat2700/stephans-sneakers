@@ -153,7 +153,7 @@ export function ProductReviews({ productId }: { productId: string }) {
             <Link to="/auth" className="font-medium underline">
               Sign in
             </Link>{" "}
-            to rate this sneaker and leave a review.
+            to rate this product and leave a review.
           </p>
         )}
       </div>

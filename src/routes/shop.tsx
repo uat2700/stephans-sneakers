@@ -53,7 +53,7 @@ export const Route = createFileRoute("/shop")({
         content:
           "Browse everything in stock. Filter by brand, size, colour and price, then order on WhatsApp for fast delivery in Ghana.",
       },
-      { property: "og:title", content: "Shop Sneakers — Stephans Collection" },
+      { property: "og:title", content: "Shop All — Stephans Collection" },
       {
         property: "og:description",
         content: "Filter by brand, size, colour and price. Delivered across Ghana.",
