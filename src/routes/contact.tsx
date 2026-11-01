@@ -11,7 +11,7 @@ export const Route = createFileRoute("/contact")({
       {
         name: "description",
         content:
-          "Reach Stephans Collection on WhatsApp, phone or email for sneaker orders, sizing help and delivery questions.",
+          "Reach Stephans Collection on WhatsApp, phone or email for orders, sizing help and delivery questions.",
       },
       { property: "og:title", content: "Contact Stephans Collection" },
       {

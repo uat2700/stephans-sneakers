@@ -13,7 +13,7 @@ export function SiteFooter() {
             Stephans
           </span>
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-            Premium sneakers at affordable prices, delivered fast across Ghana.
+            Premium sneakers, clothing and accessories, delivered fast across Ghana.
           </p>
           <a
             href={whatsappLink(generalWhatsappMessage)}
@@ -32,7 +32,7 @@ export function SiteFooter() {
           <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
             <li>
               <Link to="/shop" className="hover:text-foreground">
-                All sneakers
+                All products
               </Link>
             </li>
             <li>

@@ -12,10 +12,10 @@ export const Route = createFileRoute("/new-arrivals")({
       {
         name: "description",
         content:
-          "The freshest sneaker drops just added at Stephans Collection, with fast delivery across Ghana.",
+          "The newest items just added at Stephans Collection, with fast delivery across Ghana.",
       },
       { property: "og:title", content: "New Arrivals — Stephans Collection" },
-      { property: "og:description", content: "The freshest sneaker drops, just in." },
+      { property: "og:description", content: "Fresh arrivals, just in." },
     ],
   }),
   component: NewArrivals,
@@ -45,10 +45,10 @@ function NewArrivals() {
         ) : (
           <EmptyState
             title="No new arrivals yet"
-            description="Freshly added sneakers will show up here first."
+            description="Freshly added items will show up here first."
             action={
               <Button asChild className="rounded-full">
-                <Link to="/shop">Browse all sneakers</Link>
+                <Link to="/shop">Browse all new arrivals</Link>
               </Button>
             }
           />

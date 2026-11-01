@@ -34,12 +34,12 @@ export const Route = createFileRoute("/checkout")({
       {
         name: "description",
         content:
-          "Complete your sneaker order with delivery details, WhatsApp confirmation and pay-on-delivery across Ghana.",
+          "Complete your order with delivery details, WhatsApp confirmation and pay-on-delivery across Ghana.",
       },
       { property: "og:title", content: "Checkout — Stephans Collection" },
       {
         property: "og:description",
-        content: "Enter delivery details and confirm your sneaker order.",
+        content: "Enter delivery details and confirm your order.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -184,7 +184,7 @@ function Checkout() {
           Your cart is empty. Add a pair to continue.
         </p>
         <Button asChild className="mt-8 rounded-full">
-          <Link to="/shop">Shop sneakers</Link>
+          <Link to="/shop">Continue shopping</Link>
         </Button>
       </div>
     );

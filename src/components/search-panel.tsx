@@ -104,8 +104,8 @@ export function SearchPanel({ className, autoFocus, onNavigate }: Props) {
               setTerm(e.target.value);
               setOpen(true);
             }}
-            placeholder="Search sneakers, brands, categories…"
-            aria-label="Search sneakers"
+            placeholder="Search products, brands, categories…"
+            aria-label="Search products"
             className="h-full w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
           {term ? (
@@ -235,7 +235,7 @@ export function SearchPanel({ className, autoFocus, onNavigate }: Props) {
                                 {p.name}
                               </span>
                               <span className="block truncate text-xs text-muted-foreground">
-                                {p.brands?.name ?? "Sneaker"}
+                                {p.brands?.name ?? "Product"}
                               </span>
                             </span>
                             <span className="shrink-0 text-sm font-bold">

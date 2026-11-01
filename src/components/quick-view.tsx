@@ -46,7 +46,7 @@ export function QuickView({
             <div className="flex flex-col gap-4 p-6">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  {product.brands?.name ?? "Sneaker"}
+                  {product.brands?.name ?? "Product"}
                 </p>
                 <DialogTitle className="mt-1 text-xl font-bold">
                   {product.name}

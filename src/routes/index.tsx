@@ -29,17 +29,17 @@ import { useStoreSettings } from "@/hooks/use-store-settings";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Stephans Collection — Premium Sneakers in Ghana" },
+      { title: "Stephans Collection — Premium Sneakers & Style in Ghana" },
       {
         name: "description",
         content:
-          "Premium sneakers at affordable prices. Browse fresh drops, top brands and order instantly on WhatsApp with fast delivery across Ghana.",
+          "Premium sneakers, clothing and accessories at affordable prices. Browse fresh drops, top brands and order instantly on WhatsApp with fast delivery across Ghana.",
       },
-      { property: "og:title", content: "Stephans Collection — Premium Sneakers" },
+      { property: "og:title", content: "Stephans Collection — Premium Sneakers & Style" },
       {
         property: "og:description",
         content:
-          "Fresh drops from the biggest sneaker brands, delivered across Ghana.",
+          "Fresh drops from the biggest brands, delivered across Ghana.",
       },
     ],
   }),
@@ -124,7 +124,7 @@ function Home() {
             </div>
             <dl className="mt-10 grid max-w-md grid-cols-3 gap-4">
               {[
-                ["500+", "Pairs delivered"],
+                ["500+", "Orders delivered"],
                 ["24hr", "Accra delivery"],
                 ["4.9★", "Customer rating"],
               ].map(([value, label]) => (
@@ -150,7 +150,7 @@ function Home() {
         <div className="container-page grid gap-6 py-8 sm:grid-cols-3">
           {[
             { icon: Truck, title: "Fast delivery", copy: "Nationwide, 1–3 days" },
-            { icon: BadgeCheck, title: "Quality checked", copy: "Every pair inspected" },
+            { icon: BadgeCheck, title: "Quality checked", copy: "Every item inspected" },
             { icon: ShieldCheck, title: "Pay on delivery", copy: "Order with confidence" },
           ].map(({ icon: Icon, title, copy }) => (
             <div key={title} className="flex min-w-0 items-center gap-3">
@@ -172,10 +172,10 @@ function Home() {
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
           <div className="min-w-0">
             <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
-              Featured sneakers
+              Featured products
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Hand-picked pairs moving fastest this week.
+              Hand-picked items moving fastest this week.
             </p>
           </div>
           <Link
@@ -197,7 +197,7 @@ function Home() {
             </div>
           ) : (
             <EmptyState
-              title="No sneakers yet"
+              title="No products yet"
               description="Products added from the admin dashboard will appear here automatically."
               action={
                 <Button asChild className="rounded-full">
@@ -253,7 +253,7 @@ function Home() {
             Best sellers
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Our most-ordered pairs, restocked regularly.
+            Our most-ordered items, restocked regularly.
           </p>
           <div className="mt-8 grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
             {bestSellers.map((p) => (
@@ -308,10 +308,10 @@ function Home() {
       {hp.show_trending && trending.length ? (
         <section className="container-page py-14">
           <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
-            Trending sneakers
+            Trending now
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            The most-viewed pairs on the store right now.
+            The most-viewed items on the store right now.
           </p>
           <div className="mt-8 grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
             {trending.map((p) => (

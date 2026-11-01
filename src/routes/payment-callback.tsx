@@ -12,7 +12,7 @@ export const Route = createFileRoute("/payment-callback")({
       {
         name: "description",
         content:
-          "Confirming your Paystack sneaker payment with Stephans Collection.",
+          "Confirming your Paystack payment with Stephans Collection.",
       },
       {
         property: "og:title",
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/payment-callback")({
       },
       {
         property: "og:description",
-        content: "We are confirming your sneaker payment.",
+        content: "We are confirming your payment.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

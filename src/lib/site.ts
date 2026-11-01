@@ -1,8 +1,8 @@
 export const SITE = {
   name: "Stephans Collection",
-  tagline: "Premium Sneakers at Affordable Prices",
+  tagline: "Premium Sneakers & Style at Affordable Prices",
   description:
-    "Shop authentic-looking sneakers from top brands with fast delivery across Ghana.",
+    "Shop premium sneakers, clothing and accessories from top brands with fast delivery across Ghana.",
   whatsappNumber: "233508928908",
   email: "hello@stephanscollection.com",
   currency: "GHS",
@@ -29,17 +29,18 @@ export const REGIONS = [
   "Western North",
 ];
 
-export const SIZE_OPTIONS = [
-  "38",
-  "39",
-  "40",
-  "41",
-  "42",
-  "43",
-  "44",
-  "45",
-  "46",
+export const SHOE_SIZES = ["36","37","38","39","40","41","42","43","44","45","46","47"];
+export const CLOTHING_SIZES = ["XS","S","M","L","XL","XXL"];
+export const ACCESSORY_SIZES = ["One size"];
+
+export const SIZE_GROUPS = [
+  { label: "Shoes (EU)", sizes: SHOE_SIZES },
+  { label: "Clothing", sizes: CLOTHING_SIZES },
+  { label: "Other", sizes: ACCESSORY_SIZES },
 ];
+
+/** Legacy shoe-size list kept for existing callers. */
+export const SIZE_OPTIONS = SHOE_SIZES;
 
 export const COLOR_OPTIONS = [
   "Black",

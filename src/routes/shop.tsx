@@ -47,13 +47,13 @@ export const Route = createFileRoute("/shop")({
   }),
   head: () => ({
     meta: [
-      { title: "Shop Sneakers — Stephans Collection" },
+      { title: "Shop All — Stephans Collection" },
       {
         name: "description",
         content:
-          "Browse every sneaker in stock. Filter by brand, size, colour and price, then order on WhatsApp for fast delivery in Ghana.",
+          "Browse everything in stock. Filter by brand, size, colour and price, then order on WhatsApp for fast delivery in Ghana.",
       },
-      { property: "og:title", content: "Shop Sneakers — Stephans Collection" },
+      { property: "og:title", content: "Shop All — Stephans Collection" },
       {
         property: "og:description",
         content: "Filter by brand, size, colour and price. Delivered across Ghana.",
@@ -281,7 +281,7 @@ function Shop() {
       </nav>
 
       <h1 className="mt-3 font-display text-3xl font-extrabold uppercase tracking-tight sm:text-4xl">
-        All sneakers
+        All products
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
         {filtered.length} {filtered.length === 1 ? "product" : "products"} available
@@ -400,7 +400,7 @@ function Shop() {
             </div>
           ) : (
             <EmptyState
-              title="No sneakers match your filters"
+              title="No products match your filters"
               description="Try clearing a filter or searching for a different brand."
               action={
                 <Button className="rounded-full" onClick={clearAll}>

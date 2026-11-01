@@ -471,7 +471,7 @@ export function DashboardPanel({ showFinancials }: { showFinancials: boolean }) 
               </ResponsiveContainer>
             </ChartCard>
 
-            <ChartCard title="Best-selling sneakers" subtitle="Units sold">
+            <ChartCard title="Best-selling products" subtitle="Units sold">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats.bestSellers} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" opacity={0.12} />

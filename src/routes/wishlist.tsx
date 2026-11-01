@@ -12,10 +12,10 @@ export const Route = createFileRoute("/wishlist")({
       { title: "Wishlist — Stephans Collection" },
       {
         name: "description",
-        content: "The sneakers you saved for later at Stephans Collection.",
+        content: "Items you saved for later at Stephans Collection.",
       },
       { property: "og:title", content: "Wishlist — Stephans Collection" },
-      { property: "og:description", content: "Sneakers you saved for later." },
+      { property: "og:description", content: "Items you saved for later." },
     ],
   }),
   component: WishlistPage,
@@ -47,10 +47,10 @@ function WishlistPage() {
         ) : (
           <EmptyState
             title="Nothing saved yet"
-            description="Tap the heart on any sneaker to keep it here for later."
+            description="Tap the heart on any item to keep it here for later."
             action={
               <Button asChild className="rounded-full">
-                <Link to="/shop">Browse sneakers</Link>
+                <Link to="/shop">Browse the store</Link>
               </Button>
             }
           />

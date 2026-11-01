@@ -36,7 +36,7 @@ export const Route = createFileRoute("/product/$slug")({
         { title: `${title} — Stephans Collection` },
         {
           name: "description",
-          content: `Buy ${title} at Stephans Collection. Premium sneakers with fast delivery in Ghana and easy WhatsApp ordering.`,
+          content: `Buy ${title} at Stephans Collection. Premium quality with fast delivery in Ghana and easy WhatsApp ordering.`,
         },
         { property: "og:title", content: `${title} — Stephans Collection` },
         {
@@ -98,7 +98,7 @@ function ProductPage() {
     return (
       <div className="container-page py-24 text-center">
         <h1 className="font-display text-3xl font-extrabold uppercase">
-          Sneaker not found
+          Product not found
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           This product may have sold out or been removed.
@@ -292,7 +292,7 @@ function ProductPage() {
 
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            {product.brands?.name ?? "Sneaker"}
+            {product.brands?.name ?? "Product"}
           </p>
           <h1 className="mt-2 font-display text-3xl font-extrabold uppercase leading-tight tracking-tight sm:text-4xl">
             {product.name}
@@ -460,7 +460,7 @@ function ProductPage() {
               <AccordionTrigger>Description</AccordionTrigger>
               <AccordionContent className="whitespace-pre-line text-muted-foreground">
                 {product.description ||
-                  "Premium quality sneaker, carefully selected and inspected before delivery."}
+                  "Premium quality item, carefully selected and inspected before delivery."}
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="delivery">

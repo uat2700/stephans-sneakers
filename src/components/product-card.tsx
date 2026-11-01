@@ -111,7 +111,7 @@ export function ProductCard({ product, onQuickView, className }: Props) {
       <div className="flex flex-1 flex-col gap-3 p-4 sm:gap-3.5 sm:p-5">
         <div className="flex min-w-0 items-center justify-between gap-2">
           <span className="truncate text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            {product.brands?.name ?? "Sneaker"}
+            {product.brands?.name ?? "Product"}
           </span>
           <span
             className={cn(

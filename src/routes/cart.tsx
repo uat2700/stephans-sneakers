@@ -15,12 +15,12 @@ export const Route = createFileRoute("/cart")({
       {
         name: "description",
         content:
-          "Review the sneakers in your cart and check out with WhatsApp ordering or pay on delivery.",
+          "Review your items and check out with WhatsApp ordering or pay on delivery.",
       },
       { property: "og:title", content: "Your Cart — Stephans Collection" },
       {
         property: "og:description",
-        content: "Review your sneakers and complete your order.",
+        content: "Review your cart and complete your order.",
       },
     ],
   }),

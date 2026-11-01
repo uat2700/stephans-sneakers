@@ -7,14 +7,14 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/brands")({
   head: () => ({
     meta: [
-      { title: "Sneaker Brands — Stephans Collection" },
+      { title: "Brands — Stephans Collection" },
       {
         name: "description",
         content:
-          "Explore every sneaker brand stocked at Stephans Collection and shop by your favourite label.",
+          "Explore every brand stocked at Stephans Collection and shop by your favourite label.",
       },
-      { property: "og:title", content: "Sneaker Brands — Stephans Collection" },
-      { property: "og:description", content: "Shop sneakers by brand." },
+      { property: "og:title", content: "Brands — Stephans Collection" },
+      { property: "og:description", content: "Shop by brand." },
     ],
   }),
   component: BrandsPage,

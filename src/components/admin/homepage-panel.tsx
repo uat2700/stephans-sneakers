@@ -20,7 +20,7 @@ const SECTIONS: Array<{ key: keyof HomepageSettings; label: string }> = [
   { key: "show_featured", label: "Featured products" },
   { key: "show_new", label: "New arrivals" },
   { key: "show_best_sellers", label: "Best sellers" },
-  { key: "show_trending", label: "Trending sneakers" },
+  { key: "show_trending", label: "Trending products" },
   { key: "show_testimonials", label: "Customer reviews strip" },
   { key: "show_instagram", label: "Instagram gallery" },
   { key: "show_newsletter", label: "Newsletter signup" },
