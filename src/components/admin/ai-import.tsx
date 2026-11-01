@@ -15,9 +15,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadProductImage } from "@/lib/storage";
 import { slugify } from "@/lib/format";
-import { identifySneakerImage } from "@/lib/ai-identify.functions";
+import { identifyProductImage } from "@/lib/ai-identify.functions";
 import { brandsQuery, categoriesQuery } from "@/lib/catalog";
-import { GENDER_OPTIONS, SIZE_OPTIONS } from "@/lib/site";
+import { GENDER_OPTIONS, SIZE_GROUPS } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,7 +103,7 @@ export function AiImport() {
   const queryClient = useQueryClient();
   const brands = useQuery(brandsQuery());
   const categories = useQuery(categoriesQuery());
-  const identify = useServerFn(identifySneakerImage);
+  const identify = useServerFn(identifyProductImage);
   const inputRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<Row[]>([]);
@@ -305,7 +305,7 @@ export function AiImport() {
 
       const missing = ready.filter((r) => !r.name.trim() || !Number(r.price));
       if (missing.length)
-        throw new Error("Every sneaker needs a name and a selling price");
+        throw new Error("Every product needs a name and a selling price");
 
       // Create any brand the AI found that isn't in the catalogue yet.
       const brandCache = new Map<string, string>(
@@ -368,7 +368,7 @@ export function AiImport() {
       }
     },
     onSuccess: () => {
-      toast.success("Sneakers published to the store");
+      toast.success("Products published to the store");
       setRows([]);
       setGrouped(0);
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
@@ -459,7 +459,7 @@ export function AiImport() {
           AI photo import
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-          Upload sneaker photos and AI will detect the brand and product name for
+          Upload product photos and AI will detect the brand and product name for
           each pair. Photos of the same model are grouped into one product, with each
           colour as its own variant — you only set the price and sizes.
         </p>
@@ -497,7 +497,7 @@ export function AiImport() {
             ) : (
               <Upload className="mr-1.5 h-4 w-4" />
             )}
-            {busy ? "Analysing photos…" : "Upload sneaker photos"}
+            {busy ? "Analysing photos…" : "Upload product photos"}
           </Button>
           <Button
             variant="outline"
@@ -519,7 +519,7 @@ export function AiImport() {
 
         {grouped > 0 ? (
           <p className="mt-3 text-xs text-muted-foreground">
-            {grouped} photo{grouped === 1 ? "" : "s"} grouped into an existing sneaker as a colour or extra angle.
+            {grouped} photo{grouped === 1 ? "" : "s"} grouped into an existing product as a colour or extra angle.
           </p>
         ) : null}
       </div>
@@ -564,7 +564,7 @@ export function AiImport() {
                             <div className="relative h-[4.5rem] w-[4.5rem] overflow-hidden rounded-xl bg-muted">
                               <img
                                 src={url}
-                                alt={`${row.name || "Sneaker"} ${variant.color}`}
+                                alt={`${row.name || "Product"} ${variant.color}`}
                                 className="h-full w-full object-cover"
                               />
                               {imageCount(row) > 1 ? (
@@ -640,7 +640,7 @@ export function AiImport() {
                 <div className="min-w-0 flex-1">
                   {row.status === "analysing" ? (
                     <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Loader2 className="h-4 w-4 animate-spin" /> Identifying sneaker…
+                      <Loader2 className="h-4 w-4 animate-spin" /> Identifying product…
                     </p>
                   ) : row.status === "failed" ? (
                     <p className="text-sm text-destructive">
@@ -767,7 +767,11 @@ export function AiImport() {
                           </button>
                         </div>
                         <div className="mt-2 flex flex-wrap gap-2">
-                          {SIZE_OPTIONS.map((size) => {
+                          {SIZE_GROUPS.map((group) => (
+                            <div key={group.label}>
+                              <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{group.label}</p>
+                              <div className="flex flex-wrap gap-2">
+                                {group.sizes.map((size) => {
                             const active = row.sizes.includes(size);
                             return (
                               <button
@@ -792,6 +796,9 @@ export function AiImport() {
                               </button>
                             );
                           })}
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                       <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
@@ -811,7 +818,7 @@ export function AiImport() {
                 <Button
                   size="icon"
                   variant="ghost"
-                  aria-label="Remove sneaker"
+                  aria-label="Remove product"
                   className="shrink-0"
                   onClick={() =>
                     setRows((prev) => prev.filter((r) => r.key !== row.key))
@@ -839,7 +846,7 @@ export function AiImport() {
               {publish.isPending ? (
                 <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
               ) : null}
-              Publish {readyCount} sneaker{readyCount === 1 ? "" : "s"}
+              Publish {readyCount} product{readyCount === 1 ? "" : "s"}
             </Button>
           </div>
         </div>

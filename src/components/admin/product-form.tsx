@@ -8,7 +8,7 @@ import { slugify } from "@/lib/format";
 import {
   COLOR_OPTIONS,
   GENDER_OPTIONS,
-  SIZE_OPTIONS,
+  SIZE_GROUPS,
 } from "@/lib/site";
 import type { Brand, Category, Product } from "@/lib/catalog";
 import { Button } from "@/components/ui/button";
@@ -432,15 +432,24 @@ export function ProductForm({
           <div className="grid gap-2">
             <Label>Sizes</Label>
             <div className="flex flex-wrap gap-2">
-              {SIZE_OPTIONS.map((s) => (
-                <Chip
-                  key={s}
-                  active={draft.sizes.includes(s)}
-                  onClick={() => toggle("sizes", s)}
-                >
-                  {s}
-                </Chip>
-              ))}
+              {SIZE_GROUPS.map((group) => (
+              <div key={group.label} className="w-full">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{group.label}</p>
+                <div className="mt-1.5 flex flex-wrap gap-2">
+                  {group.sizes.map((s) => (
+
+                  <Chip
+                    key={s}
+                    active={draft.sizes.includes(s)}
+                    onClick={() => toggle("sizes", s)}
+                  >
+                    {s}
+                  </Chip>
+              
+                  ))}
+                </div>
+              </div>
+            ))}
             </div>
           </div>
 

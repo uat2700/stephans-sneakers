@@ -19,7 +19,7 @@ export function productMessage(opts: {
   return [
     `Hello ${storeName()},`,
     "",
-    "I'm interested in this sneaker.",
+    "I'm interested in this item.",
     "",
     `Product: ${opts.name}`,
     `Price: ${formatPrice(opts.price)}`,
@@ -36,7 +36,7 @@ export function cartMessage(
   return [
     `Hello ${storeName()},`,
     "",
-    "I'd like to order the following sneakers:",
+    "I'd like to order the following items:",
     "",
     ...items.map(
       (i, idx) =>
@@ -56,8 +56,8 @@ export function generalMessage() {
   const settings = currentStoreSettings();
   return (
     settings.whatsapp_template ||
-    `Hello ${storeName()}, I'd like to know more about your sneakers.`
+    `Hello ${storeName()}, I'd like to know more about your products.`
   );
 }
 
-export const generalWhatsappMessage = `Hello ${SITE.name}, I'd like to know more about your sneakers.`;
+export const generalWhatsappMessage = `Hello ${SITE.name}, I'd like to know more about your products.`;

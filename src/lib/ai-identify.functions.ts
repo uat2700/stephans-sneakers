@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-export type IdentifiedSneaker = {
+export type IdentifiedProduct = {
   name: string;
   model: string;
   color: string;
@@ -19,24 +19,25 @@ type Input = {
   categories: string[];
 };
 
-const SYSTEM = `You are a sneaker cataloguing expert for an online sneaker store.
-Look at the photo and identify the sneaker as precisely as you can.
+const SYSTEM = `You are a fashion product cataloguing expert for an online store.
+Look at the photo and identify the product as precisely as you can. It may be sneakers, clothing, bags, accessories or any other fashion item.
 Respond with JSON only, matching this shape:
 {"name":string,"model":string,"color":string,"brand":string,"category":string,"colors":string[],"gender":"men"|"women"|"unisex"|"kids","description":string,"confidence":number}
 Rules:
-- "brand" must be the sneaker's real brand (Nike, Adidas, New Balance, Puma, Jordan, Vans, Converse, Reebok, Asics...). If a list of known brands is provided and one matches, use that exact spelling. If you truly cannot tell, use "".
-- "name" is a short retail product title without the brand duplicated more than once, e.g. "Nike Air Force 1 Low White".
-- "category" should be picked from the provided category list when one fits, otherwise a sensible one like "Sneakers".
-- "model" is the underlying model/silhouette WITHOUT any colour or colourway words, e.g. "Nike Air Force 1 Low". Two photos of the same shoe in different colours must get the identical "model".
-- "color" is the single main colourway name of THIS pair, e.g. "Black", "White/Red", "Panda".
-- "colors" are 1-3 simple colour words visible on the shoe.
+- "brand" must be the product's real brand (Nike, Adidas, New Balance, Puma, Jordan, Vans, Converse, Reebok, Asics, Zara, H&M, Gucci...). If a list of known brands is provided and one matches, use that exact spelling. If you truly cannot tell, use "".
+- "name" is a short retail product title without the brand duplicated more than once, e.g. "Nike Air Force 1 Low White" or "Adidas Essentials Fleece Hoodie Black".
+- "category" should be picked from the provided category list when one fits, otherwise a sensible one like "Sneakers", "Clothing" or "Accessories".
+- "model" is the underlying model/silhouette WITHOUT any colour or colourway words, e.g. "Nike Air Force 1 Low". Two photos of the same product in different colours must get the identical "model".
+- "color" is the single main colourway name of THIS item, e.g. "Black", "White/Red", "Panda".
+- "colors" are 1-3 simple colour words visible on the item.
+- "gender" is who the item is made for.
 - "description" is 1-2 short marketing sentences for a product page.
 - "confidence" is 0-1 for how sure you are about brand and model.`;
 
-export const identifySneakerImage = createServerFn({ method: "POST" })
+export const identifyProductImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: Input) => data)
-  .handler(async ({ data, context }): Promise<IdentifiedSneaker> => {
+  .handler(async ({ data, context }): Promise<IdentifiedProduct> => {
     const { supabase, userId } = context;
     const { data: rank } = await supabase.rpc("admin_rank", { _user_id: userId });
     if (Number(rank ?? 0) < 2) throw new Error("Forbidden");
@@ -64,7 +65,7 @@ export const identifySneakerImage = createServerFn({ method: "POST" })
                   type: "text",
                   text: `Known brands: ${data.brands.join(", ") || "none"}\nKnown categories: ${
                     data.categories.join(", ") || "none"
-                  }\nIdentify this sneaker.`,
+                  }\nIdentify this product.`,
                 },
                 { type: "image_url", image_url: { url: data.imageUrl } },
               ],
@@ -86,12 +87,12 @@ export const identifySneakerImage = createServerFn({ method: "POST" })
       choices?: { message?: { content?: string } }[];
     };
     const text = json.choices?.[0]?.message?.content ?? "{}";
-    let parsed: Partial<IdentifiedSneaker> = {};
+    let parsed: Partial<IdentifiedProduct> = {};
     try {
-      parsed = JSON.parse(text) as Partial<IdentifiedSneaker>;
+      parsed = JSON.parse(text) as Partial<IdentifiedProduct>;
     } catch {
       const match = text.match(/\{[\s\S]*\}/);
-      if (match) parsed = JSON.parse(match[0]) as Partial<IdentifiedSneaker>;
+      if (match) parsed = JSON.parse(match[0]) as Partial<IdentifiedProduct>;
     }
 
     return {

@@ -51,7 +51,7 @@ export const STORE_DEFAULTS: StoreSettings = {
   tiktok: "",
   facebook: "",
   whatsapp_template:
-    "Hello Stephans Collection, I would like to know more about your sneakers.",
+    "Hello Stephans Collection, I would like to know more about your products.",
 };
 
 export const DELIVERY_DEFAULTS: DeliverySettings = {
