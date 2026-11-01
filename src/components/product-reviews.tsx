@@ -131,13 +131,13 @@ export function ProductReviews({ productId }: { productId: string }) {
         {user ? (
           <div className="grid gap-3">
             <p className="text-sm font-semibold">
-              {mine.data ? "Update your rating" : "Rate this sneaker"}
+              {mine.data ? "Update your rating" : "Rate this product"}
             </p>
             <Stars value={rating} onChange={setRating} size="h-7 w-7" />
             <Textarea
               rows={3}
               value={comment}
-              placeholder="Share how the sneaker fits and feels (optional)"
+              placeholder="Share how it fits and feels (optional)"
               onChange={(e) => setComment(e.target.value)}
             />
             <Button

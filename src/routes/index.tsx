@@ -29,17 +29,17 @@ import { useStoreSettings } from "@/hooks/use-store-settings";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Stephans Collection — Premium Sneakers in Ghana" },
+      { title: "Stephans Collection — Premium Sneakers & Style in Ghana" },
       {
         name: "description",
         content:
-          "Premium sneakers at affordable prices. Browse fresh drops, top brands and order instantly on WhatsApp with fast delivery across Ghana.",
+          "Premium sneakers, clothing and accessories at affordable prices. Browse fresh drops, top brands and order instantly on WhatsApp with fast delivery across Ghana.",
       },
-      { property: "og:title", content: "Stephans Collection — Premium Sneakers" },
+      { property: "og:title", content: "Stephans Collection — Premium Sneakers & Style" },
       {
         property: "og:description",
         content:
-          "Fresh drops from the biggest sneaker brands, delivered across Ghana.",
+          "Fresh drops from the biggest brands, delivered across Ghana.",
       },
     ],
   }),
@@ -172,7 +172,7 @@ function Home() {
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
           <div className="min-w-0">
             <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
-              Featured sneakers
+              Featured products
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Hand-picked pairs moving fastest this week.
@@ -197,7 +197,7 @@ function Home() {
             </div>
           ) : (
             <EmptyState
-              title="No sneakers yet"
+              title="No products yet"
               description="Products added from the admin dashboard will appear here automatically."
               action={
                 <Button asChild className="rounded-full">
@@ -308,7 +308,7 @@ function Home() {
       {hp.show_trending && trending.length ? (
         <section className="container-page py-14">
           <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
-            Trending sneakers
+            Trending now
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             The most-viewed pairs on the store right now.

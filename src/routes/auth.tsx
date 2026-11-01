@@ -17,7 +17,7 @@ export const Route = createFileRoute("/auth")({
       {
         name: "description",
         content:
-          "Sign in to Stephans Collection to manage your profile, delivery details and sneaker orders.",
+          "Sign in to Stephans Collection to manage your profile, delivery details and your orders.",
       },
       { property: "og:title", content: "Sign In — Stephans Collection" },
       {

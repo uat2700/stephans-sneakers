@@ -8,12 +8,12 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "Stephans Collection curates premium sneakers at affordable prices for customers across Ghana.",
+          "Stephans Collection curates premium sneakers, clothing and accessories at affordable prices for customers across Ghana.",
       },
       { property: "og:title", content: "About Stephans Collection" },
       {
         property: "og:description",
-        content: "Premium sneakers, honest prices, fast delivery in Ghana.",
+        content: "Premium styles, honest prices, fast delivery in Ghana.",
       },
     ],
   }),

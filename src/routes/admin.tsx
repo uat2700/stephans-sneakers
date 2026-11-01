@@ -19,7 +19,7 @@ export const Route = createFileRoute("/admin")({
       { property: "og:title", content: "Control panel — Stephans Collection" },
       {
         property: "og:description",
-        content: "Run the whole sneaker store from one dashboard.",
+        content: "Run the whole store from one dashboard.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

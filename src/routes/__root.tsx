@@ -85,17 +85,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Stephans Collection — Premium Sneakers in Ghana" },
+      { title: "Stephans Collection — Premium Sneakers & Style in Ghana" },
       {
         name: "description",
         content:
-          "Shop premium sneakers at affordable prices. Fast delivery across Ghana and easy WhatsApp ordering.",
+          "Shop premium sneakers, clothing and accessories at affordable prices. Fast delivery across Ghana and easy WhatsApp ordering.",
       },
       { name: "author", content: "Stephans Collection" },
-      { property: "og:title", content: "Stephans Collection — Premium Sneakers" },
+      { property: "og:title", content: "Stephans Collection — Premium Sneakers & Style" },
       {
         property: "og:description",
-        content: "Premium sneakers at affordable prices, delivered across Ghana.",
+        content: "Premium sneakers, clothing and accessories, delivered across Ghana.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

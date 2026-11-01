@@ -36,12 +36,12 @@ export const Route = createFileRoute("/account")({
       {
         name: "description",
         content:
-          "Manage your profile, photo, login details and sneaker orders at Stephans Collection.",
+          "Manage your profile, photo, login details and your orders at Stephans Collection.",
       },
       { property: "og:title", content: "My Account — Stephans Collection" },
       {
         property: "og:description",
-        content: "Manage your profile and track your sneaker orders.",
+        content: "Manage your profile and track your orders.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
