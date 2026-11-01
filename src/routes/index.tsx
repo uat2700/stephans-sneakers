@@ -150,7 +150,7 @@ function Home() {
         <div className="container-page grid gap-6 py-8 sm:grid-cols-3">
           {[
             { icon: Truck, title: "Fast delivery", copy: "Nationwide, 1–3 days" },
-            { icon: BadgeCheck, title: "Quality checked", copy: "Every pair inspected" },
+            { icon: BadgeCheck, title: "Quality checked", copy: "Every item inspected" },
             { icon: ShieldCheck, title: "Pay on delivery", copy: "Order with confidence" },
           ].map(({ icon: Icon, title, copy }) => (
             <div key={title} className="flex min-w-0 items-center gap-3">
