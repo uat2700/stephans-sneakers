@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, BadgeCheck, ShieldCheck, Star, Truck } from "lucide-react";
+import { BadgeCheck, ShieldCheck, Star, Truck } from "lucide-react";
 import heroImage from "@/assets/hero-sneaker.jpg";
 import { BrandRail } from "@/components/brand-rail";
 import { CategoryRail } from "@/components/category-rail";
+import { CouponStrip } from "@/components/coupon-strip";
 import { FlashSale } from "@/components/flash-sale";
 import { HeroShowcase } from "@/components/hero-showcase";
 import { NewsletterSignup } from "@/components/newsletter-signup";
@@ -21,7 +22,6 @@ import {
   productsQuery,
   type Product,
 } from "@/lib/catalog";
-import { SITE } from "@/lib/site";
 import { generalMessage, whatsappLink } from "@/lib/whatsapp";
 import { activeBannersQuery, homepageSettingsQuery, HOMEPAGE_DEFAULTS } from "@/lib/store-settings";
 import { useStoreSettings } from "@/hooks/use-store-settings";
@@ -91,60 +91,23 @@ function Home() {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-surface">
-        <div className="container-page grid items-center gap-10 py-14 lg:grid-cols-2 lg:py-24">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]">
-              <span className="h-1.5 w-1.5 rounded-full bg-whatsapp" />
-              Now delivering nationwide
-            </span>
-            <h1 className="mt-5 font-display text-4xl font-extrabold uppercase leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl">
-              {hp.hero_title}
-              <span className="block text-muted-foreground">{hp.hero_subtitle}</span>
-            </h1>
-            <p className="mt-5 max-w-md text-base text-muted-foreground">
-              {hp.hero_note ||
-                `${SITE.tagline}. Curated drops, honest prices and instant ordering on WhatsApp.`}
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="rounded-full px-7">
-                <Link to="/shop">
-                  Shop the collection
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </Button>
-              <a
-                href={whatsappLink(generalMessage())}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-whatsapp px-7 text-sm font-semibold text-whatsapp-foreground transition hover:opacity-90"
-              >
-                <WhatsAppIcon className="h-4 w-4" /> Order on WhatsApp
-              </a>
-            </div>
-            <dl className="mt-10 grid max-w-md grid-cols-3 gap-4">
-              {[
-                ["500+", "Orders delivered"],
-                ["24hr", "Accra delivery"],
-                ["4.9★", "Customer rating"],
-              ].map(([value, label]) => (
-                <div key={label}>
-                  <dt className="font-display text-2xl font-extrabold">{value}</dt>
-                  <dd className="text-xs text-muted-foreground">{label}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-
-          <div className="relative">
-            <HeroShowcase
-              products={featured}
-              banners={hp.show_banners ? banners.data ?? [] : []}
-              fallbackImage={heroImage}
-            />
-          </div>
-        </div>
+      <section className="relative">
+        <HeroShowcase
+          products={featured}
+          banners={hp.show_banners ? banners.data ?? [] : []}
+          fallbackImage={heroImage}
+          heroTitle={hp.hero_title}
+          heroSubtitle={hp.hero_subtitle}
+        />
       </section>
+
+      {hp.show_categories ? (
+        <section className="container-page py-6">
+          <CategoryRail categories={categories.data ?? []} showHeading={false} />
+        </section>
+      ) : null}
+
+      <CouponStrip />
 
       <section aria-label="Why shop with us" className="border-y border-border">
         <div className="container-page grid gap-6 py-8 sm:grid-cols-3">
@@ -215,12 +178,6 @@ function Home() {
           <div className="container-page py-12">
             <BrandRail brands={brands.data} />
           </div>
-        </section>
-      ) : null}
-
-      {hp.show_categories ? (
-        <section className="container-page py-12">
-          <CategoryRail categories={categories.data ?? []} />
         </section>
       ) : null}
 
