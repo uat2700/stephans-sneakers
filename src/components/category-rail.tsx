@@ -49,7 +49,13 @@ function slugify(value: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-export function CategoryRail({ categories }: { categories: Category[] }) {
+export function CategoryRail({
+  categories,
+  showHeading = true,
+}: {
+  categories: Category[];
+  showHeading?: boolean;
+}) {
   const items = categories.length
     ? categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug, image: c.image_url }))
     : FALLBACK.map((name) => ({
