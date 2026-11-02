@@ -49,7 +49,13 @@ function slugify(value: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-export function CategoryRail({ categories }: { categories: Category[] }) {
+export function CategoryRail({
+  categories,
+  showHeading = true,
+}: {
+  categories: Category[];
+  showHeading?: boolean;
+}) {
   const items = categories.length
     ? categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug, image: c.image_url }))
     : FALLBACK.map((name) => ({
@@ -61,24 +67,28 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
 
   return (
     <div>
-      <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
-        Shop by category
-      </h2>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Pick a style and we'll show you the pairs.
-      </p>
+      {showHeading ? (
+        <>
+          <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
+            Shop by category
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Pick a style and we'll show you the pairs.
+          </p>
+        </>
+      ) : null}
 
-      <ul className="-mx-4 mt-6 flex snap-x gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:px-0">
+      <ul className={`grid grid-cols-5 gap-x-1 gap-y-6 ${showHeading ? "mt-6" : ""}`}>
         {items.map((item) => {
           const Icon = ICONS[item.slug] ?? Footprints;
           return (
-            <li key={item.id} className="shrink-0 snap-start">
+            <li key={item.id}>
               <Link
                 to="/shop"
                 search={{ category: item.slug }}
-                className="group flex w-20 flex-col items-center gap-2 text-center"
+                className="group flex flex-col items-center gap-2 text-center"
               >
-                <span className="grid h-20 w-20 place-items-center overflow-hidden rounded-full border border-border bg-surface transition group-hover:border-foreground">
+                <span className="grid h-14 w-14 place-items-center overflow-hidden rounded-full border border-border bg-surface transition group-hover:border-foreground sm:h-20 sm:w-20">
                   {item.image ? (
                     <img
                       src={item.image}

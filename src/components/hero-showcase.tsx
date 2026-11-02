@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 import type { Product } from "@/lib/catalog";
 import type { PublicBanner } from "@/lib/store-settings";
 import { formatPrice } from "@/lib/format";
@@ -14,17 +15,22 @@ type Slide = {
 };
 
 /**
- * Auto-sliding hero. Shows admin promotions (Admin → Homepage banners) first,
- * then featured products. Falls back to the static hero image.
+ * Full-bleed auto-sliding hero. Admin promotions (Admin → Homepage banners)
+ * come first, then featured products. Falls back to the static hero image
+ * with the admin-managed hero title.
  */
 export function HeroShowcase({
   products,
   banners = [],
   fallbackImage,
+  heroTitle,
+  heroSubtitle,
 }: {
   products: Product[];
   banners?: PublicBanner[];
   fallbackImage: string;
+  heroTitle?: string;
+  heroSubtitle?: string;
 }) {
   const promoSlides: Slide[] = banners
     .filter((b) => b.image_url)
@@ -40,9 +46,9 @@ export function HeroShowcase({
             {children}
           </a>
         ) : (
-          <div key={b.id} aria-hidden={!active} className={className}>
+          <Link key={b.id} to="/shop" aria-hidden={!active} tabIndex={active ? 0 : -1} className={className}>
             {children}
-          </div>
+          </Link>
         ),
     }));
 
@@ -85,14 +91,25 @@ export function HeroShowcase({
 
   if (slides.length === 0) {
     return (
-      <div className="overflow-hidden rounded-[2rem] bg-background shadow-xl">
+      <div className="relative h-[62svh] max-h-[560px] min-h-[380px] w-full overflow-hidden bg-surface">
         <img
           src={fallbackImage}
-          alt="Premium white high-top sneaker"
-          width={1920}
-          height={1280}
+          alt={heroTitle ?? "Store hero"}
           className="h-full w-full object-cover"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 p-6 pb-14 sm:p-10 sm:pb-16">
+          <h1 className="max-w-md font-display text-3xl font-extrabold uppercase leading-[0.95] text-white sm:text-5xl">
+            {heroTitle}
+            {heroSubtitle ? <span className="block text-white/80">{heroSubtitle}</span> : null}
+          </h1>
+          <Link
+            to="/shop"
+            className="mt-5 inline-flex h-11 items-center gap-2 rounded-full bg-background px-6 text-sm font-semibold text-foreground"
+          >
+            Shop now <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </div>
       </div>
     );
   }
@@ -105,7 +122,7 @@ export function HeroShowcase({
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] bg-background shadow-xl">
+      <div className="relative h-[62svh] max-h-[560px] min-h-[380px] w-full overflow-hidden bg-surface">
         {slides.map((s, i) =>
           s.wrap(
             <img
@@ -120,28 +137,36 @@ export function HeroShowcase({
             }`,
           ),
         )}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-5 pt-16">
-          <p className="font-display text-lg font-bold text-white">{current.title}</p>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 p-6 pb-16 sm:p-10 sm:pb-18">
+          <p className="max-w-md font-display text-2xl font-extrabold uppercase leading-[0.95] text-white sm:text-4xl">
+            {current.title}
+          </p>
           {current.subtitle ? (
-            <p className="text-sm font-semibold text-white/80">{current.subtitle}</p>
+            <p className="mt-1 text-sm font-semibold text-white/80">{current.subtitle}</p>
           ) : null}
         </div>
-      </div>
-      {slides.length > 1 && (
-        <div className="mt-4 flex justify-center gap-2">
-          {slides.map((s, i) => (
-            <button
-              key={s.id}
-              type="button"
-              aria-label={`Show ${s.title}`}
-              onClick={() => setIndex(i)}
-              className={`h-2 rounded-full transition-all ${
-                i === index ? "w-6 bg-foreground" : "w-2 bg-foreground/25"
-              }`}
-            />
-          ))}
+        <div className="pointer-events-none absolute bottom-5 left-6 sm:left-10">
+          <span className="inline-flex h-10 items-center gap-2 rounded-full bg-background px-5 text-sm font-semibold text-foreground">
+            Shop now <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </span>
         </div>
-      )}
+        {slides.length > 1 && (
+          <div className="absolute bottom-7 right-6 flex gap-1.5 sm:right-10">
+            {slides.map((s, i) => (
+              <button
+                key={s.id}
+                type="button"
+                aria-label={`Show ${s.title}`}
+                onClick={() => setIndex(i)}
+                className={`h-2 rounded-full transition-all ${
+                  i === index ? "w-5 bg-whatsapp" : "w-2 bg-white/60"
+                }`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

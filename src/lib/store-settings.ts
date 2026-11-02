@@ -41,4 +41,36 @@ export const activeBannersQuery = () =>
     },
   });
 
+/** Active coupons for the storefront coupon strip. */
+export type PublicCoupon = {
+  id: string;
+  code: string;
+  discount_type: string;
+  value: number;
+  min_order: number;
+};
+
+export const activeCouponsQuery = () =>
+  queryOptions({
+    queryKey: ["coupons", "active"],
+    staleTime: 60_000,
+    queryFn: async (): Promise<PublicCoupon[]> => {
+      const now = new Date().toISOString();
+      const { data, error } = await supabase
+        .from("coupons")
+        .select("id,code,discount_type,value,min_order")
+        .eq("is_active", true)
+        .or(`starts_at.is.null,starts_at.lte.${now}`)
+        .or(`ends_at.is.null,ends_at.gte.${now}`)
+        .order("value", { ascending: false })
+        .limit(5);
+      if (error) throw error;
+      return (data ?? []).map((c) => ({
+        ...c,
+        value: Number(c.value),
+        min_order: Number(c.min_order),
+      }));
+    },
+  });
+
 export * from "@/lib/store-config";
