@@ -2,9 +2,30 @@ import { useEffect, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
+/**
+ * Read the persisted session straight from localStorage so a returning
+ * signed-in user never sees a loading screen. The brokered preview storage
+ * always mirrors the session into localStorage, and supabase-js stores it
+ * under `sb-<project-ref>-auth-token`.
+ */
+function readCachedSession(): Session | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+    if (!url) return null;
+    const ref = new URL(url).hostname.split(".")[0];
+    const raw = window.localStorage.getItem(`sb-${ref}-auth-token`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Session | null;
+    return parsed?.access_token ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 export function useSession() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<Session | null>(() => readCachedSession());
+  const [loading, setLoading] = useState(() => readCachedSession() === null);
 
   useEffect(() => {
     let done = false;
@@ -23,10 +44,11 @@ export function useSession() {
       .then(({ data }) => settle(data.session))
       .catch(() => settle(null));
 
-    // Safety net: never leave the UI stuck on a loading state.
+    // Safety net: never leave the UI stuck on a loading state. The preview
+    // session broker can take ~4.5s worst case, so allow 6s before giving up.
     const timer = window.setTimeout(() => {
       if (!done) setLoading(false);
-    }, 4000);
+    }, 6000);
 
     return () => {
       window.clearTimeout(timer);
