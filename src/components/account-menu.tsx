@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Heart, LayoutDashboard, LogOut, Package, User, UserRound } from "lucide-react";
@@ -15,6 +16,10 @@ import { supabase } from "@/integrations/supabase/client";
 export function AccountMenu({ className = "" }: { className?: string }) {
   const { user, loading } = useSession();
   const isAdmin = useIsAdmin(user);
+  // The cached session is read synchronously on the client, so gate the
+  // signed-in UI on mount to keep server and first client render identical.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
