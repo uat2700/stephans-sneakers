@@ -269,8 +269,27 @@ function Account() {
 
   if (loading) {
     return (
-      <div className="container-page max-w-xl py-16 text-center text-sm text-muted-foreground">
-        Loading your account…
+      <div className="pb-28" aria-busy="true" aria-label="Loading your account">
+        <div className="bg-whatsapp">
+          <div className="container-page max-w-3xl pb-16 pt-8">
+            <div className="flex items-center gap-4">
+              <div className="h-20 w-20 animate-pulse rounded-full bg-whatsapp-foreground/20" />
+              <div className="grid gap-2">
+                <div className="h-6 w-40 animate-pulse rounded bg-whatsapp-foreground/20" />
+                <div className="h-4 w-56 animate-pulse rounded bg-whatsapp-foreground/20" />
+              </div>
+            </div>
+            <div className="mt-6 grid grid-cols-3 gap-4">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="mx-auto h-10 w-14 animate-pulse rounded bg-whatsapp-foreground/20" />
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="container-page max-w-3xl">
+          <div className="-mt-10 h-32 animate-pulse rounded-3xl border border-border bg-card" />
+          <div className="mt-4 h-24 animate-pulse rounded-3xl border border-border bg-card" />
+        </div>
       </div>
     );
   }
