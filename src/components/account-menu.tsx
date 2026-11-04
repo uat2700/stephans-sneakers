@@ -43,7 +43,7 @@ export function AccountMenu({ className = "" }: { className?: string }) {
     void navigate({ to: "/auth", replace: true });
   }
 
-  if (loading || !user) {
+  if (!mounted || loading || !user) {
     return (
       <Link
         to="/auth"
