@@ -327,9 +327,20 @@ function Account() {
 
   return (
     <div className="pb-28">
-      {/* Green profile header */}
-      <header className="bg-whatsapp text-whatsapp-foreground">
-        <div className="container-page max-w-3xl pb-16 pt-8">
+      {/* Green profile header, with the customer's photo as backdrop when set */}
+      <header className="relative overflow-hidden bg-whatsapp text-whatsapp-foreground">
+        {profile.avatar_url ? (
+          <>
+            <img
+              src={profile.avatar_url}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-md"
+            />
+            <div className="absolute inset-0 bg-whatsapp/60" />
+          </>
+        ) : null}
+        <div className="relative container-page max-w-3xl pb-16 pt-8">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-4">
               <div className="relative">
