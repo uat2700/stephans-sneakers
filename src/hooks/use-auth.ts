@@ -24,8 +24,10 @@ function readCachedSession(): Session | null {
 }
 
 export function useSession() {
-  const [session, setSession] = useState<Session | null>(() => readCachedSession());
-  const [loading, setLoading] = useState(() => readCachedSession() === null);
+  // Always start signed-out so server and first client render match; the
+  // cached session is applied right after mount, before any network wait.
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let done = false;
@@ -34,6 +36,11 @@ export function useSession() {
       setSession(next);
       setLoading(false);
     };
+
+    // Settle instantly from the cached session so a returning signed-in user
+    // never waits on the (potentially slow) preview session broker.
+    const cached = readCachedSession();
+    if (cached) settle(cached);
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
       settle(next);
