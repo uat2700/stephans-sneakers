@@ -340,7 +340,7 @@ function Shop() {
           <button
             type="button"
             onClick={clearAll}
-            className={`h-9 shrink-0 rounded-full border px-4 text-xs font-semibold transition ${
+            className={`h-10 shrink-0 rounded-full border px-4 text-xs font-semibold transition sm:h-9 ${
               activeFilters === 0
                 ? "border-foreground bg-foreground text-background"
                 : "border-border"
@@ -355,7 +355,7 @@ function Shop() {
               onClick={() =>
                 setSearch({ brand: search.brand === b.slug ? undefined : b.slug })
               }
-              className={`h-9 shrink-0 rounded-full border px-4 text-xs font-semibold transition ${
+              className={`h-10 shrink-0 rounded-full border px-4 text-xs font-semibold transition sm:h-9 ${
                 search.brand === b.slug
                   ? "border-foreground bg-foreground text-background"
                   : "border-border"
@@ -373,7 +373,7 @@ function Shop() {
                   category: search.category === c.slug ? undefined : c.slug,
                 })
               }
-              className={`h-9 shrink-0 rounded-full border px-4 text-xs font-semibold transition ${
+              className={`h-10 shrink-0 rounded-full border px-4 text-xs font-semibold transition sm:h-9 ${
                 search.category === c.slug
                   ? "border-foreground bg-foreground text-background"
                   : "border-border"
