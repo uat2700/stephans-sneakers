@@ -43,7 +43,7 @@ export function AccountMenu({ className = "" }: { className?: string }) {
       <Link
         to="/auth"
         aria-label="Sign in"
-        className={`h-10 w-10 place-items-center rounded-full hover:bg-surface ${className}`}
+        className={`h-11 w-11 place-items-center rounded-full hover:bg-surface sm:h-10 sm:w-10 ${className}`}
       >
         <User className="h-[18px] w-[18px]" aria-hidden="true" />
       </Link>
@@ -57,7 +57,7 @@ export function AccountMenu({ className = "" }: { className?: string }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label="Account menu"
-        className={`h-10 w-10 place-items-center rounded-full hover:bg-surface ${className}`}
+        className={`h-11 w-11 place-items-center rounded-full hover:bg-surface sm:h-10 sm:w-10 ${className}`}
       >
         {avatar ? (
           <img
