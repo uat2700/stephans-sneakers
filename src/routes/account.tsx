@@ -394,7 +394,7 @@ function Account() {
                 type="button"
                 onClick={() => setSection("settings")}
                 aria-label="Account settings"
-                className="grid h-10 w-10 place-items-center rounded-full border border-whatsapp-foreground/30"
+                className="grid h-11 w-11 place-items-center rounded-full border border-whatsapp-foreground/30"
               >
                 <Settings className="h-5 w-5" aria-hidden="true" />
               </button>
@@ -402,7 +402,7 @@ function Account() {
                 type="button"
                 onClick={signOut}
                 aria-label="Sign out"
-                className="grid h-10 w-10 place-items-center rounded-full border border-whatsapp-foreground/30"
+                className="grid h-11 w-11 place-items-center rounded-full border border-whatsapp-foreground/30"
               >
                 <LogOut className="h-5 w-5" aria-hidden="true" />
               </button>
