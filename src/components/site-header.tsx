@@ -32,7 +32,7 @@ function Hamburger({ open, onClick }: { open: boolean; onClick: () => void }) {
       onClick={onClick}
       aria-label={open ? "Close menu" : "Open menu"}
       aria-expanded={open}
-      className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full hover:bg-surface lg:hidden"
+      className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full hover:bg-surface lg:hidden"
     >
       <span className="relative block h-4 w-5">
         {bars.map((bar, i) => (
@@ -94,7 +94,7 @@ export function SiteHeader() {
             type="button"
             onClick={toggle}
             aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            className="grid h-10 w-10 place-items-center rounded-full hover:bg-surface"
+            className="grid h-11 w-11 place-items-center rounded-full hover:bg-surface sm:h-10 sm:w-10"
           >
             {theme === "dark" ? (
               <Sun className="h-[18px] w-[18px]" aria-hidden="true" />
@@ -105,7 +105,7 @@ export function SiteHeader() {
           <Link
             to="/account"
             aria-label="Notifications"
-            className="relative hidden h-10 w-10 place-items-center rounded-full hover:bg-surface sm:grid"
+            className="relative hidden h-11 w-11 place-items-center rounded-full hover:bg-surface sm:grid sm:h-10 sm:w-10"
           >
             <Bell className="h-[18px] w-[18px]" aria-hidden="true" />
             <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-whatsapp" />
@@ -113,7 +113,7 @@ export function SiteHeader() {
           <Link
             to="/wishlist"
             aria-label="Wishlist"
-            className="relative hidden h-10 w-10 place-items-center rounded-full hover:bg-surface lg:grid"
+            className="relative hidden h-11 w-11 place-items-center rounded-full hover:bg-surface lg:grid lg:h-10 lg:w-10"
           >
             <Heart className="h-[18px] w-[18px]" aria-hidden="true" />
             {wishlist.ids.length > 0 ? (
@@ -125,7 +125,7 @@ export function SiteHeader() {
           <Link
             to="/cart"
             aria-label="Cart"
-            className="relative grid h-10 w-10 place-items-center rounded-full hover:bg-surface"
+            className="relative grid h-11 w-11 place-items-center rounded-full hover:bg-surface sm:h-10 sm:w-10"
           >
             <ShoppingBag className="h-[18px] w-[18px]" aria-hidden="true" />
             {cart.count > 0 ? (
