@@ -78,7 +78,7 @@ export function CategoryRail({
         </>
       ) : null}
 
-      <ul className={`grid grid-cols-5 gap-x-1 gap-y-6 ${showHeading ? "mt-6" : ""}`}>
+      <ul className={`grid grid-cols-5 gap-x-1.5 gap-y-6 ${showHeading ? "mt-6" : ""}`}>
         {items.map((item) => {
           const Icon = ICONS[item.slug] ?? Footprints;
           return (
@@ -100,7 +100,7 @@ export function CategoryRail({
                     <Icon className="h-7 w-7" aria-hidden="true" />
                   )}
                 </span>
-                <span className="line-clamp-2 text-[11px] font-semibold uppercase tracking-wide">
+                <span className="line-clamp-2 break-words text-[10px] font-semibold uppercase tracking-wide sm:text-[11px]">
                   {item.name}
                 </span>
               </Link>

@@ -85,7 +85,7 @@ export function ProductCard({ product, onQuickView, className }: Props) {
           onClick={() => wishlist.toggle(product.id)}
           aria-label={favourite ? "Remove from wishlist" : "Add to wishlist"}
           aria-pressed={favourite}
-          className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-background/90 text-foreground shadow-sm backdrop-blur transition hover:scale-105"
+          className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-background/90 text-foreground shadow-sm backdrop-blur transition hover:scale-105"
         >
           <Heart
             className={cn("h-4 w-4", favourite && "fill-current")}
@@ -207,7 +207,7 @@ export function ProductCard({ product, onQuickView, className }: Props) {
               });
               toast.success("Added to cart", { description: product.name });
             }}
-            className="h-8 w-full gap-1.5 rounded-full text-[11px] font-semibold transition active:scale-[0.98] sm:text-xs"
+            className="h-11 w-full gap-2 rounded-full text-xs font-semibold transition active:scale-[0.98] sm:h-10 sm:text-[13px]"
           >
             <ShoppingBag className="h-3.5 w-3.5" aria-hidden="true" /> Add to cart
           </Button>
