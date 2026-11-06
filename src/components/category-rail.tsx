@@ -100,7 +100,7 @@ export function CategoryRail({
                     <Icon className="h-7 w-7" aria-hidden="true" />
                   )}
                 </span>
-                <span className="line-clamp-2 w-full max-w-full break-words text-[10px] font-semibold uppercase tracking-wide sm:text-[11px]">
+                <span className="line-clamp-2 w-full max-w-full break-words text-[9px] font-semibold uppercase tracking-normal sm:text-[11px] sm:tracking-wide">
                   {item.name}
                 </span>
               </Link>
