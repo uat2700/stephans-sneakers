@@ -271,12 +271,12 @@ function Account() {
     return (
       <div className="pb-28" aria-busy="true" aria-label="Loading your account">
         <div className="bg-whatsapp">
-          <div className="container-page max-w-3xl pb-16 pt-8">
+          <div className="container-page max-w-3xl py-8">
             <div className="flex items-center gap-4">
-              <div className="h-20 w-20 animate-pulse rounded-full bg-whatsapp-foreground/20" />
-              <div className="grid gap-2">
+              <div className="h-20 w-20 shrink-0 animate-pulse rounded-full bg-whatsapp-foreground/20" />
+              <div className="grid min-w-0 flex-1 gap-2">
                 <div className="h-6 w-40 animate-pulse rounded bg-whatsapp-foreground/20" />
-                <div className="h-4 w-56 animate-pulse rounded bg-whatsapp-foreground/20" />
+                <div className="h-4 w-full max-w-56 animate-pulse rounded bg-whatsapp-foreground/20" />
               </div>
             </div>
             <div className="mt-6 grid grid-cols-3 gap-4">
@@ -286,8 +286,8 @@ function Account() {
             </div>
           </div>
         </div>
-        <div className="container-page max-w-3xl">
-          <div className="-mt-10 h-32 animate-pulse rounded-3xl border border-border bg-card" />
+        <div className="container-page max-w-3xl pt-6">
+          <div className="h-32 animate-pulse rounded-3xl border border-border bg-card" />
           <div className="mt-4 h-24 animate-pulse rounded-3xl border border-border bg-card" />
         </div>
       </div>
@@ -340,10 +340,10 @@ function Account() {
             <div className="absolute inset-0 bg-whatsapp/60" />
           </>
         ) : null}
-        <div className="relative container-page max-w-3xl pb-16 pt-8">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-4">
-              <div className="relative">
+        <div className="relative container-page max-w-3xl pb-8 pt-5 sm:pt-8">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
+            <div className="col-span-2 row-start-2 flex min-w-0 items-center gap-4 sm:col-span-1 sm:row-start-1">
+              <div className="relative h-20 w-20 shrink-0">
                 {profile.avatar_url ? (
                   <img
                     src={profile.avatar_url}
@@ -355,15 +355,17 @@ function Account() {
                     {initial}
                   </div>
                 )}
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="icon"
                   onClick={() => fileInput.current?.click()}
                   aria-label="Change profile photo"
-                  className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full border border-border bg-background text-foreground shadow-sm"
+                  className="absolute -bottom-1 -right-1 h-9 w-9 rounded-full sm:h-9 sm:w-9"
                   disabled={busy === "photo"}
                 >
                   <Camera className="h-3.5 w-3.5" aria-hidden="true" />
-                </button>
+                </Button>
                 <input
                   ref={fileInput}
                   type="file"
@@ -375,37 +377,42 @@ function Account() {
                   }}
                 />
               </div>
-              <div>
-                <h1 className="font-display text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
+              <div className="min-w-0 flex-1">
+                <h1 className="break-words font-display text-xl font-extrabold uppercase sm:text-3xl">
                   {profile.full_name || "My account"}
                 </h1>
-                <p className="mt-0.5 text-sm opacity-80">{user.email}</p>
-                <button
+                <p className="mt-1 break-all text-xs opacity-80 sm:text-sm">{user.email}</p>
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => setSection("profile")}
-                  className="mt-1 inline-flex items-center gap-1 text-sm font-medium underline-offset-2 hover:underline"
+                  className="mt-1 h-11 justify-start gap-1 px-0 text-sm font-medium hover:bg-transparent hover:underline"
                 >
                   Edit your account <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                </button>
+                </Button>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button
+            <div className="col-start-2 row-start-1 flex shrink-0 items-center gap-2">
+              <Button
                 type="button"
+                  variant="ghost"
+                  size="icon"
                 onClick={() => setSection("settings")}
                 aria-label="Account settings"
-                className="grid h-11 w-11 place-items-center rounded-full border border-whatsapp-foreground/30"
+                className="h-11 w-11 rounded-full border border-whatsapp-foreground/30 hover:bg-whatsapp-foreground/10 hover:text-whatsapp-foreground sm:h-11 sm:w-11"
               >
                 <Settings className="h-5 w-5" aria-hidden="true" />
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={signOut}
                 aria-label="Sign out"
-                className="grid h-11 w-11 place-items-center rounded-full border border-whatsapp-foreground/30"
+                className="h-11 w-11 rounded-full border border-whatsapp-foreground/30 hover:bg-whatsapp-foreground/10 hover:text-whatsapp-foreground sm:h-11 sm:w-11"
               >
                 <LogOut className="h-5 w-5" aria-hidden="true" />
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -433,9 +440,9 @@ function Account() {
         </div>
       </header>
 
-      <div className="container-page max-w-3xl">
+      <div className="container-page max-w-3xl pt-6">
         {/* My Orders card */}
-        <section className="-mt-10 rounded-3xl border border-border bg-card p-5 shadow-sm">
+        <section className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-5">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-lg font-bold uppercase tracking-tight">
               My orders
@@ -448,7 +455,7 @@ function Account() {
               All orders <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
-          <div className="mt-4 grid grid-cols-4 gap-2">
+          <div className="mt-4 grid grid-cols-4 gap-1 sm:gap-2">
             {ORDER_SHORTCUTS.map(({ label, status, Icon }) => {
               const count = (orders.data ?? []).filter((o) => o.status === status).length;
               return (
@@ -456,7 +463,7 @@ function Account() {
                   key={status}
                   type="button"
                   onClick={() => openOrders(status)}
-                  className="grid justify-items-center gap-2 rounded-2xl p-2 hover:bg-muted"
+                  className="grid min-w-0 justify-items-center gap-2 rounded-2xl px-0 py-2 hover:bg-muted sm:px-2"
                 >
                   <span className="relative grid h-12 w-12 place-items-center rounded-full border border-border bg-muted">
                     <Icon className="h-5 w-5" aria-hidden="true" />
@@ -466,7 +473,7 @@ function Account() {
                       </span>
                     ) : null}
                   </span>
-                  <span className="text-xs">{label}</span>
+                  <span className="text-[11px] sm:text-xs">{label}</span>
                 </button>
               );
             })}
