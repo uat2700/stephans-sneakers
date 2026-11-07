@@ -26,11 +26,28 @@ const orderSchema = z.object({
     .max(50),
 });
 
+type OrderInput = z.infer<typeof orderSchema>;
+
 export const placeOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => orderSchema.parse(data))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+  .handler(async ({ data, context }) =>
+    createOrder(context.supabase as any, context.userId, data),
+  );
+
+// Guest checkout: no account needed. Prices are still verified server-side.
+export const placeGuestOrder = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) =>
+    orderSchema.parse({ ...(data as object), payment_method: "whatsapp" }),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    return createOrder(supabaseAdmin as any, null, data);
+  });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function createOrder(supabase: any, userId: string | null, data: OrderInput) {
+  {
 
     // Authoritative prices come from the database, never from the browser.
     const { data: products, error: productsError } = await supabase
@@ -42,7 +59,7 @@ export const placeOrder = createServerFn({ method: "POST" })
       );
     if (productsError) throw new Error("Could not verify product prices");
 
-    const byId = new Map((products ?? []).map((p) => [p.id, p]));
+    const byId = new Map<string, any>((products ?? []).map((p: any) => [p.id, p]));
 
     const items = data.items.map((item) => {
       const product = byId.get(item.product_id);
@@ -114,4 +131,5 @@ export const placeOrder = createServerFn({ method: "POST" })
       delivery_fee,
       total,
     };
-  });
+  }
+}

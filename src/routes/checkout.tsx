@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
-import { placeOrder } from "@/lib/orders.functions";
+import { placeGuestOrder, placeOrder } from "@/lib/orders.functions";
 import { initPaystackPayment } from "@/lib/paystack.functions";
 
 import { toast } from "sonner";
@@ -101,6 +101,7 @@ function Checkout() {
   }, [user]);
 
   const submitOrder = useServerFn(placeOrder);
+  const submitGuestOrder = useServerFn(placeGuestOrder);
   const startPaystack = useServerFn(initPaystackPayment);
 
   const place = useMutation({
@@ -146,9 +147,27 @@ function Checkout() {
         };
       }
 
+      const guest = await submitGuestOrder({
+        data: {
+          full_name: form.full_name.trim(),
+          phone: form.phone.trim(),
+          email: form.email.trim() || null,
+          address: form.address.trim(),
+          city: form.city.trim(),
+          region: form.region,
+          notes: form.notes.trim() || null,
+          payment_method: "whatsapp",
+          items: cart.items.map((i) => ({
+            product_id: i.productId,
+            size: i.size,
+            color: i.color,
+            quantity: i.quantity,
+          })),
+        },
+      });
       return {
         redirect: null as string | null,
-        message: cartMessage(cart.items, cart.total),
+        message: `${cartMessage(guest.items, guest.total)}\n\nOrder ref: ${guest.order_number}`,
       };
     },
     onSuccess: (result) => {
@@ -352,7 +371,7 @@ function Checkout() {
               <Link to="/auth" className="font-medium underline">
                 Sign in
               </Link>{" "}
-              to save this order to your account and track it later.
+              to track your order later — or just continue as a guest, no account needed.
             </p>
           )}
 
